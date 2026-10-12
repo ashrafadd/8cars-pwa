@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مبادرة الـ 8 سيارات - صندوق الشركاء</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e293b">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-20">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-50 flex justify-between items-center">
+    <div class="flex items-center space-x-2 space-x-reverse">
+      <span class="text-2xl">🚗</span>
+      <h1 class="font-bold text-lg">مبادرة الـ 8 سيارات</h1>
+    </div>
+    <span class="text-xs bg-emerald-600 px-2 py-1 rounded-full">نشط</span>
+  </header>
+
+  <!-- Content Container -->
+  <main class="p-4 max-w-md mx-auto space-y-4">
+
+    <!-- Active Role Card -->
+    <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700">
+      <div class="text-xs text-slate-400 mb-1">الدور الحالي (1 من 8)</div>
+      <div class="font-bold text-lg text-emerald-400">الشريك المكلف: المهندس أشرف</div>
+      <div class="text-sm text-slate-300 mt-1">السيارة: كيا سبورتاج 2026 GT-Line</div>
+      
+      <!-- Progress Bar -->
+      <div class="mt-4 space-y-1">
+        <div class="flex justify-between text-xs text-slate-400">
+          <span>المرحلة: الشحن والتصدير</span>
+          <span>40%</span>
+        </div>
+        <div class="w-full bg-slate-700 rounded-full h-2">
+          <div class="bg-emerald-500 h-2 rounded-full" style="width: 40%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capital Summary Card -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+      <h2 class="text-sm font-semibold text-slate-500 mb-2">حالة السيولة بالصندوق</h2>
+      <div class="grid grid-cols-2 gap-2 text-center">
+        <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+          <div class="text-xs text-emerald-700 font-medium">السيولة المتاحة</div>
+          <div class="text-xl font-bold text-emerald-800 mt-1">$78,176</div>
+        </div>
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-100">
+          <div class="text-xs text-amber-700 font-medium">إجمالي المصروفات</div>
+          <div class="text-xl font-bold text-amber-800 mt-1">$14,622</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Form -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+      <h3 class="font-bold text-slate-800 text-sm">تسجيل مصروف جديد</h3>
+      
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">بيان المصروف</label>
+        <input type="text" placeholder="مثال: رسوم لوحات التصدير بالكويت" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">المبلغ</label>
+          <input type="number" placeholder="0.00" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">العملة</label>
+          <select class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
+            <option>KWD (دينار كويتي)</option>
+            <option>USD (دولار أمريكي)</option>
+            <option>EGP (جنيه مصري)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">صورة الفاتورة / الوصل</label>
+        <input type="file" accept="image/*" capture="environment" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200">
+      </div>
+
+      <button class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl shadow-md active:scale-95 transition-transform text-sm">
+        حفظ المصروف والإرسال
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Navigation Bar -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 px-6 flex justify-around items-center text-xs text-slate-500 z-50">
+    <button class="flex flex-col items-center text-slate-900 font-bold">
+      <span class="text-lg">📊</span>
+      <span>الرئيسية</span>
+    </button>
+    <button class="flex flex-col items-center">
+      <span class="text-lg">🚘</span>
+      <span>السيارات</span>
+    </button>
+    <button class="flex flex-col items-center">
+      <span class="text-lg">⚖️</span>
+      <span>التسويات</span>
+    </button>
+    <button class="flex flex-col items-center">
+      <span class="text-lg">👥</span>
+      <span>الشركاء</span>
+    </button>
+  </nav>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
