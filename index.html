@@ -179,7 +179,7 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1">صورة الفاتورة / الوصل (اختياري)</label>
-          <input type="file" id="exp-receipt-file" accept="image/*" capture="environment" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700">
+          <input type="file" id="exp-receipt-file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700">
           <p class="text-[10px] text-amber-700 mt-1">* إذا تم الحفظ بدون فاتورة، سيرسل النظام إشعاراً للأدمن للاعتماد/الرفض.</p>
         </div>
 
@@ -212,8 +212,8 @@
         <h3 class="font-bold text-amber-900 text-sm">تسجيل شريك جديد + القارئ الضوئي (OCR)</h3>
         
         <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
-          <span class="text-xs font-bold text-amber-900 block">1. رفع صورة البطاقة المدنية / القومية للمسح الضوئي:</span>
-          <input type="file" id="ocr-id-file" accept="image/*" capture="environment" onchange="processIDWithOCR()" class="w-full text-xs text-slate-500">
+          <span class="text-xs font-bold text-amber-900 block">1. رفع صورة البطاقة المدنية / القومية (من الصور أو الكاميرا):</span>
+          <input type="file" id="ocr-id-file" accept="image/*" onchange="processIDWithOCR()" class="w-full text-xs text-slate-500">
           <div id="ocr-status" class="text-[10px] text-slate-500 font-bold hidden">جاري قراءة الاسم والرقم بالذكاء الاصطناعي... ⏳</div>
         </div>
 
