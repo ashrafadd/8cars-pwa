@@ -56,7 +56,10 @@
       </div>
       <div>
         <label class="block text-xs font-medium text-slate-600 mb-1">كلمة المرور</label>
-        <input type="password" id="login-password" placeholder="••••••••" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
+        <div class="relative">
+          <input type="password" id="login-password" placeholder="••••••••" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900 pl-10">
+          <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute left-3 top-2.5 text-sm text-slate-400 hover:text-slate-600 focus:outline-none">👁️</button>
+        </div>
       </div>
       <button onclick="handleLogin()" class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl shadow-md text-sm active:scale-95 transition-transform">
         دخول
@@ -253,7 +256,7 @@
         </div>
       </div>
 
-      <!-- Add / Edit Partners Zone with Admin Role Option -->
+      <!-- Add / Edit Partners Zone with Password Toggle Eye -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
         <h3 class="font-bold text-amber-900 text-sm flex justify-between items-center">
           <span>إدارة حسابات الشركاء وتحديد الصلاحيات</span>
@@ -287,8 +290,12 @@
           <input type="text" id="new-user-name-en" placeholder="الاسم باللغة الإنجليزية" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="text" id="new-user-civilid" placeholder="الرقم المدني الكويتي / القومي المصري" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="email" id="new-user-email" placeholder="البريد الإلكتروني للدخول" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="password" id="new-user-pass" placeholder="كلمة المرور المثبتة" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           
+          <div class="relative">
+            <input type="password" id="new-user-pass" placeholder="كلمة المرور المثبتة" class="w-full p-2 text-xs border rounded-lg bg-white outline-none pl-10">
+            <button type="button" onclick="togglePasswordVisibility('new-user-pass', this)" class="absolute left-3 top-2 text-xs text-slate-400 hover:text-slate-600 focus:outline-none">👁️</button>
+          </div>
+
           <div>
             <label class="block text-[10px] font-bold text-amber-900 mb-1">الصلاحية في النظام:</label>
             <select id="new-user-role" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
@@ -420,9 +427,20 @@
       { id: 8, partner: "الشريك 8", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" }
     ];
 
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === "password") {
+        input.type = "text";
+        btn.innerText = "🙈";
+      } else {
+        input.type = "password";
+        btn.innerText = "👁️";
+      }
+    }
+
     function getUsers() {
       let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-      if (!users.find(u => u.email.toLowerCase() === defaultAdmin.email.toLowerCase())) {
+      if (!users.find(u => u.email.trim().toLowerCase() === defaultAdmin.email.toLowerCase())) {
         users.push(defaultAdmin);
         localStorage.setItem('app_users', JSON.stringify(users));
       }
@@ -430,7 +448,7 @@
     }
 
     function addUser() {
-      const editingEmail = document.getElementById('editing-user-email').value.trim();
+      const editingEmail = document.getElementById('editing-user-email').value.trim().toLowerCase();
       const nameAr = document.getElementById('new-user-name-ar').value.trim();
       const nameEn = document.getElementById('new-user-name-en').value.trim();
       const civilId = document.getElementById('new-user-civilid').value.trim();
@@ -448,7 +466,7 @@
       let users = getUsers();
 
       if (editingEmail) {
-        const idx = users.findIndex(u => u.email.toLowerCase() === editingEmail.toLowerCase());
+        const idx = users.findIndex(u => u.email.trim().toLowerCase() === editingEmail);
         if (idx !== -1) {
           users[idx].name = nameAr;
           users[idx].nameEn = nameEn;
@@ -468,7 +486,7 @@
         }
       }
 
-      if (users.find(u => u.email.toLowerCase() === email)) {
+      if (users.find(u => u.email.trim().toLowerCase() === email)) {
         alert('هذا البريد مسجل بالفعل!');
         return;
       }
@@ -491,7 +509,7 @@
         name: nameAr,
         nameEn: nameEn,
         civilId: civilId,
-        email: email,
+        email: email.trim().toLowerCase(),
         pass: pass,
         role: role,
         partnerNum: partnerNum,
@@ -500,7 +518,7 @@
       localStorage.setItem('app_users', JSON.stringify(users));
       updateCyclePartnerName(partnerNum, nameAr);
 
-      alert(`تم تسجيل الشريك ${partnerNum} بنجاح!`);
+      alert(`تم تسجيل الشريك ${partnerNum} بنجاح! يمكنه الآن تسجيل الدخول.`);
       resetUserForm();
       renderUsersList();
       loadAppData();
@@ -562,7 +580,6 @@
       document.getElementById('rep-spent-budget').innerText = `${totalSpent.toLocaleString()} د.ك`;
       document.getElementById('rep-remaining-budget').innerText = `${remaining.toLocaleString()} د.ك`;
 
-      // Fill Car Form
       document.getElementById('partner-car-name').value = cycle.car !== 'لم تُحدد' ? cycle.car : '';
       document.getElementById('partner-car-price').value = cycle.priceKwd || '';
     }
@@ -604,7 +621,7 @@
 
     function editUser(email) {
       const users = getUsers();
-      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      const user = users.find(u => u.email.trim().toLowerCase() === email.trim().toLowerCase());
       if (!user) return;
 
       document.getElementById('editing-user-email').value = user.email;
@@ -622,13 +639,13 @@
     }
 
     function deleteUser(email) {
-      if (email.toLowerCase() === defaultAdmin.email.toLowerCase()) {
+      if (email.trim().toLowerCase() === defaultAdmin.email.toLowerCase()) {
         alert('لا يمكن حذف حساب الأدمن الرئيسي!');
         return;
       }
       if (confirm(`⚠️ هل أنت متأكد من حذف الحساب (${email}) نهائياً؟`)) {
         let users = getUsers();
-        users = users.filter(u => u.email.toLowerCase() !== email.toLowerCase());
+        users = users.filter(u => u.email.trim().toLowerCase() !== email.trim().toLowerCase());
         localStorage.setItem('app_users', JSON.stringify(users));
         alert('تم حذف الحساب بنجاح!');
         renderUsersList();
@@ -679,7 +696,7 @@
       const pass = document.getElementById('login-password').value.trim();
       const users = getUsers();
 
-      const user = users.find(u => u.email.toLowerCase() === email && u.pass === pass);
+      const user = users.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
       if (user) {
         sessionStorage.setItem('current_user', JSON.stringify(user));
         document.getElementById('login-error').classList.add('hidden');
