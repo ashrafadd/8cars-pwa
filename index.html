@@ -76,15 +76,15 @@
       </div>
 
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-        <h2 class="text-sm font-semibold text-slate-500 mb-2">ميزانية الصندوق المتاحة</h2>
+        <h2 class="text-sm font-semibold text-slate-500 mb-2">ميزانية الصندوق المتاحة (بالدينار الكويتي)</h2>
         <div class="grid grid-cols-2 gap-2 text-center">
           <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
             <div class="text-xs text-emerald-700 font-medium">السيولة المتاحة</div>
-            <div class="text-xl font-bold text-emerald-800 mt-1" id="dash-capital-available">$0</div>
+            <div class="text-lg font-bold text-emerald-800 mt-1" id="dash-capital-available">0 د.ك</div>
           </div>
           <div class="bg-amber-50 p-3 rounded-xl border border-amber-100">
             <div class="text-xs text-amber-700 font-medium">إجمالي المصروفات</div>
-            <div class="text-xl font-bold text-amber-800 mt-1" id="dash-total-expenses">$0</div>
+            <div class="text-lg font-bold text-amber-800 mt-1" id="dash-total-expenses">0 د.ك</div>
           </div>
         </div>
       </div>
@@ -104,22 +104,41 @@
         <h3 class="font-bold text-slate-800 text-sm">تسجيل مصروف جديد للعملية الحالية</h3>
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1">بيان المصروف</label>
-          <input type="text" id="exp-desc" placeholder="مثال: رسوم لوحات التصدير بالكويت" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
+          <input type="text" id="exp-desc" placeholder="مثال: رسوم جمارك / لوحات التصدير" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
         </div>
+        
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">المبلغ</label>
-            <input type="number" id="exp-amount" placeholder="0.00" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
+            <label class="block text-xs font-medium text-slate-600 mb-1">المبلغ المدفوع</label>
+            <input type="number" id="exp-amount" placeholder="0.00" oninput="calculateConvertedAmount()" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
           </div>
           <div>
             <label class="block text-xs font-medium text-slate-600 mb-1">العملة</label>
-            <select id="exp-curr" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
+            <select id="exp-curr" onchange="toggleExchangeRateInput()" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
               <option value="KWD">KWD (دينار كويتي)</option>
-              <option value="USD">USD (دولار أمريكي)</option>
               <option value="EGP">EGP (جنيه مصري)</option>
             </select>
           </div>
         </div>
+
+        <!-- Dynamic Exchange Rate for EGP Expenses -->
+        <div id="exchange-rate-box" class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-2 hidden">
+          <div class="flex justify-between items-center text-xs text-amber-900 font-bold">
+            <span>تحويل العملة إلى الدينار الكويتي</span>
+            <span>سعر الصرف اللحظي</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] text-amber-800 mb-0.5">سعر الصرف (1 د.ك = كم ج.م؟)</label>
+              <input type="number" id="exp-rate" value="160" placeholder="مثال: 160" oninput="calculateConvertedAmount()" class="w-full p-2 text-xs border border-amber-300 rounded-lg outline-none bg-white">
+            </div>
+            <div>
+              <label class="block text-[10px] text-amber-800 mb-0.5">المعادل بالدينار الكويتي</label>
+              <input type="text" id="exp-kwd-calc" readonly value="0.00 د.ك" class="w-full p-2 text-xs border border-amber-300 rounded-lg bg-amber-100 font-bold text-amber-900">
+            </div>
+          </div>
+        </div>
+
         <button onclick="saveExpense()" class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl shadow-md text-sm active:scale-95 transition-transform">
           حفظ المصروف والمزامنة
         </button>
@@ -144,11 +163,11 @@
     <!-- Screen 5: Reports & Analytics / التقارير -->
     <section id="screen-reports" class="screen space-y-4">
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-sm">الملخص المالي والأرباح</h3>
+        <h3 class="font-bold text-slate-800 text-sm">الملخص المالي والأرباح (بالدينار الكويتي)</h3>
         <div class="space-y-2 text-xs">
-          <div class="flex justify-between py-1.5 border-b"><span>إجمالي رأس مال الصندوق:</span> <strong class="text-slate-900" id="rep-total-cap">$0</strong></div>
-          <div class="flex justify-between py-1.5 border-b"><span>إجمالي الأرباح المحققة:</span> <strong class="text-emerald-600" id="rep-net-profit">$0</strong></div>
-          <div class="flex justify-between py-1.5 border-b"><span>حصة الفرد الصافية المتوقعة:</span> <strong class="text-emerald-700" id="rep-partner-share">$0</strong></div>
+          <div class="flex justify-between py-1.5 border-b"><span>إجمالي رأس مال الصندوق:</span> <strong class="text-slate-900" id="rep-total-cap">0 د.ك</strong></div>
+          <div class="flex justify-between py-1.5 border-b"><span>إجمالي الأرباح المحققة:</span> <strong class="text-emerald-600" id="rep-net-profit">0 د.ك</strong></div>
+          <div class="flex justify-between py-1.5 border-b"><span>حصة الفرد الصافية المتوقعة:</span> <strong class="text-emerald-700" id="rep-partner-share">0 د.ك</strong></div>
         </div>
       </div>
     </section>
@@ -159,11 +178,11 @@
       <div class="bg-emerald-50 rounded-2xl p-4 shadow-sm border border-emerald-200 space-y-3">
         <h3 class="font-bold text-emerald-900 text-sm">إدخال الميزانية الأولية ورأس المال</h3>
         <div>
-          <label class="block text-xs font-medium text-emerald-800 mb-1">رأس مال الصندوق ($ USD)</label>
-          <input type="number" id="init-budget-input" placeholder="مثال: 78176" class="w-full p-2.5 text-sm border rounded-xl bg-white outline-none">
+          <label class="block text-xs font-medium text-emerald-800 mb-1">رأس مال الصندوق بالدينار الكويتي (KWD)</label>
+          <input type="number" id="init-budget-input" placeholder="مثال: 24000" class="w-full p-2.5 text-sm border rounded-xl bg-white outline-none">
         </div>
         <button onclick="setInitialBudget()" class="w-full bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold shadow">
-          حفظ الميزانية الأولية
+          حفظ الميزانية الأولية (د.ك)
         </button>
       </div>
 
@@ -250,6 +269,30 @@
       { id: 8, partner: "الشريك الثامن", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" }
     ];
 
+    function toggleExchangeRateInput() {
+      const curr = document.getElementById('exp-curr').value;
+      const rateBox = document.getElementById('exchange-rate-box');
+      if (curr === 'EGP') {
+        rateBox.classList.remove('hidden');
+      } else {
+        rateBox.classList.add('hidden');
+      }
+      calculateConvertedAmount();
+    }
+
+    function calculateConvertedAmount() {
+      const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
+      const curr = document.getElementById('exp-curr').value;
+      const rate = parseFloat(document.getElementById('exp-rate').value) || 1;
+
+      if (curr === 'EGP') {
+        const kwdVal = amount / rate;
+        document.getElementById('exp-kwd-calc').value = `${kwdVal.toFixed(2)} د.ك`;
+      } else {
+        document.getElementById('exp-kwd-calc').value = `${amount.toFixed(2)} د.ك`;
+      }
+    }
+
     function getUsers() {
       let users = JSON.parse(localStorage.getItem('app_users') || '[]');
       if (!users.find(u => u.email === defaultAdmin.email)) {
@@ -323,18 +366,18 @@
     function setInitialBudget() {
       const val = parseFloat(document.getElementById('init-budget-input').value);
       if (isNaN(val) || val < 0) {
-        alert('يرجى إدخال مبلغ صحيح');
+        alert('يرجى إدخال مبلغ صحيح بالدينار الكويتي');
         return;
       }
-      localStorage.setItem('app_initial_budget', val);
-      alert('تم إدخال وتحديث الميزانية بنجاح!');
+      localStorage.setItem('app_initial_budget_kwd', val);
+      alert('تم إدخال وحفظ الميزانية الأولية بالدينار الكويتي بنجاح!');
       loadAppData();
     }
 
     function loadAppData() {
       const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
       const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
-      const initialBudget = parseFloat(localStorage.getItem('app_initial_budget') || '0');
+      const initialBudgetKwd = parseFloat(localStorage.getItem('app_initial_budget_kwd') || '0');
 
       document.getElementById('dash-active-partner').innerText = `الدور الحالي: ${activeCycle.partner}`;
       document.getElementById('dash-active-car').innerText = `السيارة: ${activeCycle.car}`;
@@ -342,8 +385,8 @@
       document.getElementById('dash-stage-pct').innerText = `${activeCycle.pct}%`;
       document.getElementById('dash-stage-bar').style.width = `${activeCycle.pct}%`;
 
-      document.getElementById('dash-capital-available').innerText = `$${initialBudget.toLocaleString()}`;
-      document.getElementById('rep-total-cap').innerText = `$${initialBudget.toLocaleString()}`;
+      document.getElementById('dash-capital-available').innerText = `${initialBudgetKwd.toLocaleString()} د.ك`;
+      document.getElementById('rep-total-cap').innerText = `${initialBudgetKwd.toLocaleString()} د.ك`;
 
       renderCyclesList(cycles);
       renderExpensesHistory();
@@ -370,6 +413,7 @@
       const desc = document.getElementById('exp-desc').value.trim();
       const amount = parseFloat(document.getElementById('exp-amount').value);
       const curr = document.getElementById('exp-curr').value;
+      const rate = parseFloat(document.getElementById('exp-rate').value) || 1;
       const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
 
       if (!desc || isNaN(amount)) {
@@ -377,10 +421,17 @@
         return;
       }
 
+      let amountInKwd = amount;
+      if (curr === 'EGP') {
+        amountInKwd = amount / rate;
+      }
+
       const payload = {
         desc: desc,
-        amount: amount,
+        amount_original: amount,
         curr: curr,
+        exchange_rate: rate,
+        amount_kwd: amountInKwd.toFixed(2),
         partner: currentUser ? currentUser.name : "غير محدد",
         car: "سيارة الدورة الحالية"
       };
@@ -396,10 +447,16 @@
         }
 
         let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-        expenses.push({ desc, amount, curr, date: new Date().toLocaleDateString('ar-EG') });
+        expenses.push({ 
+          desc, 
+          amount, 
+          curr, 
+          amountInKwd,
+          date: new Date().toLocaleDateString('ar-EG') 
+        });
         localStorage.setItem('app_expenses', JSON.stringify(expenses));
 
-        alert('تم حفظ المصروف بنجاح ومزامنته!');
+        alert('تم حفظ المصروف بنجاح ومزامنته مع قاعدة البيانات!');
         document.getElementById('exp-desc').value = '';
         document.getElementById('exp-amount').value = '';
         renderExpensesHistory();
@@ -413,19 +470,19 @@
       const container = document.getElementById('expenses-history');
       if (expenses.length === 0) {
         container.innerHTML = '<p class="text-slate-400 text-center py-2">لا توجد مصروفات مسجلة بعد</p>';
-        document.getElementById('dash-total-expenses').innerText = '$0';
+        document.getElementById('dash-total-expenses').innerText = '0 د.ك';
         return;
       }
       container.innerHTML = '';
-      let total = 0;
+      let totalKwd = 0;
       expenses.forEach(e => {
-        total += e.amount;
+        totalKwd += (e.amountInKwd || e.amount);
         const div = document.createElement('div');
         div.className = 'flex justify-between py-1.5';
-        div.innerHTML = `<span>${e.desc} (${e.date})</span><strong class="text-slate-800">${e.amount} ${e.curr}</strong>`;
+        div.innerHTML = `<span>${e.desc} (${e.date})</span><strong class="text-slate-800">${e.amount} ${e.curr} (${(e.amountInKwd || e.amount).toFixed(2)} د.ك)</strong>`;
         container.appendChild(div);
       });
-      document.getElementById('dash-total-expenses').innerText = `$${total.toLocaleString()}`;
+      document.getElementById('dash-total-expenses').innerText = `${totalKwd.toFixed(2)} د.ك`;
     }
 
     function addUser() {
@@ -458,10 +515,10 @@
     }
 
     function resetSystemData() {
-      const confirmation = confirm('⚠️ تحذير مهم جداً:\n\nهل أنت متأكد من تصفير كافة البيانات بشكل كامل والبدء من الصفر؟');
+      const confirmation = confirm('⚠️ تحذير مهم جداً:\n\nهل أنت متأكد من تصفير كافة البيانات بشكل كامل والبدء من الصفر بالدينار الكويتي؟');
       if (confirmation) {
         localStorage.removeItem('app_expenses');
-        localStorage.removeItem('app_initial_budget');
+        localStorage.removeItem('app_initial_budget_kwd');
         localStorage.setItem('app_cycles', JSON.stringify(emptyCycles));
         alert('✅ تم تصفير كافة البيانات بنجاح والبدء من جديد!');
         loadAppData();
