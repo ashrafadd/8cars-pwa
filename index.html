@@ -119,6 +119,39 @@
         </div>
       </div>
 
+      <!-- User/Partner Self Profile Edit Section -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs flex items-center justify-between">
+          <span>👤 بياناتي الشخصية وإعدادات الحساب</span>
+          <span id="profile-partner-num" class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px]">الشريك --</span>
+        </h3>
+        <div class="space-y-2 text-xs">
+          <div>
+            <label class="block text-slate-500 mb-1">الاسم بالعربي</label>
+            <input type="text" id="prof-name-ar" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">الاسم بالإنجليزي</label>
+            <input type="text" id="prof-name-en" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">الرقم المدني / القومي</label>
+            <input type="text" id="prof-civilid" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">البريد الإلكتروني (اسم المستخدم)</label>
+            <input type="email" id="prof-email" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-500 mb-1">كلمة المرور الجديده</label>
+            <input type="password" id="prof-pass" placeholder="••••••••" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
+          </div>
+          <button onclick="saveMyProfile()" class="w-full bg-slate-900 text-white font-bold py-2 rounded-xl text-xs active:scale-95 transition-transform shadow">
+            تحديث وحفظ بياناتي
+          </button>
+        </div>
+      </div>
+
       <!-- Partner's Own Signed Contract Viewer (For Partner Role Only) -->
       <div id="partner-contract-box" class="bg-blue-50 rounded-2xl p-4 shadow-sm border border-blue-200 space-y-2 hidden">
         <h3 class="font-bold text-blue-900 text-xs">📄 عقد الالتزام الفردي الخاص بك الموقّع</h3>
@@ -207,17 +240,31 @@
         </div>
       </div>
 
-      <!-- Add Partner with OCR ID Reader & Signed Contract Upload -->
+      <!-- Add Partner with OCR ID Reader & Partner Number Assignment -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-sm">تسجيل شريك جديد + القارئ الضوئي (OCR)</h3>
+        <h3 class="font-bold text-amber-900 text-sm">تسجيل شريك جديد وتحديد رقم الدور (1 - 8)</h3>
         
         <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
-          <span class="text-xs font-bold text-amber-900 block">1. رفع صورة البطاقة المدنية / القومية (من الصور أو الكاميرا):</span>
+          <span class="text-xs font-bold text-amber-900 block">1. رفع صورة البطاقة للمسح الضوئي (OCR):</span>
           <input type="file" id="ocr-id-file" accept="image/*" onchange="processIDWithOCR()" class="w-full text-xs text-slate-500">
           <div id="ocr-status" class="text-[10px] text-slate-500 font-bold hidden">جاري قراءة الاسم والرقم بالذكاء الاصطناعي... ⏳</div>
         </div>
 
         <div class="space-y-2">
+          <div>
+            <label class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك:</label>
+            <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
+              <option value="1">الشريك 1 (الدور الأول)</option>
+              <option value="2">الشريك 2 (الدور الثاني)</option>
+              <option value="3">الشريك 3 (الدور الثالث)</option>
+              <option value="4">الشريك 4 (الدور الرابع)</option>
+              <option value="5">الشريك 5 (الدور الخامس)</option>
+              <option value="6">الشريك 6 (الدور السادس)</option>
+              <option value="7">الشريك 7 (الدور السابع)</option>
+              <option value="8">الشريك 8 (الدور الثامن)</option>
+            </select>
+          </div>
+
           <input type="text" id="new-user-name-ar" placeholder="الاسم باللغة العربية" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="text" id="new-user-name-en" placeholder="الاسم باللغة الإنجليزية" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="text" id="new-user-civilid" placeholder="الرقم المدني الكويتي / القومي المصري" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
@@ -229,12 +276,12 @@
           </select>
 
           <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
-            <label class="block text-xs font-bold text-amber-900">2. تحميل عقد الالتزام الفردي الموقّع للماكينة/الشريك (Scan):</label>
+            <label class="block text-xs font-bold text-amber-900">2. تحميل عقد الالتزام الفردي الموقّع للشريك (Scan):</label>
             <input type="file" id="new-user-contract-file" accept="image/*" class="w-full text-xs text-slate-500">
           </div>
 
           <button onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            + تسجيل الشريك وحفظ البيانات بشكل دائم
+            + تسجيل الشريك وتفعيل دخوله تلقائياً
           </button>
         </div>
         <div id="users-list" class="space-y-1 text-xs pt-2"></div>
@@ -327,54 +374,24 @@
       email: "ashrafadd@hotmail.com",
       pass: "Aa@@50940888",
       name: "أشرف عابد (الأدمن)",
-      role: "admin"
+      role: "admin",
+      partnerNum: "الأدمن"
     };
 
     const emptyCycles = [
-      { id: 1, partner: "الشريك الأول", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "active" },
-      { id: 2, partner: "الشريك الثاني", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 3, partner: "الشريك الثالث", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 4, partner: "الشريك الرابع", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 5, partner: "الشريك الخامس", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 6, partner: "الشريك السادس", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 7, partner: "الشريك السابع", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 8, partner: "الشريك الثامن", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" }
+      { id: 1, partner: "الشريك 1", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "active" },
+      { id: 2, partner: "الشريك 2", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 3, partner: "الشريك 3", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 4, partner: "الشريك 4", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 5, partner: "الشريك 5", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 6, partner: "الشريك 6", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 7, partner: "الشريك 7", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 8, partner: "الشريك 8", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" }
     ];
-
-    // OCR Parser for ID Scanning
-    async function processIDWithOCR() {
-      const fileInput = document.getElementById('ocr-id-file');
-      const statusBox = document.getElementById('ocr-status');
-      if (!fileInput.files || !fileInput.files[0]) return;
-
-      statusBox.classList.remove('hidden');
-      try {
-        const result = await Tesseract.recognize(fileInput.files[0], 'ara+eng');
-        const text = result.data.text;
-
-        // Extract ID Numbers (12-14 Digits)
-        const idMatch = text.match(/\b\d{12,14}\b/);
-        if (idMatch) document.getElementById('new-user-civilid').value = idMatch[0];
-
-        // Extract English Name
-        const enMatch = text.match(/[A-Za-z]{3,}\s+[A-Za-z]{3,}(\s+[A-Za-z]{3,})*/);
-        if (enMatch) document.getElementById('new-user-name-en').value = enMatch[0];
-
-        // Extract Arabic Name
-        const arMatch = text.match(/[\u0600-\u06FF]{3,}\s+[\u0600-\u06FF]{3,}(\s+[\u0600-\u06FF]{3,})*/);
-        if (arMatch) document.getElementById('new-user-name-ar').value = arMatch[0];
-
-        alert('تمت القراءة الضوئية وتحديد البيانات بنجاح!');
-      } catch (e) {
-        alert('تعذر استخراج النص ضوئياً تلقائياً، يمكنك إكمال الخانات يدوياً.');
-      } finally {
-        statusBox.classList.add('hidden');
-      }
-    }
 
     function getUsers() {
       let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-      if (!users.find(u => u.email === defaultAdmin.email)) {
+      if (!users.find(u => u.email.toLowerCase() === defaultAdmin.email.toLowerCase())) {
         users.push(defaultAdmin);
         localStorage.setItem('app_users', JSON.stringify(users));
       }
@@ -388,10 +405,11 @@
       const email = document.getElementById('new-user-email').value.trim();
       const pass = document.getElementById('new-user-pass').value.trim();
       const role = document.getElementById('new-user-role').value;
+      const partnerNum = document.getElementById('new-user-partner-num').value;
       const contractFile = document.getElementById('new-user-contract-file').files[0];
 
       if (!nameAr || !email || !pass) {
-        alert('يرجى إكمال البيانات الأساسية للشريك');
+        alert('يرجى إكمال البيانات الأساسية للشريك (الاسم والبريد وكلمة المرور)');
         return;
       }
 
@@ -406,51 +424,97 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           contractDataUrl = e.target.result;
-          saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, contractDataUrl);
+          saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, partnerNum, contractDataUrl);
         };
         reader.readAsDataURL(contractFile);
       } else {
-        saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, null);
+        saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, partnerNum, null);
       }
     }
 
-    function saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, contractUrl) {
+    function saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, partnerNum, contractUrl) {
       users.push({
         name: nameAr,
         nameEn: nameEn,
         civilId: civilId,
-        email: email,
+        email: email.toLowerCase(),
         pass: pass,
         role: role,
+        partnerNum: partnerNum,
         signedContractUrl: contractUrl
       });
       localStorage.setItem('app_users', JSON.stringify(users));
-      alert('تم تسجيل بيانات الشريك وحفظها بشكل دائم!');
+
+      // Update Cycles Table with Partner Name
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
+      const cIdx = cycles.findIndex(c => c.id == partnerNum);
+      if (cIdx !== -1) {
+        cycles[cIdx].partner = `الشريك ${partnerNum}: ${nameAr}`;
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+      }
+
+      alert(`تم تسجيل الشريك ${partnerNum} بنجاح! يمكنه الآن تسجيل الدخول.`);
+      document.getElementById('new-user-name-ar').value = '';
+      document.getElementById('new-user-email').value = '';
+      document.getElementById('new-user-pass').value = '';
       renderUsersList();
+      loadAppData();
     }
 
-    function renderUsersList() {
+    function saveMyProfile() {
+      let currentUser = JSON.parse(sessionStorage.getItem('current_user'));
+      if (!currentUser) return;
+
+      const nameAr = document.getElementById('prof-name-ar').value.trim();
+      const nameEn = document.getElementById('prof-name-en').value.trim();
+      const civilId = document.getElementById('prof-civilid').value.trim();
+      const email = document.getElementById('prof-email').value.trim().toLowerCase();
+      const pass = document.getElementById('prof-pass').value.trim();
+
+      if (!nameAr || !email) {
+        alert('يرجى كتابة الاسم والبريد الإلكتروني بشكل صحيح');
+        return;
+      }
+
+      let users = getUsers();
+      const uIdx = users.findIndex(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
+      if (uIdx !== -1) {
+        users[uIdx].name = nameAr;
+        users[uIdx].nameEn = nameEn;
+        users[uIdx].civilId = civilId;
+        users[uIdx].email = email;
+        if (pass) users[uIdx].pass = pass;
+
+        localStorage.setItem('app_users', JSON.stringify(users));
+        sessionStorage.setItem('current_user', JSON.stringify(users[uIdx]));
+
+        alert('تم تحديث بياناتك الشخصية بنجاح!');
+        checkAuth();
+      }
+    }
+
+    function loadProfileForm(user) {
+      document.getElementById('prof-name-ar').value = user.name || '';
+      document.getElementById('prof-name-en').value = user.nameEn || '';
+      document.getElementById('prof-civilid').value = user.civilId || '';
+      document.getElementById('prof-email').value = user.email || '';
+      document.getElementById('prof-pass').value = user.pass || '';
+      document.getElementById('profile-partner-num').innerText = user.partnerNum ? `الشريك ${user.partnerNum}` : 'الأدمن';
+    }
+
+    function handleLogin() {
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-password').value.trim();
       const users = getUsers();
-      const container = document.getElementById('users-list');
-      container.innerHTML = '';
-      users.forEach(u => {
-        const div = document.createElement('div');
-        div.className = 'flex justify-between items-center bg-white p-2 rounded border border-amber-200';
-        div.innerHTML = `
-          <div>
-            <strong>${u.name}</strong> (${u.email})
-            <div class="text-[10px] text-slate-500">الرقم: ${u.civilId || 'غير محدد'}</div>
-          </div>
-          <span class="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded text-amber-800">${getRoleLabel(u.role)}</span>
-        `;
-        container.appendChild(div);
-      });
-    }
 
-    function switchScreen(screenId, title) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(`screen-${screenId}`).classList.add('active');
-      document.getElementById('header-title').innerText = title;
+      const user = users.find(u => u.email.toLowerCase() === email && u.pass === pass);
+      if (user) {
+        sessionStorage.setItem('current_user', JSON.stringify(user));
+        document.getElementById('login-error').classList.add('hidden');
+        checkAuth();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
+      }
     }
 
     function checkAuth() {
@@ -460,30 +524,69 @@
       } else {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('user-badge').innerText = `${currentUser.name} (${getRoleLabel(currentUser.role)})`;
+        loadProfileForm(currentUser);
         applyPermissions(currentUser);
         loadAppData();
       }
+    }
+
+    function renderUsersList() {
+      const users = getUsers();
+      const container = document.getElementById('users-list');
+      if (!container) return;
+      container.innerHTML = '';
+      users.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center bg-white p-2 rounded border border-amber-200';
+        div.innerHTML = `
+          <div>
+            <strong>[الشريك ${u.partnerNum || 'أدمن'}] ${u.name}</strong>
+            <div class="text-[10px] text-slate-500">${u.email} | كلمة السر: ${u.pass}</div>
+          </div>
+          <span class="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded text-amber-800">${getRoleLabel(u.role)}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // OCR Parser for ID Scanning
+    async function processIDWithOCR() {
+      const fileInput = document.getElementById('ocr-id-file');
+      const statusBox = document.getElementById('ocr-status');
+      if (!fileInput.files || !fileInput.files[0]) return;
+
+      statusBox.classList.remove('hidden');
+      try {
+        const result = await Tesseract.recognize(fileInput.files[0], 'ara+eng');
+        const text = result.data.text;
+
+        const idMatch = text.match(/\b\d{12,14}\b/);
+        if (idMatch) document.getElementById('new-user-civilid').value = idMatch[0];
+
+        const enMatch = text.match(/[A-Za-z]{3,}\s+[A-Za-z]{3,}(\s+[A-Za-z]{3,})*/);
+        if (enMatch) document.getElementById('new-user-name-en').value = enMatch[0];
+
+        const arMatch = text.match(/[\u0600-\u06FF]{3,}\s+[\u0600-\u06FF]{3,}(\s+[\u0600-\u06FF]{3,})*/);
+        if (arMatch) document.getElementById('new-user-name-ar').value = arMatch[0];
+
+        alert('تمت القراءة الضوئية وتحديد البيانات بنجاح!');
+      } catch (e) {
+        alert('تعذر استخراج النص ضوئياً تلقائياً، يمكنك إكمال الخانات يدوياً.');
+      } finally {
+        statusBox.classList.add('hidden');
+      }
+    }
+
+    function switchScreen(screenId, title) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(`screen-${screenId}`).classList.add('active');
+      document.getElementById('header-title').innerText = title;
     }
 
     function getRoleLabel(role) {
       if(role === 'admin') return 'الأدمن الرئيسي';
       if(role === 'editor') return 'مُدخل بيانات';
       return 'مشاهد فقط';
-    }
-
-    function handleLogin() {
-      const email = document.getElementById('login-email').value.trim();
-      const pass = document.getElementById('login-password').value.trim();
-      const users = getUsers();
-
-      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === pass);
-      if (user) {
-        sessionStorage.setItem('current_user', JSON.stringify(user));
-        document.getElementById('login-error').classList.add('hidden');
-        checkAuth();
-      } else {
-        document.getElementById('login-error').classList.remove('hidden');
-      }
     }
 
     function handleLogout() {
@@ -610,7 +713,6 @@
       document.getElementById('admin-approval-section').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // A4 Printable Contracts Preview Logic
     function previewContractTemplate(type) {
       const area = document.getElementById('printable-a4-area');
       const body = document.getElementById('a4-content-body');
