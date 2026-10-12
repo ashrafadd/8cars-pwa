@@ -17,7 +17,6 @@
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* Standard A4 Print & PDF View Styles */
     @media print {
       body * { visibility: hidden; }
       #printable-a4-area, #printable-a4-area * { visibility: visible; }
@@ -50,6 +49,7 @@
         <p class="text-xs text-slate-500">صندوق مبادرة الـ 8 سيارات</p>
       </div>
       <div id="login-error" class="text-xs text-red-500 hidden text-center bg-red-50 p-2 rounded-lg">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
+      <div id="sync-status" class="text-[10px] text-blue-600 text-center font-bold">جاري المزامنة مع قاعدة البيانات السحابية... 🔄</div>
       <div>
         <label class="block text-xs font-medium text-slate-600 mb-1">البريد الإلكتروني</label>
         <input type="email" id="login-email" placeholder="email@example.com" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
@@ -122,7 +122,7 @@
         </div>
       </div>
 
-      <!-- Partner Budget & Expense Financial Report (For Partner) -->
+      <!-- Partner Budget & Expense Financial Report -->
       <div id="partner-financial-report" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
           <span>📊 تقرير ميزانية ومصروفات دورك</span>
@@ -256,7 +256,7 @@
         </div>
       </div>
 
-      <!-- Add / Edit Partners Zone with Password Toggle Eye -->
+      <!-- Add / Edit Partners Zone -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
         <h3 class="font-bold text-amber-900 text-sm flex justify-between items-center">
           <span>إدارة حسابات الشركاء وتحديد الصلاحيات</span>
@@ -438,6 +438,32 @@
       }
     }
 
+    // المزامنة السحابية الفورية لجلب قائمة المستخدمين من شيت جوجل للأجهزة الجديدة
+    async function syncUsersFromCloud() {
+      const syncStatus = document.getElementById('sync-status');
+      if (syncStatus) syncStatus.classList.remove('hidden');
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        if (data.result === 'success' && data.users && data.users.length > 0) {
+          let localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
+          data.users.forEach(cloudUser => {
+            if (!localUsers.find(u => u.email.trim().toLowerCase() === cloudUser.email.trim().toLowerCase())) {
+              localUsers.push(cloudUser);
+            }
+          });
+          if (!localUsers.find(u => u.email.trim().toLowerCase() === defaultAdmin.email.toLowerCase())) {
+            localUsers.push(defaultAdmin);
+          }
+          localStorage.setItem('app_users', JSON.stringify(localUsers));
+        }
+      } catch (e) {
+        console.log("Cloud sync offline fallback");
+      } finally {
+        if (syncStatus) syncStatus.classList.add('hidden');
+      }
+    }
+
     function getUsers() {
       let users = JSON.parse(localStorage.getItem('app_users') || '[]');
       if (!users.find(u => u.email.trim().toLowerCase() === defaultAdmin.email.toLowerCase())) {
@@ -478,7 +504,8 @@
 
           localStorage.setItem('app_users', JSON.stringify(users));
           updateCyclePartnerName(partnerNum, nameAr);
-          alert('تم حفظ وتحديث بيانات الشريك بنجاح!');
+          sendPartnerToCloud(users[idx]);
+          alert('تم حفظ وتحديث بيانات الشريك بنجاح ومزامنتها سحابياً!');
           resetUserForm();
           renderUsersList();
           loadAppData();
@@ -505,7 +532,7 @@
     }
 
     function saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, partnerNum, contractUrl) {
-      users.push({
+      const newUser = {
         name: nameAr,
         nameEn: nameEn,
         civilId: civilId,
@@ -514,14 +541,34 @@
         role: role,
         partnerNum: partnerNum,
         signedContractUrl: contractUrl
-      });
+      };
+      users.push(newUser);
       localStorage.setItem('app_users', JSON.stringify(users));
       updateCyclePartnerName(partnerNum, nameAr);
+      sendPartnerToCloud(newUser);
 
-      alert(`تم تسجيل الشريك ${partnerNum} بنجاح! يمكنه الآن تسجيل الدخول.`);
+      alert(`تم تسجيل الشريك ${partnerNum} بنجاح ومزامنة حسابه سحابياً ليفتح من أي هاتف!`);
       resetUserForm();
       renderUsersList();
       loadAppData();
+    }
+
+    function sendPartnerToCloud(partnerObj) {
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "new_partner",
+          nameAr: partnerObj.name,
+          nameEn: partnerObj.nameEn,
+          civilId: partnerObj.civilId,
+          email: partnerObj.email,
+          pass: partnerObj.pass,
+          role: partnerObj.role,
+          contractUrl: partnerObj.signedContractUrl || ""
+        })
+      });
     }
 
     function updateCyclePartnerName(partnerNum, nameAr) {
@@ -582,6 +629,22 @@
 
       document.getElementById('partner-car-name').value = cycle.car !== 'لم تُحدد' ? cycle.car : '';
       document.getElementById('partner-car-price').value = cycle.priceKwd || '';
+    }
+
+    async function handleLogin() {
+      await syncUsersFromCloud();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-password').value.trim();
+      const users = getUsers();
+
+      const user = users.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
+      if (user) {
+        sessionStorage.setItem('current_user', JSON.stringify(user));
+        document.getElementById('login-error').classList.add('hidden');
+        checkAuth();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
+      }
     }
 
     function checkAuth() {
@@ -688,21 +751,6 @@
         alert('تعذر استخراج النص ضوئياً تلقائياً، يمكنك إكمال الخانات يدوياً.');
       } finally {
         statusBox.classList.add('hidden');
-      }
-    }
-
-    function handleLogin() {
-      const email = document.getElementById('login-email').value.trim().toLowerCase();
-      const pass = document.getElementById('login-password').value.trim();
-      const users = getUsers();
-
-      const user = users.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
-      if (user) {
-        sessionStorage.setItem('current_user', JSON.stringify(user));
-        document.getElementById('login-error').classList.add('hidden');
-        checkAuth();
-      } else {
-        document.getElementById('login-error').classList.remove('hidden');
       }
     }
 
@@ -1029,6 +1077,8 @@
       }
     }
 
+    // تشغيل المزامنة فور فتح الرابط
+    syncUsersFromCloud();
     checkAuth();
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
   </script>
