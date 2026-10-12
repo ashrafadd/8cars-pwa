@@ -61,16 +61,16 @@
     <section id="screen-dashboard" class="screen active space-y-4">
       <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700">
         <div class="text-xs text-slate-400 mb-1">الدور الحالي للمشروع</div>
-        <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">الشريك 1: المهندس أشرف</div>
-        <div class="text-sm text-slate-300 mt-1" id="dash-active-car">السيارة: كيا سبورتاج 2026 GT-Line</div>
+        <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">لم يتم تحديد الشريك بعد</div>
+        <div class="text-sm text-slate-300 mt-1" id="dash-active-car">السيارة: غير محددة</div>
         
         <div class="mt-4 space-y-1">
           <div class="flex justify-between text-xs text-slate-400">
-            <span>مرحلة العملية: <strong class="text-emerald-300" id="dash-stage-name">الشحن والتصدير</strong></span>
-            <span id="dash-stage-pct">40%</span>
+            <span>مرحلة العملية: <strong class="text-emerald-300" id="dash-stage-name">تجهيز الميزانية</strong></span>
+            <span id="dash-stage-pct">0%</span>
           </div>
           <div class="w-full bg-slate-700 rounded-full h-2">
-            <div id="dash-stage-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 40%"></div>
+            <div id="dash-stage-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
         <div class="grid grid-cols-2 gap-2 text-center">
           <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
             <div class="text-xs text-emerald-700 font-medium">السيولة المتاحة</div>
-            <div class="text-xl font-bold text-emerald-800 mt-1" id="dash-capital-available">$78,176</div>
+            <div class="text-xl font-bold text-emerald-800 mt-1" id="dash-capital-available">$0</div>
           </div>
           <div class="bg-amber-50 p-3 rounded-xl border border-amber-100">
             <div class="text-xs text-amber-700 font-medium">إجمالي المصروفات</div>
@@ -146,7 +146,7 @@
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-sm">الملخص المالي والأرباح</h3>
         <div class="space-y-2 text-xs">
-          <div class="flex justify-between py-1.5 border-b"><span>إجمالي رأس مال الصندوق:</span> <strong class="text-slate-900">$78,176</strong></div>
+          <div class="flex justify-between py-1.5 border-b"><span>إجمالي رأس مال الصندوق:</span> <strong class="text-slate-900" id="rep-total-cap">$0</strong></div>
           <div class="flex justify-between py-1.5 border-b"><span>إجمالي الأرباح المحققة:</span> <strong class="text-emerald-600" id="rep-net-profit">$0</strong></div>
           <div class="flex justify-between py-1.5 border-b"><span>حصة الفرد الصافية المتوقعة:</span> <strong class="text-emerald-700" id="rep-partner-share">$0</strong></div>
         </div>
@@ -155,6 +155,18 @@
 
     <!-- Screen 6: Admin Panel -->
     <section id="screen-admin" class="screen space-y-4">
+      <!-- Initial Setup & Budget -->
+      <div class="bg-emerald-50 rounded-2xl p-4 shadow-sm border border-emerald-200 space-y-3">
+        <h3 class="font-bold text-emerald-900 text-sm">إدخال الميزانية الأولية ورأس المال</h3>
+        <div>
+          <label class="block text-xs font-medium text-emerald-800 mb-1">رأس مال الصندوق ($ USD)</label>
+          <input type="number" id="init-budget-input" placeholder="مثال: 78176" class="w-full p-2.5 text-sm border rounded-xl bg-white outline-none">
+        </div>
+        <button onclick="setInitialBudget()" class="w-full bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold shadow">
+          حفظ الميزانية الأولية
+        </button>
+      </div>
+
       <!-- Admin Users Management -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
         <h3 class="font-bold text-amber-900 text-sm">إدارة الشركاء والصلاحيات</h3>
@@ -177,7 +189,7 @@
       <div class="bg-red-50 rounded-2xl p-4 shadow-sm border border-red-200 space-y-3">
         <h3 class="font-bold text-red-900 text-sm">تصفير بيانات الاختبار</h3>
         <button onclick="resetSystemData()" class="w-full bg-red-700 hover:bg-red-800 text-white py-3 rounded-xl text-xs font-bold shadow active:scale-95 transition-transform">
-          ⚠️ تصفير جميع البيانات والعودة للبداية (Reset All Test Data)
+          ⚠️ تصفير جميع البيانات والعودة للبداية (Reset All Data)
         </button>
       </div>
     </section>
@@ -218,7 +230,6 @@
       }
     });
 
-    // Web App URL from Google Apps Script
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNvvdC32FjvgXwDK2C5XxFIotXdQenEOgzgVrNrNti-ioOxooNo-GyakLJQeX2PLMG/exec";
 
     const defaultAdmin = {
@@ -228,15 +239,15 @@
       role: "admin"
     };
 
-    const initialCycles = [
-      { id: 1, partner: "أشرف عابد", car: "كيا سبورتاج 2026 GT-Line", stage: "الشحن والتصدير", pct: 40, status: "active" },
-      { id: 2, partner: "شريك 2", car: "ميتسوبيشي إكسباندر", stage: "قيد الانتظار", pct: 0, status: "pending" },
-      { id: 3, partner: "شريك 3", car: "سكودا كودياك", stage: "قيد الانتظار", pct: 0, status: "pending" },
-      { id: 4, partner: "شريك 4", car: "تويوتا كورولا", stage: "قيد الانتظار", pct: 0, status: "pending" },
-      { id: 5, partner: "شريك 5", car: "هيونداي توسان N-Line", stage: "قيد الانتظار", pct: 0, status: "pending" },
-      { id: 6, partner: "شريك 6", car: "كيا سبورتاج", stage: "قيد الانتظار", pct: 0, status: "pending" },
-      { id: 7, partner: "شريك 7", car: "ميتسوبيشي إكسباندر", stage: "قيد الانتظار", pct: 0, status: "pending" },
-      { id: 8, partner: "شريك 8", car: "تويوتا كورولا", stage: "قيد الانتظار", pct: 0, status: "pending" }
+    const emptyCycles = [
+      { id: 1, partner: "الشريك الأول", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "active" },
+      { id: 2, partner: "الشريك الثاني", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" },
+      { id: 3, partner: "الشريك الثالث", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" },
+      { id: 4, partner: "الشريك الرابع", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" },
+      { id: 5, partner: "الشريك الخامس", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" },
+      { id: 6, partner: "الشريك السادس", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" },
+      { id: 7, partner: "الشريك السابع", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" },
+      { id: 8, partner: "الشريك الثامن", car: "لم تُحدد", stage: "في الانتظار", pct: 0, status: "pending" }
     ];
 
     function getUsers() {
@@ -309,15 +320,30 @@
       }
     }
 
+    function setInitialBudget() {
+      const val = parseFloat(document.getElementById('init-budget-input').value);
+      if (isNaN(val) || val < 0) {
+        alert('يرجى إدخال مبلغ صحيح');
+        return;
+      }
+      localStorage.setItem('app_initial_budget', val);
+      alert('تم إدخال وتحديث الميزانية بنجاح!');
+      loadAppData();
+    }
+
     function loadAppData() {
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(initialCycles));
+      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
       const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
+      const initialBudget = parseFloat(localStorage.getItem('app_initial_budget') || '0');
 
       document.getElementById('dash-active-partner').innerText = `الدور الحالي: ${activeCycle.partner}`;
       document.getElementById('dash-active-car').innerText = `السيارة: ${activeCycle.car}`;
       document.getElementById('dash-stage-name').innerText = activeCycle.stage;
       document.getElementById('dash-stage-pct').innerText = `${activeCycle.pct}%`;
       document.getElementById('dash-stage-bar').style.width = `${activeCycle.pct}%`;
+
+      document.getElementById('dash-capital-available').innerText = `$${initialBudget.toLocaleString()}`;
+      document.getElementById('rep-total-cap').innerText = `$${initialBudget.toLocaleString()}`;
 
       renderCyclesList(cycles);
       renderExpensesHistory();
@@ -356,7 +382,7 @@
         amount: amount,
         curr: curr,
         partner: currentUser ? currentUser.name : "غير محدد",
-        car: "كيا سبورتاج 2026"
+        car: "سيارة الدورة الحالية"
       };
 
       try {
@@ -373,7 +399,7 @@
         expenses.push({ desc, amount, curr, date: new Date().toLocaleDateString('ar-EG') });
         localStorage.setItem('app_expenses', JSON.stringify(expenses));
 
-        alert('تم حفظ المصروف بنجاح ومزامنته مع قاعدة البيانات!');
+        alert('تم حفظ المصروف بنجاح ومزامنته!');
         document.getElementById('exp-desc').value = '';
         document.getElementById('exp-amount').value = '';
         renderExpensesHistory();
@@ -387,6 +413,7 @@
       const container = document.getElementById('expenses-history');
       if (expenses.length === 0) {
         container.innerHTML = '<p class="text-slate-400 text-center py-2">لا توجد مصروفات مسجلة بعد</p>';
+        document.getElementById('dash-total-expenses').innerText = '$0';
         return;
       }
       container.innerHTML = '';
@@ -431,11 +458,12 @@
     }
 
     function resetSystemData() {
-      const confirmation = confirm('⚠️ تحذير مهم جداً:\n\nهل أنت متأكد من تصفير كافة بيانات التجربة والاختبار بالكامل؟');
+      const confirmation = confirm('⚠️ تحذير مهم جداً:\n\nهل أنت متأكد من تصفير كافة البيانات بشكل كامل والبدء من الصفر؟');
       if (confirmation) {
         localStorage.removeItem('app_expenses');
-        localStorage.setItem('app_cycles', JSON.stringify(initialCycles));
-        alert('✅ تم تصفير جميع البيانات بنجاح!');
+        localStorage.removeItem('app_initial_budget');
+        localStorage.setItem('app_cycles', JSON.stringify(emptyCycles));
+        alert('✅ تم تصفير كافة البيانات بنجاح والبدء من جديد!');
         loadAppData();
         switchScreen('dashboard', 'الرئيسية');
       }
