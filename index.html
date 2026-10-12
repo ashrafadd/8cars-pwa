@@ -79,7 +79,7 @@
   <!-- Admin Notification Bar for Un-invoiced Expenses -->
   <div id="admin-notify-bar" class="bg-amber-500 text-slate-900 px-4 py-2 font-bold text-xs flex justify-between items-center hidden no-print">
     <span>⚠️ توجد مصروفات جديدة بدون فواتير بانتظار موافقتك!</span>
-    <button onclick="switchScreen('admin', 'لوحة الأدمن'); focusPendingExpenses();" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px]">
+    <button onclick="switchScreen('admin', 'إعدادات الأدمن'); focusPendingExpenses();" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px]">
       مراجعة الآن
     </button>
   </div>
@@ -116,39 +116,6 @@
             <div class="text-xs text-amber-700 font-medium">إجمالي المصروفات</div>
             <div class="text-lg font-bold text-amber-800 mt-1" id="dash-total-expenses">0 د.ك</div>
           </div>
-        </div>
-      </div>
-
-      <!-- User/Partner Self Profile Edit Section -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs flex items-center justify-between">
-          <span>👤 بياناتي الشخصية وإعدادات الحساب</span>
-          <span id="profile-partner-num" class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px]">الشريك --</span>
-        </h3>
-        <div class="space-y-2 text-xs">
-          <div>
-            <label class="block text-slate-500 mb-1">الاسم بالعربي</label>
-            <input type="text" id="prof-name-ar" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
-          </div>
-          <div>
-            <label class="block text-slate-500 mb-1">الاسم بالإنجليزي</label>
-            <input type="text" id="prof-name-en" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
-          </div>
-          <div>
-            <label class="block text-slate-500 mb-1">الرقم المدني / القومي</label>
-            <input type="text" id="prof-civilid" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
-          </div>
-          <div>
-            <label class="block text-slate-500 mb-1">البريد الإلكتروني (اسم المستخدم)</label>
-            <input type="email" id="prof-email" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
-          </div>
-          <div>
-            <label class="block text-slate-500 mb-1">كلمة المرور الجديده</label>
-            <input type="password" id="prof-pass" placeholder="••••••••" class="w-full p-2 border rounded-xl outline-none focus:ring-1 focus:ring-slate-900">
-          </div>
-          <button onclick="saveMyProfile()" class="w-full bg-slate-900 text-white font-bold py-2 rounded-xl text-xs active:scale-95 transition-transform shadow">
-            تحديث وحفظ بياناتي
-          </button>
         </div>
       </div>
 
@@ -229,7 +196,7 @@
       </div>
     </section>
 
-    <!-- Screen 4: Admin Panel / لوحة الأدمن الشاملة -->
+    <!-- Screen 4: Admin Panel / لوحة الإعدادات الشاملة للأدمن -->
     <section id="screen-admin" class="screen space-y-4">
 
       <!-- Un-invoiced Expense Approval Zone -->
@@ -240,9 +207,12 @@
         </div>
       </div>
 
-      <!-- Add Partner with OCR ID Reader & Partner Number Assignment -->
+      <!-- Add / Edit Partners Zone with Delete Option -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-sm">تسجيل شريك جديد وتحديد رقم الدور (1 - 8)</h3>
+        <h3 class="font-bold text-amber-900 text-sm flex justify-between items-center">
+          <span>إدارة حسابات الشركاء (تعديل / حذف / إضافة)</span>
+          <button id="cancel-edit-btn" onclick="resetUserForm()" class="hidden text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">إلغاء التعديل</button>
+        </h3>
         
         <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
           <span class="text-xs font-bold text-amber-900 block">1. رفع صورة البطاقة للمسح الضوئي (OCR):</span>
@@ -251,6 +221,8 @@
         </div>
 
         <div class="space-y-2">
+          <input type="hidden" id="editing-user-email" value="">
+
           <div>
             <label class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك:</label>
             <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
@@ -280,11 +252,16 @@
             <input type="file" id="new-user-contract-file" accept="image/*" class="w-full text-xs text-slate-500">
           </div>
 
-          <button onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            + تسجيل الشريك وتفعيل دخوله تلقائياً
+          <button id="save-partner-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+            + تسجيل الشريك وتفعيل حسابه
           </button>
         </div>
-        <div id="users-list" class="space-y-1 text-xs pt-2"></div>
+
+        <!-- Rendered Registered Users List with Delete & Edit Controls -->
+        <div class="pt-2">
+          <h4 class="font-bold text-amber-900 text-xs mb-1">قائمة الشركاء المسجلين حالياً:</h4>
+          <div id="users-list" class="space-y-1.5 text-xs"></div>
+        </div>
       </div>
 
       <!-- Contracts Template & Scan Management Zone -->
@@ -362,8 +339,8 @@
     <button onclick="switchScreen('expenses', 'المصروفات')" id="nav-exp-btn" class="nav-btn flex flex-col items-center">
       <span class="text-base">💸</span><span>مصروف</span>
     </button>
-    <button onclick="switchScreen('admin', 'لوحة الأدمن')" id="nav-admin-btn" class="nav-btn flex flex-col items-center hidden">
-      <span class="text-base">⚙️</span><span>الأدمن</span>
+    <button onclick="switchScreen('admin', 'الإعدادات')" id="nav-admin-btn" class="nav-btn flex flex-col items-center hidden">
+      <span class="text-base">⚙️</span><span>الإعدادات</span>
     </button>
   </nav>
 
@@ -375,7 +352,7 @@
       pass: "Aa@@50940888",
       name: "أشرف عابد (الأدمن)",
       role: "admin",
-      partnerNum: "الأدمن"
+      partnerNum: "أدمن"
     };
 
     const emptyCycles = [
@@ -398,23 +375,94 @@
       return users;
     }
 
+    function editUser(email) {
+      const users = getUsers();
+      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (!user) return;
+
+      document.getElementById('editing-user-email').value = user.email;
+      document.getElementById('new-user-name-ar').value = user.name || '';
+      document.getElementById('new-user-name-en').value = user.nameEn || '';
+      document.getElementById('new-user-civilid').value = user.civilId || '';
+      document.getElementById('new-user-email').value = user.email || '';
+      document.getElementById('new-user-pass').value = user.pass || '';
+      document.getElementById('new-user-role').value = user.role || 'editor';
+      document.getElementById('new-user-partner-num').value = user.partnerNum || '1';
+
+      document.getElementById('save-partner-btn').innerText = '💾 حفظ تعديلات الحساب';
+      document.getElementById('save-partner-btn').classList.replace('bg-amber-800', 'bg-emerald-700');
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+      window.scrollTo({ top: document.getElementById('admin-approval-section').offsetTop, behavior: 'smooth' });
+    }
+
+    function deleteUser(email) {
+      if (email.toLowerCase() === defaultAdmin.email.toLowerCase()) {
+        alert('لا يمكن حذف حساب الأدمن الرئيسي!');
+        return;
+      }
+
+      if (confirm(`⚠️ هل أنت متأكد من حذف الحساب (${email}) نهائياً؟`)) {
+        let users = getUsers();
+        users = users.filter(u => u.email.toLowerCase() !== email.toLowerCase());
+        localStorage.setItem('app_users', JSON.stringify(users));
+        alert('تم حذف الحساب بنجاح!');
+        renderUsersList();
+      }
+    }
+
+    function resetUserForm() {
+      document.getElementById('editing-user-email').value = '';
+      document.getElementById('new-user-name-ar').value = '';
+      document.getElementById('new-user-name-en').value = '';
+      document.getElementById('new-user-civilid').value = '';
+      document.getElementById('new-user-email').value = '';
+      document.getElementById('new-user-pass').value = '';
+      document.getElementById('save-partner-btn').innerText = '+ تسجيل الشريك وتفعيل حسابه';
+      document.getElementById('save-partner-btn').classList.replace('bg-emerald-700', 'bg-amber-800');
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+    }
+
     function addUser() {
+      const editingEmail = document.getElementById('editing-user-email').value.trim();
       const nameAr = document.getElementById('new-user-name-ar').value.trim();
       const nameEn = document.getElementById('new-user-name-en').value.trim();
       const civilId = document.getElementById('new-user-civilid').value.trim();
-      const email = document.getElementById('new-user-email').value.trim();
+      const email = document.getElementById('new-user-email').value.trim().toLowerCase();
       const pass = document.getElementById('new-user-pass').value.trim();
       const role = document.getElementById('new-user-role').value;
       const partnerNum = document.getElementById('new-user-partner-num').value;
       const contractFile = document.getElementById('new-user-contract-file').files[0];
 
       if (!nameAr || !email || !pass) {
-        alert('يرجى إكمال البيانات الأساسية للشريك (الاسم والبريد وكلمة المرور)');
+        alert('يرجى إكمال البيانات الأساسية للشريك');
         return;
       }
 
       let users = getUsers();
-      if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+
+      if (editingEmail) {
+        // Edit Mode
+        const idx = users.findIndex(u => u.email.toLowerCase() === editingEmail.toLowerCase());
+        if (idx !== -1) {
+          users[idx].name = nameAr;
+          users[idx].nameEn = nameEn;
+          users[idx].civilId = civilId;
+          users[idx].email = email;
+          users[idx].pass = pass;
+          users[idx].role = role;
+          users[idx].partnerNum = partnerNum;
+
+          localStorage.setItem('app_users', JSON.stringify(users));
+          alert('تم حفظ وتحديث بيانات الشريك بنجاح!');
+          resetUserForm();
+          renderUsersList();
+          return;
+        }
+      }
+
+      // Add Mode
+      if (users.find(u => u.email.toLowerCase() === email)) {
         alert('هذا البريد مسجل بالفعل!');
         return;
       }
@@ -437,7 +485,7 @@
         name: nameAr,
         nameEn: nameEn,
         civilId: civilId,
-        email: email.toLowerCase(),
+        email: email,
         pass: pass,
         role: role,
         partnerNum: partnerNum,
@@ -445,7 +493,7 @@
       });
       localStorage.setItem('app_users', JSON.stringify(users));
 
-      // Update Cycles Table with Partner Name
+      // Update Cycles Table
       let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
       const cIdx = cycles.findIndex(c => c.id == partnerNum);
       if (cIdx !== -1) {
@@ -453,53 +501,10 @@
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
       }
 
-      alert(`تم تسجيل الشريك ${partnerNum} بنجاح! يمكنه الآن تسجيل الدخول.`);
-      document.getElementById('new-user-name-ar').value = '';
-      document.getElementById('new-user-email').value = '';
-      document.getElementById('new-user-pass').value = '';
+      alert(`تم تسجيل وتفعيل حساب الشريك ${partnerNum} بنجاح!`);
+      resetUserForm();
       renderUsersList();
       loadAppData();
-    }
-
-    function saveMyProfile() {
-      let currentUser = JSON.parse(sessionStorage.getItem('current_user'));
-      if (!currentUser) return;
-
-      const nameAr = document.getElementById('prof-name-ar').value.trim();
-      const nameEn = document.getElementById('prof-name-en').value.trim();
-      const civilId = document.getElementById('prof-civilid').value.trim();
-      const email = document.getElementById('prof-email').value.trim().toLowerCase();
-      const pass = document.getElementById('prof-pass').value.trim();
-
-      if (!nameAr || !email) {
-        alert('يرجى كتابة الاسم والبريد الإلكتروني بشكل صحيح');
-        return;
-      }
-
-      let users = getUsers();
-      const uIdx = users.findIndex(u => u.email.toLowerCase() === currentUser.email.toLowerCase());
-      if (uIdx !== -1) {
-        users[uIdx].name = nameAr;
-        users[uIdx].nameEn = nameEn;
-        users[uIdx].civilId = civilId;
-        users[uIdx].email = email;
-        if (pass) users[uIdx].pass = pass;
-
-        localStorage.setItem('app_users', JSON.stringify(users));
-        sessionStorage.setItem('current_user', JSON.stringify(users[uIdx]));
-
-        alert('تم تحديث بياناتك الشخصية بنجاح!');
-        checkAuth();
-      }
-    }
-
-    function loadProfileForm(user) {
-      document.getElementById('prof-name-ar').value = user.name || '';
-      document.getElementById('prof-name-en').value = user.nameEn || '';
-      document.getElementById('prof-civilid').value = user.civilId || '';
-      document.getElementById('prof-email').value = user.email || '';
-      document.getElementById('prof-pass').value = user.pass || '';
-      document.getElementById('profile-partner-num').innerText = user.partnerNum ? `الشريك ${user.partnerNum}` : 'الأدمن';
     }
 
     function handleLogin() {
@@ -524,7 +529,6 @@
       } else {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('user-badge').innerText = `${currentUser.name} (${getRoleLabel(currentUser.role)})`;
-        loadProfileForm(currentUser);
         applyPermissions(currentUser);
         loadAppData();
       }
@@ -537,13 +541,16 @@
       container.innerHTML = '';
       users.forEach(u => {
         const div = document.createElement('div');
-        div.className = 'flex justify-between items-center bg-white p-2 rounded border border-amber-200';
+        div.className = 'flex justify-between items-center bg-white p-2.5 rounded-xl border border-amber-200';
         div.innerHTML = `
           <div>
-            <strong>[الشريك ${u.partnerNum || 'أدمن'}] ${u.name}</strong>
+            <strong class="text-slate-900">[الشريك ${u.partnerNum || 'أدمن'}] ${u.name}</strong>
             <div class="text-[10px] text-slate-500">${u.email} | كلمة السر: ${u.pass}</div>
           </div>
-          <span class="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded text-amber-800">${getRoleLabel(u.role)}</span>
+          <div class="space-x-1 space-x-reverse">
+            <button onclick="editUser('${u.email}')" class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">تعديل ✏️</button>
+            ${u.email.toLowerCase() !== defaultAdmin.email.toLowerCase() ? `<button onclick="deleteUser('${u.email}')" class="bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold">حذف 🗑️</button>` : ''}
+          </div>
         `;
         container.appendChild(div);
       });
