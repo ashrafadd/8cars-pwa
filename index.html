@@ -79,7 +79,7 @@
   <!-- Admin Notification Bar for Un-invoiced Expenses -->
   <div id="admin-notify-bar" class="bg-amber-500 text-slate-900 px-4 py-2 font-bold text-xs flex justify-between items-center hidden no-print">
     <span>⚠️ توجد مصروفات جديدة بدون فواتير بانتظار موافقتك!</span>
-    <button onclick="switchScreen('admin', 'إعدادات الأدمن'); focusPendingExpenses();" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px]">
+    <button onclick="switchScreen('admin', 'الإعدادات'); focusPendingExpenses();" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px]">
       مراجعة الآن
     </button>
   </div>
@@ -119,7 +119,29 @@
         </div>
       </div>
 
-      <!-- Partner's Own Signed Contract Viewer (For Partner Role Only) -->
+      <!-- Partner Budget & Expense Financial Report (For Partner) -->
+      <div id="partner-financial-report" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
+          <span>📊 تقرير ميزانية ومصروفات دورك</span>
+          <span id="rep-partner-tag" class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px]">الشريك --</span>
+        </h3>
+        <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
+          <div class="bg-slate-50 p-2 rounded-xl border">
+            <span class="text-[10px] text-slate-500 block">الميزانية المرصودة</span>
+            <strong id="rep-allocated-budget" class="text-slate-900 font-bold">0 د.ك</strong>
+          </div>
+          <div class="bg-red-50 p-2 rounded-xl border border-red-100">
+            <span class="text-[10px] text-red-600 block">إجمالي المصروفات</span>
+            <strong id="rep-spent-budget" class="text-red-700 font-bold">0 د.ك</strong>
+          </div>
+          <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
+            <span class="text-[10px] text-emerald-600 block">المتبقي من الميزانية</span>
+            <strong id="rep-remaining-budget" class="text-emerald-700 font-bold">0 د.ك</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Partner's Own Signed Contract Viewer -->
       <div id="partner-contract-box" class="bg-blue-50 rounded-2xl p-4 shadow-sm border border-blue-200 space-y-2 hidden">
         <h3 class="font-bold text-blue-900 text-xs">📄 عقد الالتزام الفردي الخاص بك الموقّع</h3>
         <p class="text-[11px] text-blue-700">يمكنك معاينة أو طباعة العقد الفردي المعتمد الخاص بك على قياس A4.</p>
@@ -137,8 +159,32 @@
       </div>
     </section>
 
-    <!-- Screen 3: Add Expense / المصروفات -->
+    <!-- Screen 3: Add Expense & Select Car / إدخال السيارة والمصروفات -->
     <section id="screen-expenses" class="screen space-y-4">
+
+      <!-- Section A: Partner Enters Car Details -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-sm">🚘 تحديد بيانات السيارة والفئة المراد شراؤها</h3>
+        <div class="space-y-2 text-xs">
+          <div>
+            <label class="block text-slate-600 mb-1">نوع السيارة والموديل</label>
+            <input type="text" id="partner-car-name" placeholder="مثال: كيا سبورتاج 2026" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-600 mb-1">الفئة / المواصفات (Trim Level)</label>
+            <input type="text" id="partner-car-trim" placeholder="مثال: GT-Line بانوراما" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
+          </div>
+          <div>
+            <label class="block text-slate-600 mb-1">السعر المتوقع / المخطط بالشراء (د.ك)</label>
+            <input type="number" id="partner-car-price" placeholder="مثال: 8500" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
+          </div>
+          <button onclick="savePartnerCarSelection()" class="w-full bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow active:scale-95 transition-transform">
+            💾 حفظ بيانات السيارة المحددة
+          </button>
+        </div>
+      </div>
+
+      <!-- Section B: Add Expense Form -->
       <div id="expense-form-container" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-sm">تسجيل مصروف جديد للعملية الحالية</h3>
         <div>
@@ -207,10 +253,10 @@
         </div>
       </div>
 
-      <!-- Add / Edit Partners Zone with Delete Option -->
+      <!-- Add / Edit Partners Zone with Admin Role Option -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
         <h3 class="font-bold text-amber-900 text-sm flex justify-between items-center">
-          <span>إدارة حسابات الشركاء (تعديل / حذف / إضافة)</span>
+          <span>إدارة حسابات الشركاء وتحديد الصلاحيات</span>
           <button id="cancel-edit-btn" onclick="resetUserForm()" class="hidden text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">إلغاء التعديل</button>
         </h3>
         
@@ -224,7 +270,7 @@
           <input type="hidden" id="editing-user-email" value="">
 
           <div>
-            <label class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك:</label>
+            <label class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك (من 1 إلى 8):</label>
             <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
               <option value="1">الشريك 1 (الدور الأول)</option>
               <option value="2">الشريك 2 (الدور الثاني)</option>
@@ -242,10 +288,15 @@
           <input type="text" id="new-user-civilid" placeholder="الرقم المدني الكويتي / القومي المصري" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="email" id="new-user-email" placeholder="البريد الإلكتروني للدخول" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="password" id="new-user-pass" placeholder="كلمة المرور المثبتة" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <select id="new-user-role" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <option value="editor">مُدخل بيانات (إضافة مصروفات)</option>
-            <option value="viewer">مشاهد فقط (عرض البيانات)</option>
-          </select>
+          
+          <div>
+            <label class="block text-[10px] font-bold text-amber-900 mb-1">الصلاحية في النظام:</label>
+            <select id="new-user-role" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
+              <option value="editor">مُدخل بيانات (إضافة مصروفات وسيارات)</option>
+              <option value="admin">أدمن (صلاحية كاملة على النظام والإعدادات)</option>
+              <option value="viewer">مشاهد فقط (عرض البيانات)</option>
+            </select>
+          </div>
 
           <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
             <label class="block text-xs font-bold text-amber-900">2. تحميل عقد الالتزام الفردي الموقّع للشريك (Scan):</label>
@@ -257,18 +308,16 @@
           </button>
         </div>
 
-        <!-- Rendered Registered Users List with Delete & Edit Controls -->
         <div class="pt-2">
           <h4 class="font-bold text-amber-900 text-xs mb-1">قائمة الشركاء المسجلين حالياً:</h4>
           <div id="users-list" class="space-y-1.5 text-xs"></div>
         </div>
       </div>
 
-      <!-- Contracts Template & Scan Management Zone -->
+      <!-- Contracts Template Management -->
       <div class="bg-blue-50 rounded-2xl p-4 shadow-sm border border-blue-200 space-y-3">
         <h3 class="font-bold text-blue-900 text-sm">إدارة وتنسيق العقود (A4 Layout)</h3>
         
-        <!-- Group Contract Actions -->
         <div class="bg-white p-3 rounded-xl border border-blue-200 space-y-2">
           <span class="text-xs font-bold text-blue-900 block">العقد الجماعي للمشروع:</span>
           <div class="grid grid-cols-2 gap-2">
@@ -285,7 +334,6 @@
           </div>
         </div>
 
-        <!-- Individual Contract Actions -->
         <div class="bg-white p-3 rounded-xl border border-blue-200 space-y-2">
           <span class="text-xs font-bold text-blue-900 block">عقد الالتزام الفردي:</span>
           <button onclick="previewContractTemplate('individual')" class="w-full bg-indigo-700 text-white py-2 rounded-lg text-xs font-bold">
@@ -294,15 +342,21 @@
         </div>
       </div>
 
-      <!-- Edit Roles & Cars Data -->
+      <!-- Edit Roles & Budget Allocations per Cycle -->
       <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm space-y-3">
-        <h3 class="font-bold text-emerald-400 text-sm">تعديل الأدوار والسيارات داخل الكويت</h3>
+        <h3 class="font-bold text-emerald-400 text-sm">تحديد الميزانيات والأدوار للـ 8 شركاء</h3>
         <div class="space-y-2">
           <select id="admin-cycle-select" onchange="loadCycleDetailsForEdit()" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
             <!-- Dynamic Cycles -->
           </select>
-          <input type="text" id="edit-car-name" placeholder="نوع الموديل والسيارة (مثال: كيا سبورتاج 2026)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-          <input type="number" id="edit-car-price" placeholder="سعر الشراء داخل الكويت (د.ك)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">الميزانية المرصودة لسيارة هذا الدور (د.ك):</label>
+            <input type="number" id="edit-car-price" placeholder="الميزانية المرصودة بالدينار الكويتي" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-400 mb-1">نوع السيارة والموديل:</label>
+            <input type="text" id="edit-car-name" placeholder="نوع الموديل والسيارة (مثل: كيا سبورتاج 2026)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
+          </div>
           <select id="edit-cycle-stage" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
             <option value="تجهيز الميزانية">1. تجهيز الميزانية (0%)</option>
             <option value="الشراء بالكويت">2. الشراء بالكويت (25%)</option>
@@ -311,7 +365,7 @@
             <option value="البيع وتسوية الدور">5. البيع وتسوية الدور (100%)</option>
           </select>
           <button onclick="saveCycleUpdates()" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold shadow">
-            حفظ تعديلات الدور والسيارة
+            حفظ تعديلات الدور والميزانية المرصودة
           </button>
         </div>
       </div>
@@ -337,7 +391,7 @@
       <span class="text-base">🔄</span><span>الأدوار</span>
     </button>
     <button onclick="switchScreen('expenses', 'المصروفات')" id="nav-exp-btn" class="nav-btn flex flex-col items-center">
-      <span class="text-base">💸</span><span>مصروف</span>
+      <span class="text-base">💸</span><span>مصروف وسيارات</span>
     </button>
     <button onclick="switchScreen('admin', 'الإعدادات')" id="nav-admin-btn" class="nav-btn flex flex-col items-center hidden">
       <span class="text-base">⚙️</span><span>الإعدادات</span>
@@ -352,18 +406,18 @@
       pass: "Aa@@50940888",
       name: "أشرف عابد (الأدمن)",
       role: "admin",
-      partnerNum: "أدمن"
+      partnerNum: "1"
     };
 
     const emptyCycles = [
-      { id: 1, partner: "الشريك 1", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "active" },
-      { id: 2, partner: "الشريك 2", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 3, partner: "الشريك 3", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 4, partner: "الشريك 4", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 5, partner: "الشريك 5", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 6, partner: "الشريك 6", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 7, partner: "الشريك 7", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 8, partner: "الشريك 8", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" }
+      { id: 1, partner: "الشريك 1: أشرف عابد", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "active" },
+      { id: 2, partner: "الشريك 2", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 3, partner: "الشريك 3", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 4, partner: "الشريك 4", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 5, partner: "الشريك 5", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 6, partner: "الشريك 6", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 7, partner: "الشريك 7", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 8, partner: "الشريك 8", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" }
     ];
 
     function getUsers() {
@@ -373,54 +427,6 @@
         localStorage.setItem('app_users', JSON.stringify(users));
       }
       return users;
-    }
-
-    function editUser(email) {
-      const users = getUsers();
-      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (!user) return;
-
-      document.getElementById('editing-user-email').value = user.email;
-      document.getElementById('new-user-name-ar').value = user.name || '';
-      document.getElementById('new-user-name-en').value = user.nameEn || '';
-      document.getElementById('new-user-civilid').value = user.civilId || '';
-      document.getElementById('new-user-email').value = user.email || '';
-      document.getElementById('new-user-pass').value = user.pass || '';
-      document.getElementById('new-user-role').value = user.role || 'editor';
-      document.getElementById('new-user-partner-num').value = user.partnerNum || '1';
-
-      document.getElementById('save-partner-btn').innerText = '💾 حفظ تعديلات الحساب';
-      document.getElementById('save-partner-btn').classList.replace('bg-amber-800', 'bg-emerald-700');
-      document.getElementById('cancel-edit-btn').classList.remove('hidden');
-
-      window.scrollTo({ top: document.getElementById('admin-approval-section').offsetTop, behavior: 'smooth' });
-    }
-
-    function deleteUser(email) {
-      if (email.toLowerCase() === defaultAdmin.email.toLowerCase()) {
-        alert('لا يمكن حذف حساب الأدمن الرئيسي!');
-        return;
-      }
-
-      if (confirm(`⚠️ هل أنت متأكد من حذف الحساب (${email}) نهائياً؟`)) {
-        let users = getUsers();
-        users = users.filter(u => u.email.toLowerCase() !== email.toLowerCase());
-        localStorage.setItem('app_users', JSON.stringify(users));
-        alert('تم حذف الحساب بنجاح!');
-        renderUsersList();
-      }
-    }
-
-    function resetUserForm() {
-      document.getElementById('editing-user-email').value = '';
-      document.getElementById('new-user-name-ar').value = '';
-      document.getElementById('new-user-name-en').value = '';
-      document.getElementById('new-user-civilid').value = '';
-      document.getElementById('new-user-email').value = '';
-      document.getElementById('new-user-pass').value = '';
-      document.getElementById('save-partner-btn').innerText = '+ تسجيل الشريك وتفعيل حسابه';
-      document.getElementById('save-partner-btn').classList.replace('bg-emerald-700', 'bg-amber-800');
-      document.getElementById('cancel-edit-btn').classList.add('hidden');
     }
 
     function addUser() {
@@ -442,7 +448,6 @@
       let users = getUsers();
 
       if (editingEmail) {
-        // Edit Mode
         const idx = users.findIndex(u => u.email.toLowerCase() === editingEmail.toLowerCase());
         if (idx !== -1) {
           users[idx].name = nameAr;
@@ -454,14 +459,15 @@
           users[idx].partnerNum = partnerNum;
 
           localStorage.setItem('app_users', JSON.stringify(users));
+          updateCyclePartnerName(partnerNum, nameAr);
           alert('تم حفظ وتحديث بيانات الشريك بنجاح!');
           resetUserForm();
           renderUsersList();
+          loadAppData();
           return;
         }
       }
 
-      // Add Mode
       if (users.find(u => u.email.toLowerCase() === email)) {
         alert('هذا البريد مسجل بالفعل!');
         return;
@@ -492,34 +498,73 @@
         signedContractUrl: contractUrl
       });
       localStorage.setItem('app_users', JSON.stringify(users));
+      updateCyclePartnerName(partnerNum, nameAr);
 
-      // Update Cycles Table
+      alert(`تم تسجيل الشريك ${partnerNum} بنجاح!`);
+      resetUserForm();
+      renderUsersList();
+      loadAppData();
+    }
+
+    function updateCyclePartnerName(partnerNum, nameAr) {
       let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
       const cIdx = cycles.findIndex(c => c.id == partnerNum);
       if (cIdx !== -1) {
         cycles[cIdx].partner = `الشريك ${partnerNum}: ${nameAr}`;
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
       }
-
-      alert(`تم تسجيل وتفعيل حساب الشريك ${partnerNum} بنجاح!`);
-      resetUserForm();
-      renderUsersList();
-      loadAppData();
     }
 
-    function handleLogin() {
-      const email = document.getElementById('login-email').value.trim().toLowerCase();
-      const pass = document.getElementById('login-password').value.trim();
-      const users = getUsers();
-
-      const user = users.find(u => u.email.toLowerCase() === email && u.pass === pass);
-      if (user) {
-        sessionStorage.setItem('current_user', JSON.stringify(user));
-        document.getElementById('login-error').classList.add('hidden');
-        checkAuth();
-      } else {
-        document.getElementById('login-error').classList.remove('hidden');
+    function savePartnerCarSelection() {
+      const user = JSON.parse(sessionStorage.getItem('current_user'));
+      if (!user || !user.partnerNum) {
+        alert('يرجى تسجيل الدخول بحساب شريك مخصص');
+        return;
       }
+
+      const carName = document.getElementById('partner-car-name').value.trim();
+      const carTrim = document.getElementById('partner-car-trim').value.trim();
+      const carPrice = parseFloat(document.getElementById('partner-car-price').value) || 0;
+
+      if (!carName) {
+        alert('يرجى إدخال اسم ونوع السيارة');
+        return;
+      }
+
+      const fullCarDesc = carTrim ? `${carName} (${carTrim})` : carName;
+
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
+      const cIdx = cycles.findIndex(c => c.id == user.partnerNum);
+      if (cIdx !== -1) {
+        cycles[cIdx].car = fullCarDesc;
+        if (carPrice > 0) cycles[cIdx].priceKwd = carPrice;
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+        alert('تم حفظ بيانات السيارة والمواصفات بنجاح!');
+        loadAppData();
+      }
+    }
+
+    function calculatePartnerFinancials(user) {
+      if (!user) return;
+      const partnerNum = user.partnerNum || "1";
+      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
+      const cycle = cycles.find(c => c.id == partnerNum) || cycles[0];
+
+      const allocatedBudget = cycle.priceKwd || 3000;
+      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
+      const approvedExpenses = expenses.filter(e => e.status === 'approved' && e.partner === user.name);
+
+      const totalSpent = approvedExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const remaining = allocatedBudget - totalSpent;
+
+      document.getElementById('rep-partner-tag').innerText = `الشريك ${partnerNum}`;
+      document.getElementById('rep-allocated-budget').innerText = `${allocatedBudget.toLocaleString()} د.ك`;
+      document.getElementById('rep-spent-budget').innerText = `${totalSpent.toLocaleString()} د.ك`;
+      document.getElementById('rep-remaining-budget').innerText = `${remaining.toLocaleString()} د.ك`;
+
+      // Fill Car Form
+      document.getElementById('partner-car-name').value = cycle.car !== 'لم تُحدد' ? cycle.car : '';
+      document.getElementById('partner-car-price').value = cycle.priceKwd || '';
     }
 
     function checkAuth() {
@@ -529,6 +574,7 @@
       } else {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('user-badge').innerText = `${currentUser.name} (${getRoleLabel(currentUser.role)})`;
+        calculatePartnerFinancials(currentUser);
         applyPermissions(currentUser);
         loadAppData();
       }
@@ -544,7 +590,7 @@
         div.className = 'flex justify-between items-center bg-white p-2.5 rounded-xl border border-amber-200';
         div.innerHTML = `
           <div>
-            <strong class="text-slate-900">[الشريك ${u.partnerNum || 'أدمن'}] ${u.name}</strong>
+            <strong class="text-slate-900">[الشريك ${u.partnerNum || '1'}] ${u.name}</strong>
             <div class="text-[10px] text-slate-500">${u.email} | كلمة السر: ${u.pass}</div>
           </div>
           <div class="space-x-1 space-x-reverse">
@@ -556,7 +602,51 @@
       });
     }
 
-    // OCR Parser for ID Scanning
+    function editUser(email) {
+      const users = getUsers();
+      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (!user) return;
+
+      document.getElementById('editing-user-email').value = user.email;
+      document.getElementById('new-user-name-ar').value = user.name || '';
+      document.getElementById('new-user-name-en').value = user.nameEn || '';
+      document.getElementById('new-user-civilid').value = user.civilId || '';
+      document.getElementById('new-user-email').value = user.email || '';
+      document.getElementById('new-user-pass').value = user.pass || '';
+      document.getElementById('new-user-role').value = user.role || 'editor';
+      document.getElementById('new-user-partner-num').value = user.partnerNum || '1';
+
+      document.getElementById('save-partner-btn').innerText = '💾 حفظ تعديلات الحساب';
+      document.getElementById('save-partner-btn').classList.replace('bg-amber-800', 'bg-emerald-700');
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+    }
+
+    function deleteUser(email) {
+      if (email.toLowerCase() === defaultAdmin.email.toLowerCase()) {
+        alert('لا يمكن حذف حساب الأدمن الرئيسي!');
+        return;
+      }
+      if (confirm(`⚠️ هل أنت متأكد من حذف الحساب (${email}) نهائياً؟`)) {
+        let users = getUsers();
+        users = users.filter(u => u.email.toLowerCase() !== email.toLowerCase());
+        localStorage.setItem('app_users', JSON.stringify(users));
+        alert('تم حذف الحساب بنجاح!');
+        renderUsersList();
+      }
+    }
+
+    function resetUserForm() {
+      document.getElementById('editing-user-email').value = '';
+      document.getElementById('new-user-name-ar').value = '';
+      document.getElementById('new-user-name-en').value = '';
+      document.getElementById('new-user-civilid').value = '';
+      document.getElementById('new-user-email').value = '';
+      document.getElementById('new-user-pass').value = '';
+      document.getElementById('save-partner-btn').innerText = '+ تسجيل الشريك وتفعيل حسابه';
+      document.getElementById('save-partner-btn').classList.replace('bg-emerald-700', 'bg-amber-800');
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+    }
+
     async function processIDWithOCR() {
       const fileInput = document.getElementById('ocr-id-file');
       const statusBox = document.getElementById('ocr-status');
@@ -584,6 +674,21 @@
       }
     }
 
+    function handleLogin() {
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const pass = document.getElementById('login-password').value.trim();
+      const users = getUsers();
+
+      const user = users.find(u => u.email.toLowerCase() === email && u.pass === pass);
+      if (user) {
+        sessionStorage.setItem('current_user', JSON.stringify(user));
+        document.getElementById('login-error').classList.add('hidden');
+        checkAuth();
+      } else {
+        document.getElementById('login-error').classList.remove('hidden');
+      }
+    }
+
     function switchScreen(screenId, title) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(`screen-${screenId}`).classList.add('active');
@@ -591,7 +696,7 @@
     }
 
     function getRoleLabel(role) {
-      if(role === 'admin') return 'الأدمن الرئيسي';
+      if(role === 'admin') return 'أدمن (صلاحية كاملة)';
       if(role === 'editor') return 'مُدخل بيانات';
       return 'مشاهد فقط';
     }
@@ -607,17 +712,17 @@
 
       if (user.role === 'admin') {
         navAdminBtn.classList.remove('hidden');
-        partnerContractBox.classList.add('hidden');
         renderUsersList();
         renderPendingExpenses();
         populateCyclesSelect();
       } else {
         navAdminBtn.classList.add('hidden');
-        if (user.signedContractUrl) {
-          partnerContractBox.classList.remove('hidden');
-        } else {
-          partnerContractBox.classList.add('hidden');
-        }
+      }
+
+      if (user.signedContractUrl) {
+        partnerContractBox.classList.remove('hidden');
+      } else {
+        partnerContractBox.classList.add('hidden');
       }
     }
 
@@ -659,6 +764,7 @@
       document.getElementById('exp-amount').value = '';
       renderExpensesHistory();
       renderPendingExpenses();
+      calculatePartnerFinancials(currentUser);
     }
 
     function renderPendingExpenses() {
@@ -705,6 +811,8 @@
         alert('تم اعتماد المصروف بنجاح!');
         renderPendingExpenses();
         renderExpensesHistory();
+        const user = JSON.parse(sessionStorage.getItem('current_user'));
+        calculatePartnerFinancials(user);
       }
     }
 
@@ -817,7 +925,7 @@
             <span class="text-slate-900">الدور ${c.id}: ${c.partner}</span>
             <span class="${c.status === 'active' ? 'text-emerald-700' : 'text-slate-400'}">${c.status === 'active' ? 'نشط حالياً' : 'قيد الانتظار'}</span>
           </div>
-          <div class="text-slate-600">السيارة: ${c.car} | المرحلة: ${c.stage}</div>
+          <div class="text-slate-600">السيارة: ${c.car} | الميزانية المرصودة: ${c.priceKwd || 3000} د.ك</div>
         `;
         container.appendChild(div);
       });
@@ -839,7 +947,7 @@
         totalKwd += e.amount;
         const div = document.createElement('div');
         div.className = 'flex justify-between py-1.5';
-        div.innerHTML = `<span>${e.desc} (${e.date})</span><strong class="text-slate-800">${e.amount} ${e.curr}</strong>`;
+        div.innerHTML = `<span>${e.desc} (${e.date}) - بواسطة: ${e.partner}</span><strong class="text-slate-800">${e.amount} ${e.curr}</strong>`;
         container.appendChild(div);
       });
       document.getElementById('dash-total-expenses').innerText = `${totalKwd.toFixed(2)} د.ك`;
@@ -865,7 +973,7 @@
       const cycle = cycles.find(c => c.id === id);
       if (cycle) {
         document.getElementById('edit-car-name').value = cycle.car !== "لم تُحدد" ? cycle.car : '';
-        document.getElementById('edit-car-price').value = cycle.priceKwd || '';
+        document.getElementById('edit-car-price').value = cycle.priceKwd || 3000;
         document.getElementById('edit-cycle-stage').value = cycle.stage || 'تجهيز الميزانية';
       }
     }
@@ -890,7 +998,7 @@
         cycles[idx].stage = stage;
         cycles[idx].pct = pct;
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
-        alert('تم حفظ تعديلات الدور والسيارة بنجاح!');
+        alert('تم حفظ تعديلات الدور والميزانية المرصودة بنجاح!');
         loadAppData();
       }
     }
