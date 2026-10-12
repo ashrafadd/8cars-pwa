@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مبادرة الـ 8 سيارات - إدارة الصندوق والعقود</title>
+  <title>مبادرة الـ 8 سيارات - صندوق الشركاء والعقود</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,14 +14,34 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       -webkit-user-select: none; user-select: none;
     }
-    @media print { body { display: block !important; } .no-print { display: none !important; } }
     .screen { display: none; }
     .screen.active { display: block; }
+
+    /* Standard A4 Print & PDF View Styles */
+    @media print {
+      body * { visibility: hidden; }
+      #printable-a4-area, #printable-a4-area * { visibility: visible; }
+      #printable-a4-area {
+        position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px;
+      }
+      .no-print { display: none !important; }
+    }
+    .a4-container {
+      width: 210mm; min-height: 297mm; padding: 20mm; margin: 0 auto;
+      background: white; border: 1px solid #d1d5db; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-20" oncontextmenu="return false;">
 
-  <!-- Login Overlay -->
+  <!-- Printable A4 Hidden Area -->
+  <div id="printable-a4-area" class="hidden">
+    <div class="a4-container text-right space-y-6 text-slate-900" id="a4-content-body">
+      <!-- Dynamic A4 Content Generated Here -->
+    </div>
+  </div>
+
+  <!-- Login Screen Overlay -->
   <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-xl text-right">
       <div class="text-center space-y-1">
@@ -56,8 +76,16 @@
     <button onclick="handleLogout()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700">خروج</button>
   </header>
 
+  <!-- Admin Notification Bar for Un-invoiced Expenses -->
+  <div id="admin-notify-bar" class="bg-amber-500 text-slate-900 px-4 py-2 font-bold text-xs flex justify-between items-center hidden no-print">
+    <span>⚠️ توجد مصروفات جديدة بدون فواتير بانتظار موافقتك!</span>
+    <button onclick="switchScreen('admin', 'لوحة الأدمن'); focusPendingExpenses();" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px]">
+      مراجعة الآن
+    </button>
+  </div>
+
   <!-- App Content Area -->
-  <main class="p-4 max-w-md mx-auto space-y-4">
+  <main class="p-4 max-w-md mx-auto space-y-4 no-print">
 
     <!-- Screen 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
@@ -91,12 +119,12 @@
         </div>
       </div>
 
-      <!-- Partner's Own Signed Contract Viewer -->
+      <!-- Partner's Own Signed Contract Viewer (For Partner Role Only) -->
       <div id="partner-contract-box" class="bg-blue-50 rounded-2xl p-4 shadow-sm border border-blue-200 space-y-2 hidden">
-        <h3 class="font-bold text-blue-900 text-xs">📄 عقدك الفردي الموقّع مع الصندوق</h3>
-        <p class="text-[11px] text-blue-700">يمكنك معاينة أو تحميل نسخة العقد الخاص بك المعتمد من الأدمن.</p>
-        <button onclick="viewMyContract()" class="w-full bg-blue-700 text-white py-2 rounded-xl text-xs font-bold shadow">
-          معاينة العقد الموقّع
+        <h3 class="font-bold text-blue-900 text-xs">📄 عقد الالتزام الفردي الخاص بك الموقّع</h3>
+        <p class="text-[11px] text-blue-700">يمكنك معاينة أو طباعة العقد الفردي المعتمد الخاص بك على قياس A4.</p>
+        <button onclick="previewPartnerSignedContract()" class="w-full bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold shadow">
+          👁️ معاينة وطباعة عقدي الفردي (A4)
         </button>
       </div>
     </section>
@@ -115,7 +143,7 @@
         <h3 class="font-bold text-slate-800 text-sm">تسجيل مصروف جديد للعملية الحالية</h3>
         <div>
           <label class="block text-xs font-medium text-slate-600 mb-1">بيان المصروف</label>
-          <input type="text" id="exp-desc" placeholder="مثال: رسوم جمارك / لوحات التصدير" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
+          <input type="text" id="exp-desc" placeholder="مثال: رسوم لوحات التصدير" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
         </div>
         
         <div class="grid grid-cols-2 gap-2">
@@ -140,7 +168,7 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] text-amber-800 mb-0.5">سعر الصرف (1 د.ك = كم ج.م؟)</label>
-              <input type="number" id="exp-rate" value="160" placeholder="مثال: 160" oninput="calculateConvertedAmount()" class="w-full p-2 text-xs border border-amber-300 rounded-lg outline-none bg-white">
+              <input type="number" id="exp-rate" value="160" placeholder="160" oninput="calculateConvertedAmount()" class="w-full p-2 text-xs border border-amber-300 rounded-lg outline-none bg-white">
             </div>
             <div>
               <label class="block text-[10px] text-amber-800 mb-0.5">المعادل بالدينار الكويتي</label>
@@ -150,9 +178,9 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">صورة الفاتورة / الوصل (إن وجدت)</label>
+          <label class="block text-xs font-medium text-slate-600 mb-1">صورة الفاتورة / الوصل (اختياري)</label>
           <input type="file" id="exp-receipt-file" accept="image/*" capture="environment" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700">
-          <p class="text-[10px] text-slate-400 mt-1">* إذا لم ترفع صورة الفاتورة سيطلب النظام اعتماداً مسبقاً من الأدمن.</p>
+          <p class="text-[10px] text-amber-700 mt-1">* إذا تم الحفظ بدون فاتورة، سيرسل النظام إشعاراً للأدمن للاعتماد/الرفض.</p>
         </div>
 
         <button onclick="saveExpense()" class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl shadow-md text-sm active:scale-95 transition-transform">
@@ -168,43 +196,25 @@
       </div>
     </section>
 
-    <!-- Screen 4: Admin Management Panel / لوحة الأدمن الشاملة -->
+    <!-- Screen 4: Admin Panel / لوحة الأدمن الشاملة -->
     <section id="screen-admin" class="screen space-y-4">
 
-      <!-- Edit Roles & Cars Data -->
-      <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm space-y-3">
-        <h3 class="font-bold text-emerald-400 text-sm">تعديل الأدوار والسيارات داخل الكويت</h3>
-        <div class="space-y-2">
-          <select id="admin-cycle-select" onchange="loadCycleDetailsForEdit()" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-            <!-- Dynamic Cycles Options -->
-          </select>
-          <input type="text" id="edit-car-name" placeholder="نوع الموديل والسيارة (مثال: كيا سبورتاج 2026 GT-Line)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-          <input type="number" id="edit-car-price" placeholder="سعر الشراء داخل الكويت (د.ك)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-          <select id="edit-cycle-stage" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-            <option value="تجهيز الميزانية">1. تجهيز الميزانية (0%)</option>
-            <option value="الشراء بالكويت">2. الشراء بالكويت (25%)</option>
-            <option value="الشحن والتصدير">3. الشحن والتصدير (50%)</option>
-            <option value="التخليص بمصر">4. التخليص الجمركي بمصر (75%)</option>
-            <option value="البيع وتسوية الدور">5. البيع وتسوية الدور (100%)</option>
-          </select>
-          <div>
-            <label class="block text-[10px] text-slate-400 mb-1">فاتورة الشراء بالكويت:</label>
-            <input type="file" id="edit-car-invoice" accept="image/*" class="w-full text-xs text-slate-300">
-          </div>
-          <button onclick="saveCycleUpdates()" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold shadow">
-            حفظ تعديلات الدور والسيارة
-          </button>
+      <!-- Un-invoiced Expense Approval Zone -->
+      <div id="admin-approval-section" class="bg-purple-50 rounded-2xl p-4 shadow-sm border border-purple-200 space-y-3">
+        <h3 class="font-bold text-purple-900 text-sm">اعتماد المصروفات التي بدون فواتير</h3>
+        <div id="pending-expenses-list" class="space-y-2 text-xs">
+          <!-- Rendered Pending Expenses -->
         </div>
       </div>
 
-      <!-- Add Partners with Smart OCR ID Scanner -->
+      <!-- Add Partner with OCR ID Reader & Signed Contract Upload -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-sm">إضافة شريك جديد + القارئ الضوئي للبطاقات (OCR)</h3>
+        <h3 class="font-bold text-amber-900 text-sm">تسجيل شريك جديد + القارئ الضوئي (OCR)</h3>
         
         <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
-          <span class="text-xs font-bold text-amber-900 block">1. المسح الضوئي للبطاقة (الكويتية / المصرية):</span>
+          <span class="text-xs font-bold text-amber-900 block">1. رفع صورة البطاقة المدنية / القومية للمسح الضوئي:</span>
           <input type="file" id="ocr-id-file" accept="image/*" capture="environment" onchange="processIDWithOCR()" class="w-full text-xs text-slate-500">
-          <div id="ocr-status" class="text-[10px] text-slate-500 font-bold hidden">جاري تحليل بيانات البطاقة بالذكاء الاصطناعي... ⏳</div>
+          <div id="ocr-status" class="text-[10px] text-slate-500 font-bold hidden">جاري قراءة الاسم والرقم بالذكاء الاصطناعي... ⏳</div>
         </div>
 
         <div class="space-y-2">
@@ -218,42 +228,73 @@
             <option value="viewer">مشاهد فقط (عرض البيانات)</option>
           </select>
 
-          <div>
-            <label class="block text-[10px] text-amber-900 mb-1 font-bold">إرفاق عقد الالتزام الفردي الموقّع للشريك:</label>
-            <input type="file" id="new-user-contract-file" accept="image/*,application/pdf" class="w-full text-xs text-slate-500">
+          <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
+            <label class="block text-xs font-bold text-amber-900">2. تحميل عقد الالتزام الفردي الموقّع للماكينة/الشريك (Scan):</label>
+            <input type="file" id="new-user-contract-file" accept="image/*" class="w-full text-xs text-slate-500">
           </div>
 
-          <button onclick="addUser()" class="w-full bg-amber-800 text-white py-2 rounded-lg text-xs font-bold shadow">
-            + تسجيل الشريك وإعتماد حسابه
+          <button onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+            + تسجيل الشريك وحفظ البيانات بشكل دائم
           </button>
         </div>
         <div id="users-list" class="space-y-1 text-xs pt-2"></div>
       </div>
 
-      <!-- Contracts Management Zone (Print / Attach) -->
+      <!-- Contracts Template & Scan Management Zone -->
       <div class="bg-blue-50 rounded-2xl p-4 shadow-sm border border-blue-200 space-y-3">
-        <h3 class="font-bold text-blue-900 text-sm">طباعة وإدارة العقود (الجماعي / الفردي)</h3>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="printGroupContract()" class="bg-blue-700 text-white py-2 rounded-xl text-xs font-bold shadow">
-            🖨️ طباعة العقد الجماعي
-          </button>
-          <button onclick="printIndividualContract()" class="bg-indigo-700 text-white py-2 rounded-xl text-xs font-bold shadow">
-            📄 طباعة عقد التزام فردي
+        <h3 class="font-bold text-blue-900 text-sm">إدارة وتنسيق العقود (A4 Layout)</h3>
+        
+        <!-- Group Contract Actions -->
+        <div class="bg-white p-3 rounded-xl border border-blue-200 space-y-2">
+          <span class="text-xs font-bold text-blue-900 block">العقد الجماعي للمشروع:</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="previewContractTemplate('group')" class="bg-blue-700 text-white py-2 rounded-lg text-xs font-bold">
+              📄 معاينة وطباعة الصيغة (A4)
+            </button>
+            <label class="bg-blue-900 text-white py-2 rounded-lg text-xs font-bold text-center cursor-pointer">
+              <span>📤 رفع العقد الموقّع (Scan)</span>
+              <input type="file" accept="image/*" onchange="uploadSignedGroupContract(this)" class="hidden">
+            </label>
+          </div>
+          <div id="signed-group-contract-status" class="text-[10px] text-emerald-700 font-bold hidden">
+            ✅ تم رفع صورة العقد الجماعي الموقّع بنجاح!
+          </div>
+        </div>
+
+        <!-- Individual Contract Actions -->
+        <div class="bg-white p-3 rounded-xl border border-blue-200 space-y-2">
+          <span class="text-xs font-bold text-blue-900 block">عقد الالتزام الفردي:</span>
+          <button onclick="previewContractTemplate('individual')" class="w-full bg-indigo-700 text-white py-2 rounded-lg text-xs font-bold">
+            📄 معاينة وطباعة صيغة العقد الفردي (A4)
           </button>
         </div>
       </div>
 
-      <!-- Expense Approval Management Zone -->
-      <div class="bg-purple-50 rounded-2xl p-4 shadow-sm border border-purple-200 space-y-3">
-        <h3 class="font-bold text-purple-900 text-sm">اعتماد المصروفات التي بدون فواتير</h3>
-        <div id="pending-expenses-list" class="space-y-2 text-xs">
-          <!-- Rendered Pending Expenses -->
+      <!-- Edit Roles & Cars Data -->
+      <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm space-y-3">
+        <h3 class="font-bold text-emerald-400 text-sm">تعديل الأدوار والسيارات داخل الكويت</h3>
+        <div class="space-y-2">
+          <select id="admin-cycle-select" onchange="loadCycleDetailsForEdit()" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
+            <!-- Dynamic Cycles -->
+          </select>
+          <input type="text" id="edit-car-name" placeholder="نوع الموديل والسيارة (مثال: كيا سبورتاج 2026)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
+          <input type="number" id="edit-car-price" placeholder="سعر الشراء داخل الكويت (د.ك)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
+          <select id="edit-cycle-stage" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
+            <option value="تجهيز الميزانية">1. تجهيز الميزانية (0%)</option>
+            <option value="الشراء بالكويت">2. الشراء بالكويت (25%)</option>
+            <option value="الشحن والتصدير">3. الشحن والتصدير (50%)</option>
+            <option value="التخليص بمصر">4. التخليص الجمركي بمصر (75%)</option>
+            <option value="البيع وتسوية الدور">5. البيع وتسوية الدور (100%)</option>
+          </select>
+          <button onclick="saveCycleUpdates()" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold shadow">
+            حفظ تعديلات الدور والسيارة
+          </button>
         </div>
       </div>
 
-      <!-- Reset System Zone -->
+      <!-- Reset Data Zone -->
       <div class="bg-red-50 rounded-2xl p-4 shadow-sm border border-red-200 space-y-3">
-        <h3 class="font-bold text-red-900 text-sm">تصفير وقاعدة البيانات</h3>
+        <h3 class="font-bold text-red-900 text-sm">تصفير بيانات الاختبار</h3>
         <button onclick="resetSystemData()" class="w-full bg-red-700 hover:bg-red-800 text-white py-3 rounded-xl text-xs font-bold shadow active:scale-95 transition-transform">
           ⚠️ تصفير جميع البيانات والعودة للبداية
         </button>
@@ -295,12 +336,12 @@
       { id: 3, partner: "الشريك الثالث", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
       { id: 4, partner: "الشريك الرابع", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
       { id: 5, partner: "الشريك الخامس", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 6, partner: "الشريك السادس", car: "لم تُحدد", priceKwd: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 6, partner: "الشريك السادس", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
       { id: 7, partner: "الشريك السابع", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" },
       { id: 8, partner: "الشريك الثامن", car: "لم تُحدد", stage: "تجهيز الميزانية", pct: 0, status: "pending" }
     ];
 
-    // OCR Processing with Tesseract.js
+    // OCR Parser for ID Scanning
     async function processIDWithOCR() {
       const fileInput = document.getElementById('ocr-id-file');
       const statusBox = document.getElementById('ocr-status');
@@ -311,15 +352,21 @@
         const result = await Tesseract.recognize(fileInput.files[0], 'ara+eng');
         const text = result.data.text;
 
-        // Auto Extract Civil ID / National ID Number (12 or 14 digits)
+        // Extract ID Numbers (12-14 Digits)
         const idMatch = text.match(/\b\d{12,14}\b/);
-        if (idMatch) {
-          document.getElementById('new-user-civilid').value = idMatch[0];
-        }
+        if (idMatch) document.getElementById('new-user-civilid').value = idMatch[0];
 
-        alert('تم تحليل البطاقة بنجاح بالمسح الضوئي!');
+        // Extract English Name
+        const enMatch = text.match(/[A-Za-z]{3,}\s+[A-Za-z]{3,}(\s+[A-Za-z]{3,})*/);
+        if (enMatch) document.getElementById('new-user-name-en').value = enMatch[0];
+
+        // Extract Arabic Name
+        const arMatch = text.match(/[\u0600-\u06FF]{3,}\s+[\u0600-\u06FF]{3,}(\s+[\u0600-\u06FF]{3,})*/);
+        if (arMatch) document.getElementById('new-user-name-ar').value = arMatch[0];
+
+        alert('تمت القراءة الضوئية وتحديد البيانات بنجاح!');
       } catch (e) {
-        alert('تعذر قراءة الصورة ضوئياً تلقائياً، يمكنك إدخال البيانات يدوياً.');
+        alert('تعذر استخراج النص ضوئياً تلقائياً، يمكنك إكمال الخانات يدوياً.');
       } finally {
         statusBox.classList.add('hidden');
       }
@@ -332,6 +379,72 @@
         localStorage.setItem('app_users', JSON.stringify(users));
       }
       return users;
+    }
+
+    function addUser() {
+      const nameAr = document.getElementById('new-user-name-ar').value.trim();
+      const nameEn = document.getElementById('new-user-name-en').value.trim();
+      const civilId = document.getElementById('new-user-civilid').value.trim();
+      const email = document.getElementById('new-user-email').value.trim();
+      const pass = document.getElementById('new-user-pass').value.trim();
+      const role = document.getElementById('new-user-role').value;
+      const contractFile = document.getElementById('new-user-contract-file').files[0];
+
+      if (!nameAr || !email || !pass) {
+        alert('يرجى إكمال البيانات الأساسية للشريك');
+        return;
+      }
+
+      let users = getUsers();
+      if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+        alert('هذا البريد مسجل بالفعل!');
+        return;
+      }
+
+      let contractDataUrl = null;
+      if (contractFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          contractDataUrl = e.target.result;
+          saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, contractDataUrl);
+        };
+        reader.readAsDataURL(contractFile);
+      } else {
+        saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, null);
+      }
+    }
+
+    function saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, contractUrl) {
+      users.push({
+        name: nameAr,
+        nameEn: nameEn,
+        civilId: civilId,
+        email: email,
+        pass: pass,
+        role: role,
+        signedContractUrl: contractUrl
+      });
+      localStorage.setItem('app_users', JSON.stringify(users));
+      alert('تم تسجيل بيانات الشريك وحفظها بشكل دائم!');
+      renderUsersList();
+    }
+
+    function renderUsersList() {
+      const users = getUsers();
+      const container = document.getElementById('users-list');
+      container.innerHTML = '';
+      users.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center bg-white p-2 rounded border border-amber-200';
+        div.innerHTML = `
+          <div>
+            <strong>${u.name}</strong> (${u.email})
+            <div class="text-[10px] text-slate-500">الرقم: ${u.civilId || 'غير محدد'}</div>
+          </div>
+          <span class="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded text-amber-800">${getRoleLabel(u.role)}</span>
+        `;
+        container.appendChild(div);
+      });
     }
 
     function switchScreen(screenId, title) {
@@ -380,27 +493,253 @@
 
     function applyPermissions(user) {
       const navAdminBtn = document.getElementById('nav-admin-btn');
-      const navExpBtn = document.getElementById('nav-exp-btn');
       const partnerContractBox = document.getElementById('partner-contract-box');
 
       if (user.role === 'admin') {
         navAdminBtn.classList.remove('hidden');
-        navExpBtn.classList.remove('hidden');
         partnerContractBox.classList.add('hidden');
         renderUsersList();
         renderPendingExpenses();
         populateCyclesSelect();
       } else {
         navAdminBtn.classList.add('hidden');
-        if (user.contractUrl) {
+        if (user.signedContractUrl) {
           partnerContractBox.classList.remove('hidden');
+        } else {
+          partnerContractBox.classList.add('hidden');
         }
       }
+    }
+
+    function saveExpense() {
+      const desc = document.getElementById('exp-desc').value.trim();
+      const amount = parseFloat(document.getElementById('exp-amount').value);
+      const curr = document.getElementById('exp-curr').value;
+      const receiptFile = document.getElementById('exp-receipt-file').files[0];
+      const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
+
+      if (!desc || isNaN(amount)) {
+        alert('يرجى كتابة البيان والمبلغ بشكل صحيح');
+        return;
+      }
+
+      const hasReceipt = !!receiptFile;
+      const isApproved = hasReceipt || currentUser.role === 'admin';
+      const status = isApproved ? 'approved' : 'pending_approval';
+
+      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
+      expenses.push({
+        id: Date.now(),
+        desc,
+        amount,
+        curr,
+        partner: currentUser.name,
+        status: status,
+        date: new Date().toLocaleDateString('ar-EG')
+      });
+      localStorage.setItem('app_expenses', JSON.stringify(expenses));
+
+      if (!isApproved) {
+        alert('تم تقديم المصروف وبانتظار موافقة الأدمن لعدم وجود فاتورة مرفقة.');
+      } else {
+        alert('تم تسجيل المصروف بنجاح!');
+      }
+
+      document.getElementById('exp-desc').value = '';
+      document.getElementById('exp-amount').value = '';
+      renderExpensesHistory();
+      renderPendingExpenses();
+    }
+
+    function renderPendingExpenses() {
+      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
+      const pending = expenses.filter(e => e.status === 'pending_approval');
+      const container = document.getElementById('pending-expenses-list');
+      const notifyBar = document.getElementById('admin-notify-bar');
+
+      if (pending.length > 0) {
+        notifyBar.classList.remove('hidden');
+      } else {
+        notifyBar.classList.add('hidden');
+      }
+
+      if (!container) return;
+      if (pending.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-center py-1">لا توجد مصروفات بانتظار الموافقة</p>';
+        return;
+      }
+      container.innerHTML = '';
+      pending.forEach(e => {
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center bg-white p-2.5 rounded-xl border border-purple-200';
+        div.innerHTML = `
+          <div>
+            <strong>${e.desc}</strong> (${e.amount} ${e.curr})
+            <div class="text-[10px] text-slate-500">بواسطة: ${e.partner}</div>
+          </div>
+          <div class="space-x-1 space-x-reverse">
+            <button onclick="approveExpense(${e.id})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">اعتماد</button>
+            <button onclick="rejectExpense(${e.id})" class="bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold">رفض</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function approveExpense(id) {
+      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
+      const idx = expenses.findIndex(e => e.id === id);
+      if (idx !== -1) {
+        expenses[idx].status = 'approved';
+        localStorage.setItem('app_expenses', JSON.stringify(expenses));
+        alert('تم اعتماد المصروف بنجاح!');
+        renderPendingExpenses();
+        renderExpensesHistory();
+      }
+    }
+
+    function rejectExpense(id) {
+      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
+      expenses = expenses.filter(e => e.id !== id);
+      localStorage.setItem('app_expenses', JSON.stringify(expenses));
+      alert('تم رفض وإلغاء المصروف.');
+      renderPendingExpenses();
+    }
+
+    function focusPendingExpenses() {
+      document.getElementById('admin-approval-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // A4 Printable Contracts Preview Logic
+    function previewContractTemplate(type) {
+      const area = document.getElementById('printable-a4-area');
+      const body = document.getElementById('a4-content-body');
+      
+      if (type === 'group') {
+        body.innerHTML = `
+          <div class="text-center space-y-2 border-b pb-4">
+            <h1 class="text-2xl font-bold">عقد اتفاق وشراكة استثمارية جماعية</h1>
+            <p class="text-sm text-slate-600">صندوق مبادرة استيراد الـ 8 سيارات - دولة الكويت</p>
+          </div>
+          <div class="space-y-4 text-sm leading-relaxed">
+            <p><strong>التمهيد:</strong> تم الاتفاق بين 8 شركاء على تأسيس صندوق استثماري لتدوير واستيراد عدد 8 سيارات من دولة الكويت إلى جمهورية مصر العربية.</p>
+            <p><strong>رأس المال:</strong> يبلغ رأس مال الصندوق المعتمد بالدينار الكويتي بواقع حصص متساوية بين الأطراف الثمانية.</p>
+            <p><strong>المسؤوليات والتوزيع:</strong> يتولى كل شريك مسؤولية تدوير دورته والسيارة المخصصة له حتى البيع وتكفّل كافة الإجراءات مع توزيع الأرباح بالتساوي.</p>
+          </div>
+          <div class="pt-20 grid grid-cols-2 gap-8 text-center text-xs">
+            <div>توقيع الأدمن الرئيسي / ممثل الصندوق<br><br>____________________</div>
+            <div>اعتماد الشركاء الأطراف<br><br>____________________</div>
+          </div>
+        `;
+      } else {
+        body.innerHTML = `
+          <div class="text-center space-y-2 border-b pb-4">
+            <h1 class="text-2xl font-bold">إقرار وتعهد ضمان تنفيذي فردي</h1>
+            <p class="text-sm text-slate-600">صندوق تدوير الـ 8 سيارات</p>
+          </div>
+          <div class="space-y-4 text-sm leading-relaxed">
+            <p>أقر أنا الشريك المذكور أدناه باستلام التمويل المخصص لشراء السيارة المحددة بالدورة، وأتعهد بالتزامي الكامل بإنجاز كافة عمليات الشحن والتصدير والبيع وتوريد رأس المال والأرباح لحساب الصندوق.</p>
+          </div>
+          <div class="pt-20 grid grid-cols-2 gap-8 text-center text-xs">
+            <div>توقيع الشريك المستلم<br><br>____________________</div>
+            <div>توقيع اعتماد الأدمن<br><br>____________________</div>
+          </div>
+        `;
+      }
+
+      area.classList.remove('hidden');
+      window.print();
+      area.classList.add('hidden');
+    }
+
+    function previewPartnerSignedContract() {
+      const user = JSON.parse(sessionStorage.getItem('current_user'));
+      if (!user || !user.signedContractUrl) return;
+
+      const area = document.getElementById('printable-a4-area');
+      const body = document.getElementById('a4-content-body');
+
+      body.innerHTML = `
+        <div class="text-center space-y-2 border-b pb-4">
+          <h1 class="text-xl font-bold">عقد الالتزام الفردي الموقّع للشريك: ${user.name}</h1>
+        </div>
+        <div class="flex justify-center p-4">
+          <img src="${user.signedContractUrl}" class="max-w-full h-auto rounded border shadow">
+        </div>
+      `;
+
+      area.classList.remove('hidden');
+      window.print();
+      area.classList.add('hidden');
+    }
+
+    function uploadSignedGroupContract(input) {
+      if (input.files && input.files[0]) {
+        document.getElementById('signed-group-contract-status').classList.remove('hidden');
+        alert('تم رفع العقد الجماعي الموقّع بنجاح!');
+      }
+    }
+
+    function loadAppData() {
+      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
+      const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
+      const initialBudgetKwd = parseFloat(localStorage.getItem('app_initial_budget_kwd') || '0');
+
+      document.getElementById('dash-active-partner').innerText = `الدور الحالي: ${activeCycle.partner}`;
+      document.getElementById('dash-active-car').innerText = `السيارة: ${activeCycle.car}`;
+      document.getElementById('dash-stage-name').innerText = activeCycle.stage;
+      document.getElementById('dash-stage-pct').innerText = `${activeCycle.pct}%`;
+      document.getElementById('dash-stage-bar').style.width = `${activeCycle.pct}%`;
+
+      document.getElementById('dash-capital-available').innerText = `${initialBudgetKwd.toLocaleString()} د.ك`;
+
+      renderCyclesList(cycles);
+      renderExpensesHistory();
+    }
+
+    function renderCyclesList(cycles) {
+      const container = document.getElementById('cycles-list');
+      container.innerHTML = '';
+      cycles.forEach(c => {
+        const div = document.createElement('div');
+        div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'} space-y-1 text-xs`;
+        div.innerHTML = `
+          <div class="flex justify-between font-bold">
+            <span class="text-slate-900">الدور ${c.id}: ${c.partner}</span>
+            <span class="${c.status === 'active' ? 'text-emerald-700' : 'text-slate-400'}">${c.status === 'active' ? 'نشط حالياً' : 'قيد الانتظار'}</span>
+          </div>
+          <div class="text-slate-600">السيارة: ${c.car} | المرحلة: ${c.stage}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderExpensesHistory() {
+      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
+      const container = document.getElementById('expenses-history');
+      const approved = expenses.filter(e => e.status === 'approved');
+
+      if (approved.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 text-center py-2">لا توجد مصروفات معتمدة بعد</p>';
+        document.getElementById('dash-total-expenses').innerText = '0 د.ك';
+        return;
+      }
+      container.innerHTML = '';
+      let totalKwd = 0;
+      approved.forEach(e => {
+        totalKwd += e.amount;
+        const div = document.createElement('div');
+        div.className = 'flex justify-between py-1.5';
+        div.innerHTML = `<span>${e.desc} (${e.date})</span><strong class="text-slate-800">${e.amount} ${e.curr}</strong>`;
+        container.appendChild(div);
+      });
+      document.getElementById('dash-total-expenses').innerText = `${totalKwd.toFixed(2)} د.ك`;
     }
 
     function populateCyclesSelect() {
       const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
       const select = document.getElementById('admin-cycle-select');
+      if (!select) return;
       select.innerHTML = '';
       cycles.forEach(c => {
         const opt = document.createElement('option');
@@ -435,190 +774,20 @@
       if (stage === 'التخليص بمصر') pct = 75;
       if (stage === 'البيع وتسوية الدور') pct = 100;
 
-      const index = cycles.findIndex(c => c.id === id);
-      if (index !== -1) {
-        cycles[index].car = carName || "لم تُحدد";
-        cycles[index].priceKwd = priceKwd;
-        cycles[index].stage = stage;
-        cycles[index].pct = pct;
+      const idx = cycles.findIndex(c => c.id === id);
+      if (idx !== -1) {
+        cycles[idx].car = carName || "لم تُحدد";
+        cycles[idx].priceKwd = priceKwd;
+        cycles[idx].stage = stage;
+        cycles[idx].pct = pct;
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
         alert('تم حفظ تعديلات الدور والسيارة بنجاح!');
         loadAppData();
       }
     }
 
-    function saveExpense() {
-      const desc = document.getElementById('exp-desc').value.trim();
-      const amount = parseFloat(document.getElementById('exp-amount').value);
-      const curr = document.getElementById('exp-curr').value;
-      const receiptFile = document.getElementById('exp-receipt-file').files[0];
-      const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
-
-      if (!desc || isNaN(amount)) {
-        alert('يرجى كتابة البيان والمبلغ بشكل صحيح');
-        return;
-      }
-
-      const isApproved = receiptFile || currentUser.role === 'admin';
-      const status = isApproved ? 'approved' : 'pending_approval';
-
-      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      expenses.push({ 
-        id: Date.now(),
-        desc, 
-        amount, 
-        curr, 
-        partner: currentUser.name,
-        status: status,
-        date: new Date().toLocaleDateString('ar-EG') 
-      });
-      localStorage.setItem('app_expenses', JSON.stringify(expenses));
-
-      if (!isApproved) {
-        alert('تم تقديم المصروف وبانتظار موافقة الأدمن لعدم وجود فاتورة مرفقة.');
-      } else {
-        alert('تم تسجيل المصروف بنجاح!');
-      }
-
-      document.getElementById('exp-desc').value = '';
-      document.getElementById('exp-amount').value = '';
-      renderExpensesHistory();
-    }
-
-    function renderPendingExpenses() {
-      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      const pending = expenses.filter(e => e.status === 'pending_approval');
-      const container = document.getElementById('pending-expenses-list');
-      if (pending.length === 0) {
-        container.innerHTML = '<p class="text-slate-500 text-center py-1">لا توجد مصروفات بانتظار الموافقة</p>';
-        return;
-      }
-      container.innerHTML = '';
-      pending.forEach(e => {
-        const div = document.createElement('div');
-        div.className = 'flex justify-between items-center bg-white p-2 rounded border border-purple-200';
-        div.innerHTML = `
-          <div>
-            <strong>${e.desc}</strong> (${e.amount} ${e.curr})
-            <div class="text-[10px] text-slate-500">بواسطة: ${e.partner}</div>
-          </div>
-          <button onclick="approveExpense(${e.id})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">اعتماد المصروف</button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function approveExpense(id) {
-      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      const index = expenses.findIndex(e => e.id === id);
-      if (index !== -1) {
-        expenses[index].status = 'approved';
-        localStorage.setItem('app_expenses', JSON.stringify(expenses));
-        alert('تم اعتماد المصروف بنجاح!');
-        renderPendingExpenses();
-        renderExpensesHistory();
-      }
-    }
-
-    function loadAppData() {
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
-      const initialBudgetKwd = parseFloat(localStorage.getItem('app_initial_budget_kwd') || '0');
-
-      document.getElementById('dash-active-partner').innerText = `الدور الحالي: ${activeCycle.partner}`;
-      document.getElementById('dash-active-car').innerText = `السيارة: ${activeCycle.car}`;
-      document.getElementById('dash-stage-name').innerText = activeCycle.stage;
-      document.getElementById('dash-stage-pct').innerText = `${activeCycle.pct}%`;
-      document.getElementById('dash-stage-bar').style.width = `${activeCycle.pct}%`;
-
-      document.getElementById('dash-capital-available').innerText = `${initialBudgetKwd.toLocaleString()} د.ك`;
-      document.getElementById('rep-total-cap').innerText = `${initialBudgetKwd.toLocaleString()} د.ك`;
-
-      renderCyclesList(cycles);
-      renderExpensesHistory();
-    }
-
-    function renderCyclesList(cycles) {
-      const container = document.getElementById('cycles-list');
-      container.innerHTML = '';
-      cycles.forEach(c => {
-        const div = document.createElement('div');
-        div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'} space-y-1 text-xs`;
-        div.innerHTML = `
-          <div class="flex justify-between font-bold">
-            <span class="text-slate-900">الدور ${c.id}: ${c.partner}</span>
-            <span class="${c.status === 'active' ? 'text-emerald-700' : 'text-slate-400'}">${c.status === 'active' ? 'نشط حالياً' : 'قيد الانتظار'}</span>
-          </div>
-          <div class="text-slate-600">السيارة: ${c.car} | المرحلة: ${c.stage}</div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function renderExpensesHistory() {
-      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      const container = document.getElementById('expenses-history');
-      const approved = expenses.filter(e => e.status === 'approved');
-      if (approved.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 text-center py-2">لا توجد مصروفات معتمدة بعد</p>';
-        document.getElementById('dash-total-expenses').innerText = '0 د.ك';
-        return;
-      }
-      container.innerHTML = '';
-      let totalKwd = 0;
-      approved.forEach(e => {
-        totalKwd += e.amount;
-        const div = document.createElement('div');
-        div.className = 'flex justify-between py-1.5';
-        div.innerHTML = `<span>${e.desc} (${e.date})</span><strong class="text-slate-800">${e.amount} ${e.curr}</strong>`;
-        container.appendChild(div);
-      });
-      document.getElementById('dash-total-expenses').innerText = `${totalKwd.toFixed(2)} د.ك`;
-    }
-
-    function addUser() {
-      const nameAr = document.getElementById('new-user-name-ar').value.trim();
-      const nameEn = document.getElementById('new-user-name-en').value.trim();
-      const civilId = document.getElementById('new-user-civilid').value.trim();
-      const email = document.getElementById('new-user-email').value.trim();
-      const pass = document.getElementById('new-user-pass').value.trim();
-      const role = document.getElementById('new-user-role').value;
-
-      if (!nameAr || !email || !pass) { alert('يرجى إكمال البيانات الأساسية للشريك'); return; }
-
-      let users = getUsers();
-      users.push({ name: nameAr, nameEn, civilId, email, pass, role, contractUrl: 'sample_contract.pdf' });
-      localStorage.setItem('app_users', JSON.stringify(users));
-      alert('تم إنشاء وتوثيق حساب الشريك بنجاح!');
-      renderUsersList();
-    }
-
-    function renderUsersList() {
-      const users = getUsers();
-      const container = document.getElementById('users-list');
-      container.innerHTML = '';
-      users.forEach(u => {
-        const div = document.createElement('div');
-        div.className = 'flex justify-between items-center bg-white p-2 rounded border border-amber-200';
-        div.innerHTML = `<div><strong>${u.name}</strong> (${u.email})</div><span class="text-[10px] bg-amber-100 px-1.5 py-0.5 rounded text-amber-800">${getRoleLabel(u.role)}</span>`;
-        container.appendChild(div);
-      });
-    }
-
-    function printGroupContract() {
-      window.print();
-    }
-
-    function printIndividualContract() {
-      window.print();
-    }
-
-    function viewMyContract() {
-      alert('عرض عقد الالتزام الفردي الخاص بك المعتمد من الصندوق.');
-    }
-
     function resetSystemData() {
-      if (confirm('⚠️ هل أنت متأكد من تصفير البيانات والبدء من الصفر؟')) {
+      if (confirm('⚠️ هل أنت متأكد من تصفير البيانات والتجربة من الصفر؟')) {
         localStorage.removeItem('app_expenses');
         localStorage.setItem('app_cycles', JSON.stringify(emptyCycles));
         alert('✅ تم تصفير البيانات بنجاح!');
