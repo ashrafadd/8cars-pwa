@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مبادرة الـ 8 سيارات - صندوق الشركاء والعقود</title>
+  <title>منصة مبادرة الـ 8 سيارات</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,6 +11,11 @@
     body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     .screen { display: none; }
     .screen.active { display: block; }
+    @media print {
+      body * { visibility: hidden; }
+      #printable-area, #printable-area * { visibility: visible; }
+      #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-20">
@@ -53,16 +58,19 @@
     <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-white font-bold border border-red-500 shadow">خروج 🚪</button>
   </header>
 
-  <main class="p-4 max-w-md mx-auto space-y-4">
+  <main class="p-4 max-w-md mx-auto space-y-4" id="printable-area">
     
     <!-- Screen 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
       <!-- Active Partner Card -->
-      <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700">
-        <div class="text-xs text-slate-400 mb-1">الدور الحالي للمشروع</div>
-        <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">الدور الحالي: أشرف عابد</div>
-        <div class="text-xs text-slate-300 mt-1" id="dash-active-car">السيارة: لم تُحدد بعد</div>
-        <div class="mt-2 text-[11px] bg-slate-800 p-2 rounded-lg text-slate-300 flex justify-between">
+      <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs text-slate-400">الدور الحالي للمشروع</span>
+          <span id="dash-active-tag" class="bg-emerald-500 text-slate-900 px-2 py-0.5 rounded font-bold text-[10px]">نشط الان 🟢</span>
+        </div>
+        <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">أشرف عابد</div>
+        <div class="text-xs text-slate-300" id="dash-active-car">السيارة: لم تُحدد بعد</div>
+        <div class="text-[11px] bg-slate-800 p-2.5 rounded-xl text-slate-300 flex justify-between items-center border border-slate-700">
           <span>المرحلة: <strong id="dash-stage-name" class="text-amber-400">تجهيز الميزانية</strong></span>
           <span>الإنجاز: <strong id="dash-progress-pct" class="text-emerald-400">0%</strong></span>
         </div>
@@ -70,10 +78,10 @@
 
       <!-- Financial Report -->
       <div id="partner-financial-report" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
-          <span>📊 تقرير ميزانية ومصروفات دورك</span>
-          <span id="rep-partner-tag" class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px]">الشريك النشط</span>
-        </h3>
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-slate-800 text-xs">📊 تقرير ميزانية ومصروفات دورك</h3>
+          <button onclick="window.print()" class="text-[10px] bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded border">🖨️ طباعة PDF</button>
+        </div>
         <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
           <div class="bg-slate-50 p-2 rounded-xl border">
             <span class="text-[10px] text-slate-500 block">الميزانية المرصودة</span>
@@ -90,23 +98,37 @@
         </div>
       </div>
 
-      <!-- Expense Input Form (For Partner) -->
+      <!-- Expense Form with Direct File Upload -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-xs">➕ إضافة مصروف جديد للسيارة</h3>
         <div class="space-y-2">
           <input type="text" id="exp-desc" placeholder="بيان المصروف (مثال: شحن، جمارك...)" class="w-full p-2 text-xs border rounded-lg outline-none">
-          <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none">
-            <select id="exp-curr" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-              <option value="KWD">دينار كويتي (KWD)</option>
-              <option value="USD">دولار أمريكي (USD)</option>
-              <option value="EUR">يورو (EUR)</option>
+          <div class="grid grid-cols-3 gap-1.5">
+            <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none col-span-2">
+            <select id="exp-curr" onchange="calculateConvertedAmount()" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
+              <option value="KWD">D.K (كويتي)</option>
+              <option value="USD">$ (دولار)</option>
+              <option value="EUR">€ (يورو)</option>
             </select>
           </div>
-          <input type="text" id="exp-receipt" placeholder="رابط صورة الفاتورة (اختياري)" class="w-full p-2 text-xs border rounded-lg outline-none">
-          <button onclick="addExpense()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">
-            تسجيل المصروف وتحديث الميزانية
+          <div id="currency-calc-info" class="text-[10px] text-slate-500 bg-slate-50 p-1.5 rounded hidden">
+            المعادل بالدينار الكويتي: <strong id="converted-kwd-val" class="text-emerald-600">0 د.ك</strong>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 mb-1">إرفاق صورة الفاتورة أو المستند (PDF / Image):</label>
+            <input type="file" id="exp-file" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white">
+          </div>
+          <button id="exp-submit-btn" onclick="addExpense()" class="w-full bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+            تسجيل المصروف والخصم من الميزانية
           </button>
+        </div>
+      </div>
+
+      <!-- Recent Expenses Ledger -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs">📜 كشف المصروفات والعمليات الأخيرة</h3>
+        <div id="expenses-ledger-list" class="space-y-2 text-xs">
+          <!-- Rendered dynamically -->
         </div>
       </div>
     </section>
@@ -135,20 +157,44 @@
           </select>
           <input type="text" id="new-user-name-ar" placeholder="اسم الشريك بالعربية الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="email" id="new-user-email" placeholder="البريد الإلكتروني لشريك" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          <input type="tel" id="new-user-phone" placeholder="رقم الهاتف/الواتساب (مثال: 96590000000)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="password" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          
           <button id="add-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            + تسجيل الشريك وإرساله لـ Google Sheets
+            + تسجيل وتفعيل الشريك
           </button>
         </div>
       </div>
 
-      <!-- Manage Cycle Roles and Stages -->
+      <!-- Partners WhatsApp Direct Invite List -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs">⚙️ تحديث مراحل وأدوار الشركاء الـ 8</h3>
+        <h3 class="font-bold text-slate-800 text-xs">💬 إرسال بيانات الدخول عبر الواتساب</h3>
+        <div id="whatsapp-partners-list" class="space-y-2">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Expense Approval Center for Admin -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
+          <span>🛡️ لوحة اعتماد المصروفات المعلقة</span>
+          <span id="pending-count-tag" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded font-bold">0 معلق</span>
+        </h3>
+        <div id="admin-pending-expenses" class="space-y-2 text-xs">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Cycle Rotation & Stage Controls -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h3 class="font-bold text-slate-800 text-xs">🔄 إدارة وتدوير الأدوار</h3>
+          <button onclick="rotateToNextCycle()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg shadow">
+            إنهاء الدور ونقل الراية للشريك التالي 🏁
+          </button>
+        </div>
         <div class="space-y-2">
-          <select id="admin-cycle-select" onchange="loadAdminCycleData()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
-            <!-- Dynamically Loaded -->
-          </select>
+          <select id="admin-cycle-select" onchange="loadAdminCycleData()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none"></select>
           <input type="text" id="admin-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg outline-none">
           <div class="grid grid-cols-2 gap-2">
             <input type="number" id="admin-budget" placeholder="الميزانية (د.ك)" class="w-full p-2 text-xs border rounded-lg outline-none">
@@ -160,11 +206,6 @@
             <option value="الشحن البحري">الشحن البحري</option>
             <option value="الجمارك والتخليص">الجمارك والتخليص</option>
             <option value="جاهزة للتسليم">جاهزة للتسليم</option>
-          </select>
-          <select id="admin-status" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-            <option value="active">نشط الان 🟢</option>
-            <option value="pending">في الانتظار ⏳</option>
-            <option value="completed">مكتمل 🏁</option>
           </select>
           <button onclick="updateCycleFromAdmin()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">
             تحديث بيانات الدور
@@ -185,8 +226,8 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOTLG3acOS9A3XY5_44dtKe-P362_vt_nBKaSooVrgWo57rCkQ4R2CNIwgzKT6SZSSbw/exec";
 
     const defaultUsers = [
-      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1" },
-      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2" }
+      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000" },
+      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "" }
     ];
 
     const defaultCycles = [
@@ -204,6 +245,26 @@
       const input = document.getElementById(inputId);
       input.type = input.type === "password" ? "text" : "password";
       btn.innerText = input.type === "password" ? "👁️" : "🙈";
+    }
+
+    function calculateConvertedAmount() {
+      const amt = parseFloat(document.getElementById('exp-amount').value) || 0;
+      const curr = document.getElementById('exp-curr').value;
+      const calcBox = document.getElementById('currency-calc-info');
+      const valText = document.getElementById('converted-kwd-val');
+
+      if (curr === 'KWD' || amt <= 0) {
+        calcBox.classList.add('hidden');
+        return amt;
+      }
+
+      let rate = 0.307; // سعر الدولار الافتراضي
+      if (curr === 'EUR') rate = 0.335;
+
+      const kwdVal = (amt * rate).toFixed(3);
+      valText.textContent = `${kwdVal} د.ك`;
+      calcBox.classList.remove('hidden');
+      return parseFloat(kwdVal);
     }
 
     function handleLogin() {
@@ -257,6 +318,7 @@
       const partnerNum = document.getElementById('new-user-partner-num').value;
       const nameAr = document.getElementById('new-user-name-ar').value.trim();
       const email = document.getElementById('new-user-email').value.trim().toLowerCase();
+      const phone = document.getElementById('new-user-phone').value.trim();
       const pass = document.getElementById('new-user-pass').value.trim();
 
       if (!nameAr || !email || !pass) {
@@ -264,14 +326,14 @@
         return;
       }
 
-      const newUserPayload = { type: "new_partner", nameAr, email, pass, role: "editor", partnerNum };
+      const newUserPayload = { type: "new_partner", nameAr, email, pass, role: "editor", partnerNum, phone };
 
       let localUsers = [];
       try {
         localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
       } catch(e) {}
 
-      localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum });
+      localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone });
       localStorage.setItem('app_users', JSON.stringify(localUsers));
 
       let cycles = [];
@@ -293,26 +355,44 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newUserPayload)
         });
-        alert(`✅ تم حفظ الشريك [${nameAr}] بنجاح!`);
+        alert(`✅ تم تسجيل وتفعيل الشريك [${nameAr}] بنجاح!`);
       } catch (e) {
         alert(`تم الحفظ بنجاح.`);
       } finally {
         document.getElementById('new-user-name-ar').value = '';
         document.getElementById('new-user-email').value = '';
+        document.getElementById('new-user-phone').value = '';
         document.getElementById('new-user-pass').value = '';
         loadAppData();
       }
     }
 
-    function addExpense() {
+    async function addExpense() {
       const desc = document.getElementById('exp-desc').value.trim();
-      const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
+      const rawAmt = parseFloat(document.getElementById('exp-amount').value) || 0;
       const curr = document.getElementById('exp-curr').value;
-      const receipt = document.getElementById('exp-receipt').value.trim();
+      const fileInput = document.getElementById('exp-file');
+      const submitBtn = document.getElementById('exp-submit-btn');
 
-      if (!desc || amount <= 0) {
+      if (!desc || rawAmt <= 0) {
         alert('يرجى كتابة بيان المصروف والمبلغ بشكل صحيح');
         return;
+      }
+
+      const convertedKwd = calculateConvertedAmount() || rawAmt;
+      submitBtn.innerText = "جاري الحفظ وإرفاق المستند... ⏳";
+      submitBtn.disabled = true;
+
+      let fileData = null, fileName = "", fileType = "";
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileName = file.name;
+        fileType = file.type;
+        fileData = await new Promise((res) => {
+          const reader = new FileReader();
+          reader.onload = (e) => res(e.target.result);
+          reader.readAsDataURL(file);
+        });
       }
 
       let cycles = defaultCycles;
@@ -323,54 +403,145 @@
       let activeIdx = cycles.findIndex(c => c.status === 'active');
       if (activeIdx === -1) activeIdx = 0;
 
-      cycles[activeIdx].spent = (cycles[activeIdx].spent || 0) + amount;
-      localStorage.setItem('app_cycles', JSON.stringify(cycles));
+      // حفظ المصروف محلياً
+      let expenses = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
+      const newExp = {
+        id: Date.now(),
+        desc,
+        amount: rawAmt,
+        curr,
+        amountKwd: convertedKwd,
+        partner: cycles[activeIdx].partner,
+        status: fileData ? "approved" : "pending",
+        date: new Date().toLocaleDateString('ar-EG')
+      };
+      expenses.unshift(newExp);
+      localStorage.setItem('app_expenses_list', JSON.stringify(expenses));
 
-      // إرسال لـ Google Sheets
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "new_expense",
-          desc,
-          amount,
-          curr,
-          partner: cycles[activeIdx].partner,
-          receipt_url: receipt
-        })
-      });
+      if (newExp.status === "approved") {
+        cycles[activeIdx].spent = (cycles[activeIdx].spent || 0) + convertedKwd;
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+      }
 
-      alert(`✅ تم تسجيل المصروف بمبلغ ${amount} ${curr} بنجاح!`);
+      // إرسال سحابي
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "new_expense",
+            desc,
+            amount: rawAmt,
+            curr,
+            amount_kwd: convertedKwd,
+            partner: cycles[activeIdx].partner,
+            fileData,
+            fileName,
+            fileType
+          })
+        });
+      } catch(e) {}
+
+      alert(fileData ? '✅ تم تسجيل المصروف واعتماده بنجاح!' : '⏳ تم إرسال المصروف وبانتظار موافقة الأدمن (لأنه بدون مستند).');
+      submitBtn.innerText = "تسجيل المصروف والخصم من الميزانية";
+      submitBtn.disabled = false;
       document.getElementById('exp-desc').value = '';
       document.getElementById('exp-amount').value = '';
-      document.getElementById('exp-receipt').value = '';
+      fileInput.value = '';
       loadAppData();
+    }
+
+    function approvePendingExpense(expId) {
+      let expenses = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
+      const idx = expenses.findIndex(e => e.id == expId);
+      if (idx !== -1) {
+        expenses[idx].status = "approved";
+        localStorage.setItem('app_expenses_list', JSON.stringify(expenses));
+
+        let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+        let activeIdx = cycles.findIndex(c => c.status === 'active');
+        if (activeIdx === -1) activeIdx = 0;
+        cycles[activeIdx].spent = (cycles[activeIdx].spent || 0) + expenses[idx].amountKwd;
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+
+        alert('✅ تم اعتماد المصروف واحتسابه ضمن الميزانية!');
+        loadAppData();
+      }
+    }
+
+    function rotateToNextCycle() {
+      if (!confirm("هل أنت متأكد من إنهاء الدور الحالي ونقل الراية للشريك التالي؟")) return;
+
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      let currentIdx = cycles.findIndex(c => c.status === 'active');
+      if (currentIdx !== -1) {
+        cycles[currentIdx].status = 'completed';
+        cycles[currentIdx].pct = 100;
+        cycles[currentIdx].stage = 'جاهزة للتسليم';
+
+        let nextIdx = (currentIdx + 1) % cycles.length;
+        cycles[nextIdx].status = 'active';
+        cycles[nextIdx].spent = 0;
+
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+        alert(`🎉 مبروك! تم إنهاء دور [${cycles[currentIdx].partner}] ونقل الدور للشريك [${cycles[nextIdx].partner}]`);
+        loadAppData();
+      }
+    }
+
+    function sendWhatsAppInvite(name, email, pass, phone) {
+      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+      const appUrl = window.location.href.split('?')[0];
+      const msg = `أهلاً بك م/ ${name} في منصة صندوق الـ 8 سيارات! 🚗%0A%0Aبيانات الدخول الخاصة بك:%0Aالبريد: ${email}%0Aكلمة المرور: ${pass}%0A%0Aرابط المنصة:%0A${appUrl}`;
+      const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+      window.open(url, '_blank');
     }
 
     function loadAppData() {
       let cycles = defaultCycles;
       try {
         const storedCycles = localStorage.getItem('app_cycles');
-        if (storedCycles) {
-          cycles = JSON.parse(storedCycles);
-        }
+        if (storedCycles) cycles = JSON.parse(storedCycles);
       } catch(e) {}
 
       const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
 
-      // 1. تحديث شاشة الرئيسية
-      document.getElementById('dash-active-partner').textContent = `الدور الحالي: ${activeCycle.partner}`;
+      // 1. تحديث الرئيسية
+      document.getElementById('dash-active-partner').textContent = activeCycle.partner;
       document.getElementById('dash-active-car').textContent = `السيارة: ${activeCycle.car || 'لم تُحدد بعد'}`;
       document.getElementById('dash-stage-name').textContent = activeCycle.stage || 'تجهيز الميزانية';
       document.getElementById('dash-progress-pct').textContent = `${activeCycle.pct || 0}%`;
 
-      document.getElementById('rep-partner-tag').textContent = activeCycle.partner;
       document.getElementById('rep-allocated-budget').textContent = `${(activeCycle.budget || 3000).toLocaleString()} د.ك`;
       document.getElementById('rep-spent-budget').textContent = `${(activeCycle.spent || 0).toLocaleString()} د.ك`;
       document.getElementById('rep-remaining-budget').textContent = `${((activeCycle.budget || 3000) - (activeCycle.spent || 0)).toLocaleString()} د.ك`;
 
-      // 2. تحديث جدول الأدوار الـ 8
+      // 2. تحديث كشف المصروفات الأخيرة
+      const expList = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
+      const ledgerBox = document.getElementById('expenses-ledger-list');
+      if (ledgerBox) {
+        ledgerBox.innerHTML = expList.length === 0 ? '<div class="text-slate-400 text-center py-2">لا توجد مصروفات مسجلة بعد</div>' : '';
+        expList.slice(0, 5).forEach(e => {
+          const item = document.createElement('div');
+          item.className = 'flex justify-between items-center p-2 rounded-lg bg-slate-50 border text-xs';
+          item.innerHTML = `
+            <div>
+              <strong class="block text-slate-800">${e.desc}</strong>
+              <span class="text-[10px] text-slate-400">${e.date} - ${e.partner}</span>
+            </div>
+            <div class="text-left">
+              <span class="font-bold text-red-600 block">${e.amountKwd} د.ك</span>
+              <span class="text-[9px] ${e.status === 'approved' ? 'text-emerald-600' : 'text-amber-600'} font-bold">
+                ${e.status === 'approved' ? 'معتمد ✅' : 'قيد الاعتماد ⏳'}
+              </span>
+            </div>
+          `;
+          ledgerBox.appendChild(item);
+        });
+      }
+
+      // 3. تحديث جدول الأدوار الـ 8
       const container = document.getElementById('cycles-list');
       if (container) {
         container.innerHTML = '';
@@ -383,8 +554,8 @@
                 <span class="text-slate-400 block text-[10px]">الدور ${c.id}</span>
                 <span class="text-slate-900 font-bold">${c.partner}</span>
               </div>
-              <span class="${c.status === 'active' ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-600'} px-2 py-1 rounded text-[10px]">
-                ${c.status === 'active' ? 'نشط الان 🟢' : 'في الانتظار ⏳'}
+              <span class="${c.status === 'active' ? 'bg-emerald-200 text-emerald-800' : c.status === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'} px-2 py-1 rounded text-[10px]">
+                ${c.status === 'active' ? 'نشط الان 🟢' : c.status === 'completed' ? 'مكتمل 🏁' : 'في الانتظار ⏳'}
               </span>
             </div>
             <div class="text-[11px] text-slate-600 flex justify-between border-t pt-2 border-slate-100">
@@ -396,7 +567,52 @@
         });
       }
 
-      // 3. تحديث قائمة الأدمن
+      // 4. تحديث قائمة الواتساب والاعتمادات للأدمن
+      let allUsers = defaultUsers;
+      try {
+        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
+        locals.forEach(u => { if (!allUsers.find(x => x.email === u.email)) allUsers.push(u); });
+      } catch(e) {}
+
+      const waBox = document.getElementById('whatsapp-partners-list');
+      if (waBox) {
+        waBox.innerHTML = '';
+        allUsers.forEach(u => {
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg border text-xs';
+          row.innerHTML = `
+            <span>الدور ${u.partnerNum}: <strong>${u.name}</strong></span>
+            <button onclick="sendWhatsAppInvite('${u.name}', '${u.email}', '${u.pass}', '${u.phone || ''}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] px-2.5 py-1 rounded shadow flex items-center space-x-1 space-x-reverse font-bold">
+              <span>💬 واتساب</span>
+            </button>
+          `;
+          waBox.appendChild(row);
+        });
+      }
+
+      // 5. تحديث المصروفات المعلقة
+      const pendingBox = document.getElementById('admin-pending-expenses');
+      const pendingExps = expList.filter(e => e.status === 'pending');
+      document.getElementById('pending-count-tag').textContent = `${pendingExps.length} معلق`;
+      if (pendingBox) {
+        pendingBox.innerHTML = pendingExps.length === 0 ? '<div class="text-slate-400 text-center py-2">لا توجد مصروفات بانتظار الاعتماد 👍</div>' : '';
+        pendingExps.forEach(pe => {
+          const pRow = document.createElement('div');
+          pRow.className = 'flex justify-between items-center p-2 bg-amber-50 rounded-lg border border-amber-200 text-xs';
+          pRow.innerHTML = `
+            <div>
+              <strong>${pe.desc}</strong> (${pe.amountKwd} د.ك)
+              <span class="block text-[9px] text-slate-500">${pe.partner} - بدون مستند مرفق</span>
+            </div>
+            <button onclick="approvePendingExpense(${pe.id})" class="bg-emerald-600 text-white text-[10px] px-2 py-1 rounded font-bold shadow">
+              مواقفة واعتماد ✅
+            </button>
+          `;
+          pendingBox.appendChild(pRow);
+        });
+      }
+
+      // 6. تحديث قائمة تعديل الأدوار
       const adminSelect = document.getElementById('admin-cycle-select');
       if (adminSelect) {
         adminSelect.innerHTML = '';
@@ -423,7 +639,6 @@
         document.getElementById('admin-budget').value = c.budget || 3000;
         document.getElementById('admin-pct').value = c.pct || 0;
         document.getElementById('admin-stage').value = c.stage || 'تجهيز الميزانية';
-        document.getElementById('admin-status').value = c.status || 'pending';
       }
     }
 
@@ -440,7 +655,6 @@
         cycles[idx].budget = parseFloat(document.getElementById('admin-budget').value) || 3000;
         cycles[idx].pct = parseInt(document.getElementById('admin-pct').value) || 0;
         cycles[idx].stage = document.getElementById('admin-stage').value;
-        cycles[idx].status = document.getElementById('admin-status').value;
 
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
         alert('✅ تم تحديث بيانات الدور بنجاح!');
