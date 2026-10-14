@@ -10,7 +10,6 @@
   <style>
     body { 
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      -webkit-user-select: none; user-select: none;
     }
     .screen { display: none; }
     .screen.active { display: block; }
@@ -29,14 +28,14 @@
       <div id="login-error" class="text-xs text-red-500 hidden text-center bg-red-50 p-2 rounded-lg">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
       <div id="login-loading" class="text-xs text-blue-600 hidden text-center bg-blue-50 p-2 rounded-lg font-bold">جاري المزامنة مع قاعدة البيانات السحابية... ⏳</div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">البريد الإلكتروني</label>
+        <label for="login-email" class="block text-xs font-medium text-slate-600 mb-1">البريد الإلكتروني</label>
         <input type="email" id="login-email" placeholder="email@example.com" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
       </div>
       <div>
-        <label class="block text-xs font-medium text-slate-600 mb-1">كلمة المرور</label>
+        <label for="login-password" class="block text-xs font-medium text-slate-600 mb-1">كلمة المرور</label>
         <div class="relative">
           <input type="password" id="login-password" placeholder="••••••••" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900 pl-10">
-          <button type="button" onclick="togglePasswordVisibility('login-password', this)" class="absolute left-3 top-2.5 text-sm text-slate-400 hover:text-slate-600 focus:outline-none">👁️</button>
+          <button type="button" onclick="togglePasswordVisibility('login-password', this)" aria-label="عرض كلمة المرور" class="absolute left-3 top-2.5 text-sm text-slate-400 hover:text-slate-600 focus:outline-none">👁️</button>
         </div>
       </div>
       <button onclick="handleLogin()" class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl shadow-md text-sm active:scale-95 transition-transform">
@@ -105,7 +104,7 @@
         <h3 class="font-bold text-amber-900 text-sm">تسجيل وتفعيل حساب شريك جديد</h3>
         <div class="space-y-2">
           <div>
-            <label class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك:</label>
+            <label for="new-user-partner-num" class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك:</label>
             <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
               <option value="1">الشريك 1 (الدور الأول)</option>
               <option value="2">الشريك 2 (الدور الثاني)</option>
@@ -160,6 +159,17 @@
       { id: 8, partner: "الشريك 8", car: "لم تُحدد", priceKwd: 3000, status: "pending" }
     ];
 
+    // دالة آمنة لقراءة الـ JSON لتجنب توقف الشاشة
+    function safeGetJSON(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (e) {
+        localStorage.removeItem(key);
+        return fallback;
+      }
+    }
+
     function togglePasswordVisibility(inputId, btn) {
       const input = document.getElementById(inputId);
       input.type = input.type === "password" ? "text" : "password";
@@ -167,7 +177,7 @@
     }
 
     function getUsersLocal() {
-      let users = JSON.parse(localStorage.getItem('app_users') || '[]');
+      let users = safeGetJSON('app_users', []);
       defaultUsers.forEach(defUser => {
         if (!users.find(u => u.email.trim().toLowerCase() === defUser.email.toLowerCase())) {
           users.push(defUser);
@@ -176,24 +186,35 @@
       return users;
     }
 
-    // الاستعلام السحابي عبر JSONP لتجاوز حظر المتصفحات للهواتف الجديدة
+    // الاستعلام السحابي بـ JSONP مع Timeout آمن مدته 8 ثوانٍ
     function fetchCloudUsersJSONP() {
       return new Promise((resolve) => {
         const callbackName = 'jsonp_cb_' + Date.now();
-        window[callbackName] = function(data) {
+        let timeoutId;
+
+        const cleanup = () => {
+          clearTimeout(timeoutId);
           delete window[callbackName];
-          document.body.removeChild(script);
-          if (data && data.users) resolve(data.users);
-          else resolve([]);
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+        };
+
+        window[callbackName] = function(data) {
+          cleanup();
+          resolve((data && data.users) ? data.users : []);
         };
 
         const script = document.createElement('script');
         script.src = `${SCRIPT_URL}?action=getUsers&callback=${callbackName}`;
         script.onerror = function() {
-          delete window[callbackName];
-          if (script.parentNode) document.body.removeChild(script);
+          cleanup();
           resolve([]);
         };
+
+        timeoutId = setTimeout(() => {
+          cleanup();
+          resolve([]);
+        }, 8000);
+
         document.body.appendChild(script);
       });
     }
@@ -213,7 +234,6 @@
       let localUsers = getUsersLocal();
       let user = localUsers.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
 
-      // البحث السحابي في Google Sheets عند جلب حساب شريك جديد
       if (!user) {
         const cloudUsers = await fetchCloudUsersJSONP();
         const cloudUser = cloudUsers.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
@@ -235,12 +255,12 @@
     }
 
     function checkAuth() {
-      const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
+      const currentUser = safeGetJSON('current_user', null);
       if (!currentUser) {
         document.getElementById('login-screen').classList.remove('hidden');
       } else {
         document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('user-badge').innerText = currentUser.name;
+        document.getElementById('user-badge').textContent = currentUser.name;
         if (currentUser.role === 'admin') {
           document.getElementById('nav-admin-btn').classList.remove('hidden');
         } else {
@@ -267,19 +287,17 @@
 
       const newUserPayload = { type: "new_partner", nameAr, email, pass, role: "editor", partnerNum };
 
-      // 1. التحديث المحلي
       let users = getUsersLocal();
       users.push({ name: nameAr, email, pass, role: "editor", partnerNum });
       localStorage.setItem('app_users', JSON.stringify(users));
 
-      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      let cycles = safeGetJSON('app_cycles', defaultCycles);
       const cIdx = cycles.findIndex(c => c.id == partnerNum);
       if (cIdx !== -1) {
         cycles[cIdx].partner = nameAr;
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
       }
 
-      // 2. الإرسال لـ Google Sheets
       try {
         await fetch(SCRIPT_URL, {
           method: "POST",
@@ -287,7 +305,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newUserPayload)
         });
-        alert(`✅ تم حفظ الشريك [${nameAr}] وإرسال بياناته بنجاح لـ Google Sheets! يستطيع الآن الدخول من أي هاتف.`);
+        alert(`✅ تم حفظ الشريك [${nameAr}] بنجاح في Google Sheets!`);
       } catch (e) {
         alert(`تم الحفظ بنجاح.`);
       } finally {
@@ -301,10 +319,10 @@
     }
 
     function loadAppData() {
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const cycles = safeGetJSON('app_cycles', defaultCycles);
       const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
 
-      document.getElementById('dash-active-partner').innerText = `الدور الحالي: ${activeCycle.partner}`;
+      document.getElementById('dash-active-partner').textContent = `الدور الحالي: ${activeCycle.partner}`;
       
       const container = document.getElementById('cycles-list');
       if (container) {
@@ -312,31 +330,28 @@
         cycles.forEach(c => {
           const div = document.createElement('div');
           div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'} text-xs font-bold`;
-          div.innerHTML = `<div>الدور ${c.id}: ${c.partner}</div>`;
+          div.textContent = `الدور ${c.id}: ${c.partner}`;
           container.appendChild(div);
         });
       }
     }
 
-    // دالة مسح المحفوظات والكاش الشاملة عند الخروج
     async function handleLogout() {
       if (confirm("هل أنت متأكد من تسجيل الخروج وتفريغ ذاكرة المتصفح نهائياً؟")) {
-        // 1. تفريغ الذاكرة المحلية والجلسة
         sessionStorage.clear();
         localStorage.clear();
 
-        // 2. حظر وتفريغ ملفات الكاش (Cache Storage)
         if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map(name => caches.delete(name)));
+          try {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+          } catch (e) {}
         }
 
-        // 3. مسح الكوكيز المخزنة
         document.cookie.split(";").forEach((c) => {
           document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
         });
 
-        // 4. إعادة توجيه إجبارية لنشر صفحة نظيفة خالية تماماً
         window.location.href = window.location.pathname + '?reset=' + Date.now();
       }
     }
@@ -344,7 +359,7 @@
     function switchScreen(screenId, title) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById(`screen-${screenId}`).classList.add('active');
-      document.getElementById('header-title').innerText = title;
+      document.getElementById('header-title').textContent = title;
     }
 
     checkAuth();
