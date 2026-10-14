@@ -50,7 +50,7 @@
         <div id="user-badge" class="text-[10px] text-slate-400">...</div>
       </div>
     </div>
-    <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-white font-bold border border-red-500 shadow">خروج ومسح الذاكرة 🚪</button>
+    <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-white font-bold border border-red-500 shadow">خروج 🚪</button>
   </header>
 
   <main class="p-4 max-w-md mx-auto space-y-4">
@@ -111,31 +111,26 @@
       btn.innerText = input.type === "password" ? "👁️" : "🙈";
     }
 
-    function getUsers() {
-      let users = [];
-      try {
-        users = JSON.parse(localStorage.getItem('app_users') || '[]');
-      } catch (e) {
-        users = [];
-      }
-      
-      defaultUsers.forEach(defUser => {
-        const found = users.find(u => u.email.toLowerCase() === defUser.email.toLowerCase());
-        if (!found) {
-          users.push(defUser);
-        } else {
-          found.pass = defUser.pass;
-        }
-      });
-      return users;
-    }
-
     function handleLogin() {
-      const email = document.getElementById('login-email').value.trim().toLowerCase();
-      const pass = document.getElementById('login-password').value.trim();
-      const users = getUsers();
+      const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+      const passInput = document.getElementById('login-password').value.trim();
 
-      const user = users.find(u => u.email.toLowerCase() === email && u.pass === pass);
+      if (!emailInput || !passInput) {
+        alert("يرجى إدخال البريد الإلكتروني وكلمة المرور");
+        return;
+      }
+
+      // البحث المباشر في الحسابات المثبتة
+      let user = defaultUsers.find(u => u.email.toLowerCase() === emailInput && u.pass === passInput);
+
+      // البحث في الحسابات المضافة محلياً
+      if (!user) {
+        try {
+          const localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
+          user = localUsers.find(u => u.email.toLowerCase() === emailInput && u.pass === passInput);
+        } catch (e) {}
+      }
+
       if (user) {
         sessionStorage.setItem('current_user', JSON.stringify(user));
         document.getElementById('login-error').classList.add('hidden');
@@ -178,9 +173,13 @@
 
       const newUserPayload = { type: "new_partner", nameAr, email, pass, role: "editor", partnerNum };
 
-      let users = getUsers();
-      users.push({ name: nameAr, email, pass, role: "editor", partnerNum });
-      localStorage.setItem('app_users', JSON.stringify(users));
+      let localUsers = [];
+      try {
+        localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
+      } catch(e) {}
+
+      localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum });
+      localStorage.setItem('app_users', JSON.stringify(localUsers));
 
       try {
         await fetch(SCRIPT_URL, {
@@ -210,7 +209,6 @@
 
     function handleLogout() {
       sessionStorage.clear();
-      localStorage.clear();
       window.location.reload();
     }
 
