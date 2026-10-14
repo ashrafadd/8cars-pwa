@@ -26,7 +26,6 @@
         <p class="text-xs text-slate-500">صندوق مبادرة الـ 8 سيارات</p>
       </div>
       <div id="login-error" class="text-xs text-red-500 hidden text-center bg-red-50 p-2 rounded-lg">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
-      <div id="login-loading" class="text-xs text-blue-600 hidden text-center bg-blue-50 p-2 rounded-lg font-bold">جاري المزامنة مع قاعدة البيانات السحابية... ⏳</div>
       <div>
         <label for="login-email" class="block text-xs font-medium text-slate-600 mb-1">البريد الإلكتروني</label>
         <input type="email" id="login-email" placeholder="email@example.com" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
@@ -144,13 +143,15 @@
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOTLG3acOS9A3XY5_44dtKe-P362_vt_nBKaSooVrgWo57rCkQ4R2CNIwgzKT6SZSSbw/exec";
 
+    // قائمة الحسابات الأساسية المعتمدة والمثبتة كودياً
     const defaultUsers = [
-      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1" }
+      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1" },
+      { email: "amooooer2017@gmail.com", pass: "123456", name: "الشريك الثاني", role: "editor", partnerNum: "2" }
     ];
 
     const defaultCycles = [
       { id: 1, partner: "أشرف عابد", car: "لم تُحدد", priceKwd: 3000, status: "active" },
-      { id: 2, partner: "الشريك 2", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
+      { id: 2, partner: "الشريك الثاني", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
       { id: 3, partner: "الشريك 3", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
       { id: 4, partner: "الشريك 4", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
       { id: 5, partner: "الشريك 5", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
@@ -159,7 +160,6 @@
       { id: 8, partner: "الشريك 8", car: "لم تُحدد", priceKwd: 3000, status: "pending" }
     ];
 
-    // دالة آمنة لقراءة الـ JSON لتجنب توقف الشاشة
     function safeGetJSON(key, fallback) {
       try {
         const raw = localStorage.getItem(key);
@@ -179,47 +179,17 @@
     function getUsersLocal() {
       let users = safeGetJSON('app_users', []);
       defaultUsers.forEach(defUser => {
-        if (!users.find(u => u.email.trim().toLowerCase() === defUser.email.toLowerCase())) {
+        const found = users.find(u => u.email.trim().toLowerCase() === defUser.email.toLowerCase());
+        if (!found) {
           users.push(defUser);
+        } else {
+          found.pass = defUser.pass; // ضمان تحديث كلمة المرور دائماً
         }
       });
       return users;
     }
 
-    // الاستعلام السحابي بـ JSONP مع Timeout آمن مدته 8 ثوانٍ
-    function fetchCloudUsersJSONP() {
-      return new Promise((resolve) => {
-        const callbackName = 'jsonp_cb_' + Date.now();
-        let timeoutId;
-
-        const cleanup = () => {
-          clearTimeout(timeoutId);
-          delete window[callbackName];
-          if (script && script.parentNode) script.parentNode.removeChild(script);
-        };
-
-        window[callbackName] = function(data) {
-          cleanup();
-          resolve((data && data.users) ? data.users : []);
-        };
-
-        const script = document.createElement('script');
-        script.src = `${SCRIPT_URL}?action=getUsers&callback=${callbackName}`;
-        script.onerror = function() {
-          cleanup();
-          resolve([]);
-        };
-
-        timeoutId = setTimeout(() => {
-          cleanup();
-          resolve([]);
-        }, 8000);
-
-        document.body.appendChild(script);
-      });
-    }
-
-    async function handleLogin() {
+    function handleLogin() {
       const email = document.getElementById('login-email').value.trim().toLowerCase();
       const pass = document.getElementById('login-password').value.trim();
 
@@ -228,26 +198,12 @@
         return;
       }
 
-      document.getElementById('login-error').classList.add('hidden');
-      document.getElementById('login-loading').classList.remove('hidden');
-
       let localUsers = getUsersLocal();
       let user = localUsers.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
 
-      if (!user) {
-        const cloudUsers = await fetchCloudUsersJSONP();
-        const cloudUser = cloudUsers.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
-        if (cloudUser) {
-          user = cloudUser;
-          localUsers.push(cloudUser);
-          localStorage.setItem('app_users', JSON.stringify(localUsers));
-        }
-      }
-
-      document.getElementById('login-loading').classList.add('hidden');
-
       if (user) {
         sessionStorage.setItem('current_user', JSON.stringify(user));
+        document.getElementById('login-error').classList.add('hidden');
         checkAuth();
       } else {
         document.getElementById('login-error').classList.remove('hidden');
@@ -282,7 +238,7 @@
         return;
       }
 
-      addBtn.innerText = "جاري الحفظ والمزامنة مع Google Sheets... ⏳";
+      addBtn.innerText = "جاري الحفظ والمزامنة... ⏳";
       addBtn.disabled = true;
 
       const newUserPayload = { type: "new_partner", nameAr, email, pass, role: "editor", partnerNum };
@@ -305,7 +261,7 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newUserPayload)
         });
-        alert(`✅ تم حفظ الشريك [${nameAr}] بنجاح في Google Sheets!`);
+        alert(`✅ تم حفظ الشريك [${nameAr}] بنجاح!`);
       } catch (e) {
         alert(`تم الحفظ بنجاح.`);
       } finally {
