@@ -54,31 +54,58 @@
   </header>
 
   <main class="p-4 max-w-md mx-auto space-y-4">
+    
+    <!-- Screen 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
       <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700">
         <div class="text-xs text-slate-400 mb-1">الدور الحالي للمشروع</div>
-        <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">لم يتم تحديد الشريك بعد</div>
+        <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">الدور الحالي: أشرف عابد</div>
+        <div class="text-xs text-slate-300 mt-1" id="dash-active-car">السيارة: غير محددة بعد</div>
+      </div>
+
+      <!-- Partner Budget & Expense Financial Report -->
+      <div id="partner-financial-report" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
+          <span>📊 تقرير ميزانية ومصروفات دورك</span>
+          <span id="rep-partner-tag" class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px]">الشريك النشط</span>
+        </h3>
+        <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
+          <div class="bg-slate-50 p-2 rounded-xl border">
+            <span class="text-[10px] text-slate-500 block">الميزانية المرصودة</span>
+            <strong id="rep-allocated-budget" class="text-slate-900 font-bold">3,000 د.ك</strong>
+          </div>
+          <div class="bg-red-50 p-2 rounded-xl border border-red-100">
+            <span class="text-[10px] text-red-600 block">إجمالي المصروفات</span>
+            <strong id="rep-spent-budget" class="text-red-700 font-bold">0 د.ك</strong>
+          </div>
+          <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
+            <span class="text-[10px] text-emerald-600 block">المتبقي من الميزانية</span>
+            <strong id="rep-remaining-budget" class="text-emerald-700 font-bold">3,000 د.ك</strong>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Screen 2: Cycles & Roles / الأدوار والعمليات -->
     <section id="screen-cycles" class="screen space-y-4">
       <h2 class="font-bold text-slate-900 text-base">جدول متابعة أدوار الـ 8 شركاء</h2>
       <div id="cycles-list" class="space-y-3"></div>
     </section>
 
+    <!-- Screen 3: Admin Panel / الإعدادات -->
     <section id="screen-admin" class="screen space-y-4">
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
         <h3 class="font-bold text-amber-900 text-sm">تسجيل وتفعيل حساب شريك جديد</h3>
         <div class="space-y-2">
           <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-            <option value="1">الشريك 1</option>
-            <option value="2">الشريك 2</option>
-            <option value="3">الشريك 3</option>
-            <option value="4">الشريك 4</option>
-            <option value="5">الشريك 5</option>
-            <option value="6">الشريك 6</option>
-            <option value="7">الشريك 7</option>
-            <option value="8">الشريك 8</option>
+            <option value="1">الشريك 1 (الدور الأول)</option>
+            <option value="2">الشريك 2 (الدور الثاني)</option>
+            <option value="3">الشريك 3 (الدور الثالث)</option>
+            <option value="4">الشريك 4 (الدور الرابع)</option>
+            <option value="5">الشريك 5 (الدور الخامس)</option>
+            <option value="6">الشريك 6 (الدور السادس)</option>
+            <option value="7">الشريك 7 (الدور السابع)</option>
+            <option value="8">الشريك 8 (الدور الثامن)</option>
           </select>
           <input type="text" id="new-user-name-ar" placeholder="اسم الشريك بالعربية الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="email" id="new-user-email" placeholder="البريد الإلكتروني لشريك" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
@@ -91,6 +118,7 @@
     </section>
   </main>
 
+  <!-- Bottom Navigation -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 px-2 flex justify-around items-center text-[11px] text-slate-500 z-50">
     <button onclick="switchScreen('dashboard', 'الرئيسية')" class="nav-btn text-slate-900 font-bold flex flex-col items-center">📊 الرئيسية</button>
     <button onclick="switchScreen('cycles', 'جدول الأدوار')" class="nav-btn flex flex-col items-center">🔄 الأدوار</button>
@@ -103,6 +131,17 @@
     const defaultUsers = [
       { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1" },
       { email: "amooooer2017@gmail.com", pass: "123456", name: "الشريك الثاني", role: "editor", partnerNum: "2" }
+    ];
+
+    const defaultCycles = [
+      { id: 1, partner: "أشرف عابد", status: "active", budget: 3000, spent: 0 },
+      { id: 2, partner: "الشريك الثاني", status: "pending", budget: 3000, spent: 0 },
+      { id: 3, partner: "الشريك 3", status: "pending", budget: 3000, spent: 0 },
+      { id: 4, partner: "الشريك 4", status: "pending", budget: 3000, spent: 0 },
+      { id: 5, partner: "الشريك 5", status: "pending", budget: 3000, spent: 0 },
+      { id: 6, partner: "الشريك 6", status: "pending", budget: 3000, spent: 0 },
+      { id: 7, partner: "الشريك 7", status: "pending", budget: 3000, spent: 0 },
+      { id: 8, partner: "الشريك 8", status: "pending", budget: 3000, spent: 0 }
     ];
 
     function togglePasswordVisibility(inputId, btn) {
@@ -120,10 +159,8 @@
         return;
       }
 
-      // البحث المباشر في الحسابات المثبتة
       let user = defaultUsers.find(u => u.email.toLowerCase() === emailInput && u.pass === passInput);
 
-      // البحث في الحسابات المضافة محلياً
       if (!user) {
         try {
           const localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
@@ -181,6 +218,18 @@
       localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum });
       localStorage.setItem('app_users', JSON.stringify(localUsers));
 
+      let cycles = [];
+      try {
+        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      } catch(e) {
+        cycles = defaultCycles;
+      }
+      const idx = cycles.findIndex(c => c.id == partnerNum);
+      if (idx !== -1) {
+        cycles[idx].partner = nameAr;
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+      }
+
       try {
         await fetch(SCRIPT_URL, {
           method: "POST",
@@ -200,11 +249,42 @@
     }
 
     function loadAppData() {
-      const cycles = [
-        { id: 1, partner: "أشرف عابد", status: "active" },
-        { id: 2, partner: "الشريك الثاني", status: "pending" }
-      ];
-      document.getElementById('dash-active-partner').textContent = `الدور الحالي: ${cycles[0].partner}`;
+      let cycles = defaultCycles;
+      try {
+        const storedCycles = localStorage.getItem('app_cycles');
+        if (storedCycles) {
+          cycles = JSON.parse(storedCycles);
+        }
+      } catch(e) {}
+
+      const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
+
+      // 1. تحديث شاشة الرئيسية
+      document.getElementById('dash-active-partner').textContent = `الدور الحالي: ${activeCycle.partner}`;
+      document.getElementById('rep-partner-tag').textContent = activeCycle.partner;
+      document.getElementById('rep-allocated-budget').textContent = `${(activeCycle.budget || 3000).toLocaleString()} د.ك`;
+      document.getElementById('rep-spent-budget').textContent = `${(activeCycle.spent || 0).toLocaleString()} د.ك`;
+      document.getElementById('rep-remaining-budget').textContent = `${((activeCycle.budget || 3000) - (activeCycle.spent || 0)).toLocaleString()} د.ك`;
+
+      // 2. تحديث جدول الأدوار الـ 8
+      const container = document.getElementById('cycles-list');
+      if (container) {
+        container.innerHTML = '';
+        cycles.forEach(c => {
+          const div = document.createElement('div');
+          div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'} text-xs font-bold flex justify-between items-center shadow-sm`;
+          div.innerHTML = `
+            <div>
+              <span class="text-slate-500 block text-[10px]">الدور ${c.id}</span>
+              <span class="text-slate-900 font-bold">${c.partner}</span>
+            </div>
+            <span class="${c.status === 'active' ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-600'} px-2 py-1 rounded text-[10px]">
+              ${c.status === 'active' ? 'نشط الان 🟢' : 'في الانتظار ⏳'}
+            </span>
+          `;
+          container.appendChild(div);
+        });
+      }
     }
 
     function handleLogout() {
