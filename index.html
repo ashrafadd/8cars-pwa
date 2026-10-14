@@ -7,8 +7,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Tesseract.js for OCR Photo Scanning -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     body { 
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -16,32 +14,12 @@
     }
     .screen { display: none; }
     .screen.active { display: block; }
-
-    @media print {
-      body * { visibility: hidden; }
-      #printable-a4-area, #printable-a4-area * { visibility: visible; }
-      #printable-a4-area {
-        position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px;
-      }
-      .no-print { display: none !important; }
-    }
-    .a4-container {
-      width: 210mm; min-height: 297mm; padding: 20mm; margin: 0 auto;
-      background: white; border: 1px solid #d1d5db; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen pb-20" oncontextmenu="return false;">
-
-  <!-- Printable A4 Hidden Area -->
-  <div id="printable-a4-area" class="hidden">
-    <div class="a4-container text-right space-y-6 text-slate-900" id="a4-content-body">
-      <!-- Dynamic A4 Content Generated Here -->
-    </div>
-  </div>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-20">
 
   <!-- Login Screen Overlay -->
-  <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4 no-print">
+  <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-xl text-right">
       <div class="text-center space-y-1">
         <span class="text-4xl">🚗</span>
@@ -49,7 +27,7 @@
         <p class="text-xs text-slate-500">صندوق مبادرة الـ 8 سيارات</p>
       </div>
       <div id="login-error" class="text-xs text-red-500 hidden text-center bg-red-50 p-2 rounded-lg">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
-      <div id="sync-status" class="text-[10px] text-blue-600 text-center font-bold">جاري المزامنة مع قاعدة البيانات السحابية... 🔄</div>
+      <div id="login-loading" class="text-xs text-blue-600 hidden text-center bg-blue-50 p-2 rounded-lg font-bold">جاري المزامنة مع قاعدة البيانات السحابية... ⏳</div>
       <div>
         <label class="block text-xs font-medium text-slate-600 mb-1">البريد الإلكتروني</label>
         <input type="email" id="login-email" placeholder="email@example.com" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
@@ -68,7 +46,7 @@
   </div>
 
   <!-- Header -->
-  <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-40 flex justify-between items-center no-print">
+  <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-40 flex justify-between items-center">
     <div class="flex items-center space-x-2 space-x-reverse">
       <span class="text-2xl">🚗</span>
       <div>
@@ -76,19 +54,11 @@
         <div id="user-badge" class="text-[10px] text-slate-400">...</div>
       </div>
     </div>
-    <button onclick="handleLogout()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700">خروج</button>
+    <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-white font-bold border border-red-500 shadow">خروج ومسح الذاكرة 🚪</button>
   </header>
 
-  <!-- Admin Notification Bar for Un-invoiced Expenses -->
-  <div id="admin-notify-bar" class="bg-amber-500 text-slate-900 px-4 py-2 font-bold text-xs flex justify-between items-center hidden no-print">
-    <span>⚠️ توجد مصروفات جديدة بدون فواتير بانتظار موافقتك!</span>
-    <button onclick="switchScreen('admin', 'الإعدادات'); focusPendingExpenses();" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px]">
-      مراجعة الآن
-    </button>
-  </div>
-
   <!-- App Content Area -->
-  <main class="p-4 max-w-md mx-auto space-y-4 no-print">
+  <main class="p-4 max-w-md mx-auto space-y-4">
 
     <!-- Screen 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
@@ -96,30 +66,6 @@
         <div class="text-xs text-slate-400 mb-1">الدور الحالي للمشروع</div>
         <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">لم يتم تحديد الشريك بعد</div>
         <div class="text-sm text-slate-300 mt-1" id="dash-active-car">السيارة: غير محددة</div>
-        
-        <div class="mt-4 space-y-1">
-          <div class="flex justify-between text-xs text-slate-400">
-            <span>مرحلة العملية: <strong class="text-emerald-300" id="dash-stage-name">تجهيز الميزانية</strong></span>
-            <span id="dash-stage-pct">0%</span>
-          </div>
-          <div class="w-full bg-slate-700 rounded-full h-2">
-            <div id="dash-stage-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-        <h2 class="text-sm font-semibold text-slate-500 mb-2">ميزانية الصندوق المتاحة (بالدينار الكويتي)</h2>
-        <div class="grid grid-cols-2 gap-2 text-center">
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-            <div class="text-xs text-emerald-700 font-medium">السيولة المتاحة</div>
-            <div class="text-lg font-bold text-emerald-800 mt-1" id="dash-capital-available">0 د.ك</div>
-          </div>
-          <div class="bg-amber-50 p-3 rounded-xl border border-amber-100">
-            <div class="text-xs text-amber-700 font-medium">إجمالي المصروفات</div>
-            <div class="text-lg font-bold text-amber-800 mt-1" id="dash-total-expenses">0 د.ك</div>
-          </div>
-        </div>
       </div>
 
       <!-- Partner Budget & Expense Financial Report -->
@@ -131,7 +77,7 @@
         <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
           <div class="bg-slate-50 p-2 rounded-xl border">
             <span class="text-[10px] text-slate-500 block">الميزانية المرصودة</span>
-            <strong id="rep-allocated-budget" class="text-slate-900 font-bold">0 د.ك</strong>
+            <strong id="rep-allocated-budget" class="text-slate-900 font-bold">3,000 د.ك</strong>
           </div>
           <div class="bg-red-50 p-2 rounded-xl border border-red-100">
             <span class="text-[10px] text-red-600 block">إجمالي المصروفات</span>
@@ -139,18 +85,9 @@
           </div>
           <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
             <span class="text-[10px] text-emerald-600 block">المتبقي من الميزانية</span>
-            <strong id="rep-remaining-budget" class="text-emerald-700 font-bold">0 د.ك</strong>
+            <strong id="rep-remaining-budget" class="text-emerald-700 font-bold">3,000 د.ك</strong>
           </div>
         </div>
-      </div>
-
-      <!-- Partner's Own Signed Contract Viewer -->
-      <div id="partner-contract-box" class="bg-blue-50 rounded-2xl p-4 shadow-sm border border-blue-200 space-y-2 hidden">
-        <h3 class="font-bold text-blue-900 text-xs">📄 عقد الالتزام الفردي الخاص بك الموقّع</h3>
-        <p class="text-[11px] text-blue-700">يمكنك معاينة أو طباعة العقد الفردي المعتمد الخاص بك على قياس A4.</p>
-        <button onclick="previewPartnerSignedContract()" class="w-full bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold shadow">
-          👁️ معاينة وطباعة عقدي الفردي (A4)
-        </button>
       </div>
     </section>
 
@@ -162,118 +99,13 @@
       </div>
     </section>
 
-    <!-- Screen 3: Add Expense & Select Car / إدخال السيارة والمصروفات -->
-    <section id="screen-expenses" class="screen space-y-4">
-
-      <!-- Section A: Partner Enters Car Details -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-sm">🚘 تحديد بيانات السيارة والفئة المراد شراؤها</h3>
-        <div class="space-y-2 text-xs">
-          <div>
-            <label class="block text-slate-600 mb-1">نوع السيارة والموديل</label>
-            <input type="text" id="partner-car-name" placeholder="مثال: كيا سبورتاج 2026" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
-          </div>
-          <div>
-            <label class="block text-slate-600 mb-1">الفئة / المواصفات (Trim Level)</label>
-            <input type="text" id="partner-car-trim" placeholder="مثال: GT-Line بانوراما" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
-          </div>
-          <div>
-            <label class="block text-slate-600 mb-1">السعر المتوقع / المخطط بالشراء (د.ك)</label>
-            <input type="number" id="partner-car-price" placeholder="مثال: 8500" class="w-full p-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
-          </div>
-          <button onclick="savePartnerCarSelection()" class="w-full bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow active:scale-95 transition-transform">
-            💾 حفظ بيانات السيارة المحددة
-          </button>
-        </div>
-      </div>
-
-      <!-- Section B: Add Expense Form -->
-      <div id="expense-form-container" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-sm">تسجيل مصروف جديد للعملية الحالية</h3>
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">بيان المصروف</label>
-          <input type="text" id="exp-desc" placeholder="مثال: رسوم لوحات التصدير" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
-        </div>
-        
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">المبلغ المدفوع</label>
-            <input type="number" id="exp-amount" placeholder="0.00" oninput="calculateConvertedAmount()" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">العملة</label>
-            <select id="exp-curr" onchange="toggleExchangeRateInput()" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-slate-900 outline-none">
-              <option value="KWD">KWD (دينار كويتي)</option>
-              <option value="EGP">EGP (جنيه مصري)</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="exchange-rate-box" class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-2 hidden">
-          <div class="flex justify-between items-center text-xs text-amber-900 font-bold">
-            <span>تحويل العملة إلى الدينار الكويتي</span>
-            <span>سعر الصرف اللحظي</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-[10px] text-amber-800 mb-0.5">سعر الصرف (1 د.ك = كم ج.م؟)</label>
-              <input type="number" id="exp-rate" value="160" placeholder="160" oninput="calculateConvertedAmount()" class="w-full p-2 text-xs border border-amber-300 rounded-lg outline-none bg-white">
-            </div>
-            <div>
-              <label class="block text-[10px] text-amber-800 mb-0.5">المعادل بالدينار الكويتي</label>
-              <input type="text" id="exp-kwd-calc" readonly value="0.00 د.ك" class="w-full p-2 text-xs border border-amber-300 rounded-lg bg-amber-100 font-bold text-amber-900">
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">صورة الفاتورة / الوصل (اختياري)</label>
-          <input type="file" id="exp-receipt-file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700">
-          <p class="text-[10px] text-amber-700 mt-1">* إذا تم الحفظ بدون فاتورة، سيرسل النظام إشعاراً للأدمن للاعتماد/الرفض.</p>
-        </div>
-
-        <button onclick="saveExpense()" class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl shadow-md text-sm active:scale-95 transition-transform">
-          حفظ المصروف والمزامنة
-        </button>
-      </div>
-
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-        <h4 class="font-bold text-slate-700 text-xs mb-2">سجل المصروفات المسجلة</h4>
-        <div id="expenses-history" class="space-y-2 text-xs divide-y divide-slate-100">
-          <p class="text-slate-400 text-center py-2">لا توجد مصروفات مسجلة بعد</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Screen 4: Admin Panel / لوحة الإعدادات الشاملة للأدمن -->
+    <!-- Screen 3: Admin Panel -->
     <section id="screen-admin" class="screen space-y-4">
-
-      <!-- Un-invoiced Expense Approval Zone -->
-      <div id="admin-approval-section" class="bg-purple-50 rounded-2xl p-4 shadow-sm border border-purple-200 space-y-3">
-        <h3 class="font-bold text-purple-900 text-sm">اعتماد المصروفات التي بدون فواتير</h3>
-        <div id="pending-expenses-list" class="space-y-2 text-xs">
-          <!-- Rendered Pending Expenses -->
-        </div>
-      </div>
-
-      <!-- Add / Edit Partners Zone -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-sm flex justify-between items-center">
-          <span>إدارة حسابات الشركاء وتحديد الصلاحيات</span>
-          <button id="cancel-edit-btn" onclick="resetUserForm()" class="hidden text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">إلغاء التعديل</button>
-        </h3>
-        
-        <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
-          <span class="text-xs font-bold text-amber-900 block">1. رفع صورة البطاقة للمسح الضوئي (OCR):</span>
-          <input type="file" id="ocr-id-file" accept="image/*" onchange="processIDWithOCR()" class="w-full text-xs text-slate-500">
-          <div id="ocr-status" class="text-[10px] text-slate-500 font-bold hidden">جاري قراءة الاسم والرقم بالذكاء الاصطناعي... ⏳</div>
-        </div>
-
+        <h3 class="font-bold text-amber-900 text-sm">تسجيل وتفعيل حساب شريك جديد</h3>
         <div class="space-y-2">
-          <input type="hidden" id="editing-user-email" value="">
-
           <div>
-            <label class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك (من 1 إلى 8):</label>
+            <label class="block text-[10px] font-bold text-amber-900 mb-1">تحديد رقم الدور للشريك:</label>
             <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
               <option value="1">الشريك 1 (الدور الأول)</option>
               <option value="2">الشريك 2 (الدور الثاني)</option>
@@ -285,362 +117,117 @@
               <option value="8">الشريك 8 (الدور الثامن)</option>
             </select>
           </div>
-
-          <input type="text" id="new-user-name-ar" placeholder="الاسم باللغة العربية" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="text" id="new-user-name-en" placeholder="الاسم باللغة الإنجليزية" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="text" id="new-user-civilid" placeholder="الرقم المدني الكويتي / القومي المصري" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="email" id="new-user-email" placeholder="البريد الإلكتروني للدخول" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          <input type="text" id="new-user-name-ar" placeholder="اسم الشريك بالعربية الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          <input type="email" id="new-user-email" placeholder="البريد الإلكتروني للشريك" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          <input type="password" id="new-user-pass" placeholder="كلمة المرور المخصصة له" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           
-          <div class="relative">
-            <input type="password" id="new-user-pass" placeholder="كلمة المرور المثبتة" class="w-full p-2 text-xs border rounded-lg bg-white outline-none pl-10">
-            <button type="button" onclick="togglePasswordVisibility('new-user-pass', this)" class="absolute left-3 top-2 text-xs text-slate-400 hover:text-slate-600 focus:outline-none">👁️</button>
-          </div>
-
-          <div>
-            <label class="block text-[10px] font-bold text-amber-900 mb-1">الصلاحية في النظام:</label>
-            <select id="new-user-role" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-              <option value="editor">مُدخل بيانات (إضافة مصروفات وسيارات)</option>
-              <option value="admin">أدمن (صلاحية كاملة على النظام والإعدادات)</option>
-              <option value="viewer">مشاهد فقط (عرض البيانات)</option>
-            </select>
-          </div>
-
-          <div class="bg-white p-3 rounded-xl border border-amber-300 space-y-2">
-            <label class="block text-xs font-bold text-amber-900">2. تحميل عقد الالتزام الفردي الموقّع للشريك (Scan):</label>
-            <input type="file" id="new-user-contract-file" accept="image/*" class="w-full text-xs text-slate-500">
-          </div>
-
-          <button id="save-partner-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            + تسجيل الشريك وتفعيل حسابه
-          </button>
-        </div>
-
-        <div class="pt-2">
-          <h4 class="font-bold text-amber-900 text-xs mb-1">قائمة الشركاء المسجلين حالياً:</h4>
-          <div id="users-list" class="space-y-1.5 text-xs"></div>
-        </div>
-      </div>
-
-      <!-- Contracts Template Management -->
-      <div class="bg-blue-50 rounded-2xl p-4 shadow-sm border border-blue-200 space-y-3">
-        <h3 class="font-bold text-blue-900 text-sm">إدارة وتنسيق العقود (A4 Layout)</h3>
-        
-        <div class="bg-white p-3 rounded-xl border border-blue-200 space-y-2">
-          <span class="text-xs font-bold text-blue-900 block">العقد الجماعي للمشروع:</span>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="previewContractTemplate('group')" class="bg-blue-700 text-white py-2 rounded-lg text-xs font-bold">
-              📄 معاينة وطباعة الصيغة (A4)
-            </button>
-            <label class="bg-blue-900 text-white py-2 rounded-lg text-xs font-bold text-center cursor-pointer">
-              <span>📤 رفع العقد الموقّع (Scan)</span>
-              <input type="file" accept="image/*" onchange="uploadSignedGroupContract(this)" class="hidden">
-            </label>
-          </div>
-          <div id="signed-group-contract-status" class="text-[10px] text-emerald-700 font-bold hidden">
-            ✅ تم رفع صورة العقد الجماعي الموقّع بنجاح!
-          </div>
-        </div>
-
-        <div class="bg-white p-3 rounded-xl border border-blue-200 space-y-2">
-          <span class="text-xs font-bold text-blue-900 block">عقد الالتزام الفردي:</span>
-          <button onclick="previewContractTemplate('individual')" class="w-full bg-indigo-700 text-white py-2 rounded-lg text-xs font-bold">
-            📄 معاينة وطباعة صيغة العقد الفردي (A4)
+          <button id="add-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+            + تسجيل الشريك وإرساله لـ Google Sheets
           </button>
         </div>
       </div>
-
-      <!-- Edit Roles & Budget Allocations per Cycle -->
-      <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm space-y-3">
-        <h3 class="font-bold text-emerald-400 text-sm">تحديد الميزانيات والأدوار للـ 8 شركاء</h3>
-        <div class="space-y-2">
-          <select id="admin-cycle-select" onchange="loadCycleDetailsForEdit()" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-            <!-- Dynamic Cycles -->
-          </select>
-          <div>
-            <label class="block text-[10px] text-slate-400 mb-1">الميزانية المرصودة لسيارة هذا الدور (د.ك):</label>
-            <input type="number" id="edit-car-price" placeholder="الميزانية المرصودة بالدينار الكويتي" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-          </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 mb-1">نوع السيارة والموديل:</label>
-            <input type="text" id="edit-car-name" placeholder="نوع الموديل والسيارة (مثل: كيا سبورتاج 2026)" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-          </div>
-          <select id="edit-cycle-stage" class="w-full p-2 text-xs border rounded-lg bg-slate-800 text-white outline-none">
-            <option value="تجهيز الميزانية">1. تجهيز الميزانية (0%)</option>
-            <option value="الشراء بالكويت">2. الشراء بالكويت (25%)</option>
-            <option value="الشحن والتصدير">3. الشحن والتصدير (50%)</option>
-            <option value="التخليص بمصر">4. التخليص الجمركي بمصر (75%)</option>
-            <option value="البيع وتسوية الدور">5. البيع وتسوية الدور (100%)</option>
-          </select>
-          <button onclick="saveCycleUpdates()" class="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold shadow">
-            حفظ تعديلات الدور والميزانية المرصودة
-          </button>
-        </div>
-      </div>
-
-      <!-- Reset Data Zone -->
-      <div class="bg-red-50 rounded-2xl p-4 shadow-sm border border-red-200 space-y-3">
-        <h3 class="font-bold text-red-900 text-sm">تصفير بيانات الاختبار</h3>
-        <button onclick="resetSystemData()" class="w-full bg-red-700 hover:bg-red-800 text-white py-3 rounded-xl text-xs font-bold shadow active:scale-95 transition-transform">
-          ⚠️ تصفير جميع البيانات والعودة للبداية
-        </button>
-      </div>
-
     </section>
 
   </main>
 
-  <!-- Navigation Bar (Bottom Tabs) -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 px-2 flex justify-around items-center text-[11px] text-slate-500 z-50 no-print">
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 px-2 flex justify-around items-center text-[11px] text-slate-500 z-50">
     <button onclick="switchScreen('dashboard', 'الرئيسية')" class="nav-btn text-slate-900 font-bold flex flex-col items-center">
-      <span class="text-base">📊</span><span>الرئيسية</span>
+      <span>📊 الرئيسية</span>
     </button>
     <button onclick="switchScreen('cycles', 'جدول الأدوار')" class="nav-btn flex flex-col items-center">
-      <span class="text-base">🔄</span><span>الأدوار</span>
-    </button>
-    <button onclick="switchScreen('expenses', 'المصروفات')" id="nav-exp-btn" class="nav-btn flex flex-col items-center">
-      <span class="text-base">💸</span><span>مصروف وسيارات</span>
+      <span>🔄 الأدوار</span>
     </button>
     <button onclick="switchScreen('admin', 'الإعدادات')" id="nav-admin-btn" class="nav-btn flex flex-col items-center hidden">
-      <span class="text-base">⚙️</span><span>الإعدادات</span>
+      <span>⚙️ الإعدادات</span>
     </button>
   </nav>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNvvdC32FjvgXwDK2C5XxFIotXdQenEOgzgVrNrNti-ioOxooNo-GyakLJQeX2PLMG/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOTLG3acOS9A3XY5_44dtKe-P362_vt_nBKaSooVrgWo57rCkQ4R2CNIwgzKT6SZSSbw/exec";
 
-    const defaultAdmin = {
-      email: "ashrafadd@hotmail.com",
-      pass: "Aa@@50940888",
-      name: "أشرف عابد (الأدمن)",
-      role: "admin",
-      partnerNum: "1"
-    };
+    const defaultUsers = [
+      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1" }
+    ];
 
-    const emptyCycles = [
-      { id: 1, partner: "الشريك 1: أشرف عابد", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "active" },
-      { id: 2, partner: "الشريك 2", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 3, partner: "الشريك 3", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 4, partner: "الشريك 4", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 5, partner: "الشريك 5", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 6, partner: "الشريك 6", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 7, partner: "الشريك 7", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
-      { id: 8, partner: "الشريك 8", car: "لم تُحدد", priceKwd: 3000, stage: "تجهيز الميزانية", pct: 0, status: "pending" }
+    const defaultCycles = [
+      { id: 1, partner: "أشرف عابد", car: "لم تُحدد", priceKwd: 3000, status: "active" },
+      { id: 2, partner: "الشريك 2", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
+      { id: 3, partner: "الشريك 3", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
+      { id: 4, partner: "الشريك 4", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
+      { id: 5, partner: "الشريك 5", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
+      { id: 6, partner: "الشريك 6", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
+      { id: 7, partner: "الشريك 7", car: "لم تُحدد", priceKwd: 3000, status: "pending" },
+      { id: 8, partner: "الشريك 8", car: "لم تُحدد", priceKwd: 3000, status: "pending" }
     ];
 
     function togglePasswordVisibility(inputId, btn) {
       const input = document.getElementById(inputId);
-      if (input.type === "password") {
-        input.type = "text";
-        btn.innerText = "🙈";
-      } else {
-        input.type = "password";
-        btn.innerText = "👁️";
-      }
+      input.type = input.type === "password" ? "text" : "password";
+      btn.innerText = input.type === "password" ? "👁️" : "🙈";
     }
 
-    // المزامنة السحابية الفورية لجلب قائمة المستخدمين من شيت جوجل للأجهزة الجديدة
-    async function syncUsersFromCloud() {
-      const syncStatus = document.getElementById('sync-status');
-      if (syncStatus) syncStatus.classList.remove('hidden');
-      try {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-        if (data.result === 'success' && data.users && data.users.length > 0) {
-          let localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
-          data.users.forEach(cloudUser => {
-            if (!localUsers.find(u => u.email.trim().toLowerCase() === cloudUser.email.trim().toLowerCase())) {
-              localUsers.push(cloudUser);
-            }
-          });
-          if (!localUsers.find(u => u.email.trim().toLowerCase() === defaultAdmin.email.toLowerCase())) {
-            localUsers.push(defaultAdmin);
-          }
-          localStorage.setItem('app_users', JSON.stringify(localUsers));
-        }
-      } catch (e) {
-        console.log("Cloud sync offline fallback");
-      } finally {
-        if (syncStatus) syncStatus.classList.add('hidden');
-      }
-    }
-
-    function getUsers() {
+    function getUsersLocal() {
       let users = JSON.parse(localStorage.getItem('app_users') || '[]');
-      if (!users.find(u => u.email.trim().toLowerCase() === defaultAdmin.email.toLowerCase())) {
-        users.push(defaultAdmin);
-        localStorage.setItem('app_users', JSON.stringify(users));
-      }
+      defaultUsers.forEach(defUser => {
+        if (!users.find(u => u.email.trim().toLowerCase() === defUser.email.toLowerCase())) {
+          users.push(defUser);
+        }
+      });
       return users;
     }
 
-    function addUser() {
-      const editingEmail = document.getElementById('editing-user-email').value.trim().toLowerCase();
-      const nameAr = document.getElementById('new-user-name-ar').value.trim();
-      const nameEn = document.getElementById('new-user-name-en').value.trim();
-      const civilId = document.getElementById('new-user-civilid').value.trim();
-      const email = document.getElementById('new-user-email').value.trim().toLowerCase();
-      const pass = document.getElementById('new-user-pass').value.trim();
-      const role = document.getElementById('new-user-role').value;
-      const partnerNum = document.getElementById('new-user-partner-num').value;
-      const contractFile = document.getElementById('new-user-contract-file').files[0];
-
-      if (!nameAr || !email || !pass) {
-        alert('يرجى إكمال البيانات الأساسية للشريك');
-        return;
-      }
-
-      let users = getUsers();
-
-      if (editingEmail) {
-        const idx = users.findIndex(u => u.email.trim().toLowerCase() === editingEmail);
-        if (idx !== -1) {
-          users[idx].name = nameAr;
-          users[idx].nameEn = nameEn;
-          users[idx].civilId = civilId;
-          users[idx].email = email;
-          users[idx].pass = pass;
-          users[idx].role = role;
-          users[idx].partnerNum = partnerNum;
-
-          localStorage.setItem('app_users', JSON.stringify(users));
-          updateCyclePartnerName(partnerNum, nameAr);
-          sendPartnerToCloud(users[idx]);
-          alert('تم حفظ وتحديث بيانات الشريك بنجاح ومزامنتها سحابياً!');
-          resetUserForm();
-          renderUsersList();
-          loadAppData();
-          return;
-        }
-      }
-
-      if (users.find(u => u.email.trim().toLowerCase() === email)) {
-        alert('هذا البريد مسجل بالفعل!');
-        return;
-      }
-
-      let contractDataUrl = null;
-      if (contractFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          contractDataUrl = e.target.result;
-          saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, partnerNum, contractDataUrl);
+    // الاستعلام السحابي عبر JSONP لتجاوز حظر المتصفحات للهواتف الجديدة
+    function fetchCloudUsersJSONP() {
+      return new Promise((resolve) => {
+        const callbackName = 'jsonp_cb_' + Date.now();
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          if (data && data.users) resolve(data.users);
+          else resolve([]);
         };
-        reader.readAsDataURL(contractFile);
-      } else {
-        saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, partnerNum, null);
-      }
-    }
 
-    function saveUserRecord(users, nameAr, nameEn, civilId, email, pass, role, partnerNum, contractUrl) {
-      const newUser = {
-        name: nameAr,
-        nameEn: nameEn,
-        civilId: civilId,
-        email: email.trim().toLowerCase(),
-        pass: pass,
-        role: role,
-        partnerNum: partnerNum,
-        signedContractUrl: contractUrl
-      };
-      users.push(newUser);
-      localStorage.setItem('app_users', JSON.stringify(users));
-      updateCyclePartnerName(partnerNum, nameAr);
-      sendPartnerToCloud(newUser);
-
-      alert(`تم تسجيل الشريك ${partnerNum} بنجاح ومزامنة حسابه سحابياً ليفتح من أي هاتف!`);
-      resetUserForm();
-      renderUsersList();
-      loadAppData();
-    }
-
-    function sendPartnerToCloud(partnerObj) {
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "new_partner",
-          nameAr: partnerObj.name,
-          nameEn: partnerObj.nameEn,
-          civilId: partnerObj.civilId,
-          email: partnerObj.email,
-          pass: partnerObj.pass,
-          role: partnerObj.role,
-          contractUrl: partnerObj.signedContractUrl || ""
-        })
+        const script = document.createElement('script');
+        script.src = `${SCRIPT_URL}?action=getUsers&callback=${callbackName}`;
+        script.onerror = function() {
+          delete window[callbackName];
+          if (script.parentNode) document.body.removeChild(script);
+          resolve([]);
+        };
+        document.body.appendChild(script);
       });
     }
 
-    function updateCyclePartnerName(partnerNum, nameAr) {
-      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const cIdx = cycles.findIndex(c => c.id == partnerNum);
-      if (cIdx !== -1) {
-        cycles[cIdx].partner = `الشريك ${partnerNum}: ${nameAr}`;
-        localStorage.setItem('app_cycles', JSON.stringify(cycles));
-      }
-    }
-
-    function savePartnerCarSelection() {
-      const user = JSON.parse(sessionStorage.getItem('current_user'));
-      if (!user || !user.partnerNum) {
-        alert('يرجى تسجيل الدخول بحساب شريك مخصص');
-        return;
-      }
-
-      const carName = document.getElementById('partner-car-name').value.trim();
-      const carTrim = document.getElementById('partner-car-trim').value.trim();
-      const carPrice = parseFloat(document.getElementById('partner-car-price').value) || 0;
-
-      if (!carName) {
-        alert('يرجى إدخال اسم ونوع السيارة');
-        return;
-      }
-
-      const fullCarDesc = carTrim ? `${carName} (${carTrim})` : carName;
-
-      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const cIdx = cycles.findIndex(c => c.id == user.partnerNum);
-      if (cIdx !== -1) {
-        cycles[cIdx].car = fullCarDesc;
-        if (carPrice > 0) cycles[cIdx].priceKwd = carPrice;
-        localStorage.setItem('app_cycles', JSON.stringify(cycles));
-        alert('تم حفظ بيانات السيارة والمواصفات بنجاح!');
-        loadAppData();
-      }
-    }
-
-    function calculatePartnerFinancials(user) {
-      if (!user) return;
-      const partnerNum = user.partnerNum || "1";
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const cycle = cycles.find(c => c.id == partnerNum) || cycles[0];
-
-      const allocatedBudget = cycle.priceKwd || 3000;
-      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      const approvedExpenses = expenses.filter(e => e.status === 'approved' && e.partner === user.name);
-
-      const totalSpent = approvedExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
-      const remaining = allocatedBudget - totalSpent;
-
-      document.getElementById('rep-partner-tag').innerText = `الشريك ${partnerNum}`;
-      document.getElementById('rep-allocated-budget').innerText = `${allocatedBudget.toLocaleString()} د.ك`;
-      document.getElementById('rep-spent-budget').innerText = `${totalSpent.toLocaleString()} د.ك`;
-      document.getElementById('rep-remaining-budget').innerText = `${remaining.toLocaleString()} د.ك`;
-
-      document.getElementById('partner-car-name').value = cycle.car !== 'لم تُحدد' ? cycle.car : '';
-      document.getElementById('partner-car-price').value = cycle.priceKwd || '';
-    }
-
     async function handleLogin() {
-      await syncUsersFromCloud();
       const email = document.getElementById('login-email').value.trim().toLowerCase();
       const pass = document.getElementById('login-password').value.trim();
-      const users = getUsers();
 
-      const user = users.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
+      if (!email || !pass) {
+        alert("يرجى إدخال البريد الإلكتروني وكلمة المرور");
+        return;
+      }
+
+      document.getElementById('login-error').classList.add('hidden');
+      document.getElementById('login-loading').classList.remove('hidden');
+
+      let localUsers = getUsersLocal();
+      let user = localUsers.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
+
+      // البحث السحابي في Google Sheets عند جلب حساب شريك جديد
+      if (!user) {
+        const cloudUsers = await fetchCloudUsersJSONP();
+        const cloudUser = cloudUsers.find(u => u.email.trim().toLowerCase() === email && u.pass.trim() === pass);
+        if (cloudUser) {
+          user = cloudUser;
+          localUsers.push(cloudUser);
+          localStorage.setItem('app_users', JSON.stringify(localUsers));
+        }
+      }
+
+      document.getElementById('login-loading').classList.add('hidden');
+
       if (user) {
         sessionStorage.setItem('current_user', JSON.stringify(user));
-        document.getElementById('login-error').classList.add('hidden');
         checkAuth();
       } else {
         document.getElementById('login-error').classList.remove('hidden');
@@ -653,104 +240,104 @@
         document.getElementById('login-screen').classList.remove('hidden');
       } else {
         document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('user-badge').innerText = `${currentUser.name} (${getRoleLabel(currentUser.role)})`;
-        calculatePartnerFinancials(currentUser);
-        applyPermissions(currentUser);
+        document.getElementById('user-badge').innerText = currentUser.name;
+        if (currentUser.role === 'admin') {
+          document.getElementById('nav-admin-btn').classList.remove('hidden');
+        } else {
+          document.getElementById('nav-admin-btn').classList.add('hidden');
+        }
         loadAppData();
       }
     }
 
-    function renderUsersList() {
-      const users = getUsers();
-      const container = document.getElementById('users-list');
-      if (!container) return;
-      container.innerHTML = '';
-      users.forEach(u => {
-        const div = document.createElement('div');
-        div.className = 'flex justify-between items-center bg-white p-2.5 rounded-xl border border-amber-200';
-        div.innerHTML = `
-          <div>
-            <strong class="text-slate-900">[الشريك ${u.partnerNum || '1'}] ${u.name}</strong>
-            <div class="text-[10px] text-slate-500">${u.email} | كلمة السر: ${u.pass}</div>
-          </div>
-          <div class="space-x-1 space-x-reverse">
-            <button onclick="editUser('${u.email}')" class="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">تعديل ✏️</button>
-            ${u.email.toLowerCase() !== defaultAdmin.email.toLowerCase() ? `<button onclick="deleteUser('${u.email}')" class="bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold">حذف 🗑️</button>` : ''}
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
+    async function addUser() {
+      const partnerNum = document.getElementById('new-user-partner-num').value;
+      const nameAr = document.getElementById('new-user-name-ar').value.trim();
+      const email = document.getElementById('new-user-email').value.trim().toLowerCase();
+      const pass = document.getElementById('new-user-pass').value.trim();
+      const addBtn = document.getElementById('add-btn');
 
-    function editUser(email) {
-      const users = getUsers();
-      const user = users.find(u => u.email.trim().toLowerCase() === email.trim().toLowerCase());
-      if (!user) return;
-
-      document.getElementById('editing-user-email').value = user.email;
-      document.getElementById('new-user-name-ar').value = user.name || '';
-      document.getElementById('new-user-name-en').value = user.nameEn || '';
-      document.getElementById('new-user-civilid').value = user.civilId || '';
-      document.getElementById('new-user-email').value = user.email || '';
-      document.getElementById('new-user-pass').value = user.pass || '';
-      document.getElementById('new-user-role').value = user.role || 'editor';
-      document.getElementById('new-user-partner-num').value = user.partnerNum || '1';
-
-      document.getElementById('save-partner-btn').innerText = '💾 حفظ تعديلات الحساب';
-      document.getElementById('save-partner-btn').classList.replace('bg-amber-800', 'bg-emerald-700');
-      document.getElementById('cancel-edit-btn').classList.remove('hidden');
-    }
-
-    function deleteUser(email) {
-      if (email.trim().toLowerCase() === defaultAdmin.email.toLowerCase()) {
-        alert('لا يمكن حذف حساب الأدمن الرئيسي!');
+      if (!nameAr || !email || !pass) {
+        alert('يرجى كتابة اسم الشريك، البريد الإلكتروني، وكلمة المرور');
         return;
       }
-      if (confirm(`⚠️ هل أنت متأكد من حذف الحساب (${email}) نهائياً؟`)) {
-        let users = getUsers();
-        users = users.filter(u => u.email.trim().toLowerCase() !== email.trim().toLowerCase());
-        localStorage.setItem('app_users', JSON.stringify(users));
-        alert('تم حذف الحساب بنجاح!');
-        renderUsersList();
+
+      addBtn.innerText = "جاري الحفظ والمزامنة مع Google Sheets... ⏳";
+      addBtn.disabled = true;
+
+      const newUserPayload = { type: "new_partner", nameAr, email, pass, role: "editor", partnerNum };
+
+      // 1. التحديث المحلي
+      let users = getUsersLocal();
+      users.push({ name: nameAr, email, pass, role: "editor", partnerNum });
+      localStorage.setItem('app_users', JSON.stringify(users));
+
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const cIdx = cycles.findIndex(c => c.id == partnerNum);
+      if (cIdx !== -1) {
+        cycles[cIdx].partner = nameAr;
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+      }
+
+      // 2. الإرسال لـ Google Sheets
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newUserPayload)
+        });
+        alert(`✅ تم حفظ الشريك [${nameAr}] وإرسال بياناته بنجاح لـ Google Sheets! يستطيع الآن الدخول من أي هاتف.`);
+      } catch (e) {
+        alert(`تم الحفظ بنجاح.`);
+      } finally {
+        addBtn.innerText = "+ تسجيل الشريك وإرساله لـ Google Sheets";
+        addBtn.disabled = false;
+        document.getElementById('new-user-name-ar').value = '';
+        document.getElementById('new-user-email').value = '';
+        document.getElementById('new-user-pass').value = '';
+        loadAppData();
       }
     }
 
-    function resetUserForm() {
-      document.getElementById('editing-user-email').value = '';
-      document.getElementById('new-user-name-ar').value = '';
-      document.getElementById('new-user-name-en').value = '';
-      document.getElementById('new-user-civilid').value = '';
-      document.getElementById('new-user-email').value = '';
-      document.getElementById('new-user-pass').value = '';
-      document.getElementById('save-partner-btn').innerText = '+ تسجيل الشريك وتفعيل حسابه';
-      document.getElementById('save-partner-btn').classList.replace('bg-emerald-700', 'bg-amber-800');
-      document.getElementById('cancel-edit-btn').classList.add('hidden');
+    function loadAppData() {
+      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
+
+      document.getElementById('dash-active-partner').innerText = `الدور الحالي: ${activeCycle.partner}`;
+      
+      const container = document.getElementById('cycles-list');
+      if (container) {
+        container.innerHTML = '';
+        cycles.forEach(c => {
+          const div = document.createElement('div');
+          div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'} text-xs font-bold`;
+          div.innerHTML = `<div>الدور ${c.id}: ${c.partner}</div>`;
+          container.appendChild(div);
+        });
+      }
     }
 
-    async function processIDWithOCR() {
-      const fileInput = document.getElementById('ocr-id-file');
-      const statusBox = document.getElementById('ocr-status');
-      if (!fileInput.files || !fileInput.files[0]) return;
+    // دالة مسح المحفوظات والكاش الشاملة عند الخروج
+    async function handleLogout() {
+      if (confirm("هل أنت متأكد من تسجيل الخروج وتفريغ ذاكرة المتصفح نهائياً؟")) {
+        // 1. تفريغ الذاكرة المحلية والجلسة
+        sessionStorage.clear();
+        localStorage.clear();
 
-      statusBox.classList.remove('hidden');
-      try {
-        const result = await Tesseract.recognize(fileInput.files[0], 'ara+eng');
-        const text = result.data.text;
+        // 2. حظر وتفريغ ملفات الكاش (Cache Storage)
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map(name => caches.delete(name)));
+        }
 
-        const idMatch = text.match(/\b\d{12,14}\b/);
-        if (idMatch) document.getElementById('new-user-civilid').value = idMatch[0];
+        // 3. مسح الكوكيز المخزنة
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
 
-        const enMatch = text.match(/[A-Za-z]{3,}\s+[A-Za-z]{3,}(\s+[A-Za-z]{3,})*/);
-        if (enMatch) document.getElementById('new-user-name-en').value = enMatch[0];
-
-        const arMatch = text.match(/[\u0600-\u06FF]{3,}\s+[\u0600-\u06FF]{3,}(\s+[\u0600-\u06FF]{3,})*/);
-        if (arMatch) document.getElementById('new-user-name-ar').value = arMatch[0];
-
-        alert('تمت القراءة الضوئية وتحديد البيانات بنجاح!');
-      } catch (e) {
-        alert('تعذر استخراج النص ضوئياً تلقائياً، يمكنك إكمال الخانات يدوياً.');
-      } finally {
-        statusBox.classList.add('hidden');
+        // 4. إعادة توجيه إجبارية لنشر صفحة نظيفة خالية تماماً
+        window.location.href = window.location.pathname + '?reset=' + Date.now();
       }
     }
 
@@ -760,327 +347,7 @@
       document.getElementById('header-title').innerText = title;
     }
 
-    function getRoleLabel(role) {
-      if(role === 'admin') return 'أدمن (صلاحية كاملة)';
-      if(role === 'editor') return 'مُدخل بيانات';
-      return 'مشاهد فقط';
-    }
-
-    function handleLogout() {
-      sessionStorage.removeItem('current_user');
-      checkAuth();
-    }
-
-    function applyPermissions(user) {
-      const navAdminBtn = document.getElementById('nav-admin-btn');
-      const partnerContractBox = document.getElementById('partner-contract-box');
-
-      if (user.role === 'admin') {
-        navAdminBtn.classList.remove('hidden');
-        renderUsersList();
-        renderPendingExpenses();
-        populateCyclesSelect();
-      } else {
-        navAdminBtn.classList.add('hidden');
-      }
-
-      if (user.signedContractUrl) {
-        partnerContractBox.classList.remove('hidden');
-      } else {
-        partnerContractBox.classList.add('hidden');
-      }
-    }
-
-    function saveExpense() {
-      const desc = document.getElementById('exp-desc').value.trim();
-      const amount = parseFloat(document.getElementById('exp-amount').value);
-      const curr = document.getElementById('exp-curr').value;
-      const receiptFile = document.getElementById('exp-receipt-file').files[0];
-      const currentUser = JSON.parse(sessionStorage.getItem('current_user'));
-
-      if (!desc || isNaN(amount)) {
-        alert('يرجى كتابة البيان والمبلغ بشكل صحيح');
-        return;
-      }
-
-      const hasReceipt = !!receiptFile;
-      const isApproved = hasReceipt || currentUser.role === 'admin';
-      const status = isApproved ? 'approved' : 'pending_approval';
-
-      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      expenses.push({
-        id: Date.now(),
-        desc,
-        amount,
-        curr,
-        partner: currentUser.name,
-        status: status,
-        date: new Date().toLocaleDateString('ar-EG')
-      });
-      localStorage.setItem('app_expenses', JSON.stringify(expenses));
-
-      if (!isApproved) {
-        alert('تم تقديم المصروف وبانتظار موافقة الأدمن لعدم وجود فاتورة مرفقة.');
-      } else {
-        alert('تم تسجيل المصروف بنجاح!');
-      }
-
-      document.getElementById('exp-desc').value = '';
-      document.getElementById('exp-amount').value = '';
-      renderExpensesHistory();
-      renderPendingExpenses();
-      calculatePartnerFinancials(currentUser);
-    }
-
-    function renderPendingExpenses() {
-      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      const pending = expenses.filter(e => e.status === 'pending_approval');
-      const container = document.getElementById('pending-expenses-list');
-      const notifyBar = document.getElementById('admin-notify-bar');
-
-      if (pending.length > 0) {
-        notifyBar.classList.remove('hidden');
-      } else {
-        notifyBar.classList.add('hidden');
-      }
-
-      if (!container) return;
-      if (pending.length === 0) {
-        container.innerHTML = '<p class="text-slate-500 text-center py-1">لا توجد مصروفات بانتظار الموافقة</p>';
-        return;
-      }
-      container.innerHTML = '';
-      pending.forEach(e => {
-        const div = document.createElement('div');
-        div.className = 'flex justify-between items-center bg-white p-2.5 rounded-xl border border-purple-200';
-        div.innerHTML = `
-          <div>
-            <strong>${e.desc}</strong> (${e.amount} ${e.curr})
-            <div class="text-[10px] text-slate-500">بواسطة: ${e.partner}</div>
-          </div>
-          <div class="space-x-1 space-x-reverse">
-            <button onclick="approveExpense(${e.id})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">اعتماد</button>
-            <button onclick="rejectExpense(${e.id})" class="bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold">رفض</button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function approveExpense(id) {
-      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      const idx = expenses.findIndex(e => e.id === id);
-      if (idx !== -1) {
-        expenses[idx].status = 'approved';
-        localStorage.setItem('app_expenses', JSON.stringify(expenses));
-        alert('تم اعتماد المصروف بنجاح!');
-        renderPendingExpenses();
-        renderExpensesHistory();
-        const user = JSON.parse(sessionStorage.getItem('current_user'));
-        calculatePartnerFinancials(user);
-      }
-    }
-
-    function rejectExpense(id) {
-      let expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      expenses = expenses.filter(e => e.id !== id);
-      localStorage.setItem('app_expenses', JSON.stringify(expenses));
-      alert('تم رفض وإلغاء المصروف.');
-      renderPendingExpenses();
-    }
-
-    function focusPendingExpenses() {
-      document.getElementById('admin-approval-section').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function previewContractTemplate(type) {
-      const area = document.getElementById('printable-a4-area');
-      const body = document.getElementById('a4-content-body');
-      
-      if (type === 'group') {
-        body.innerHTML = `
-          <div class="text-center space-y-2 border-b pb-4">
-            <h1 class="text-2xl font-bold">عقد اتفاق وشراكة استثمارية جماعية</h1>
-            <p class="text-sm text-slate-600">صندوق مبادرة استيراد الـ 8 سيارات - دولة الكويت</p>
-          </div>
-          <div class="space-y-4 text-sm leading-relaxed">
-            <p><strong>التمهيد:</strong> تم الاتفاق بين 8 شركاء على تأسيس صندوق استثماري لتدوير واستيراد عدد 8 سيارات من دولة الكويت إلى جمهورية مصر العربية.</p>
-            <p><strong>رأس المال:</strong> يبلغ رأس مال الصندوق المعتمد بالدينار الكويتي بواقع حصص متساوية بين الأطراف الثمانية.</p>
-            <p><strong>المسؤوليات والتوزيع:</strong> يتولى كل شريك مسؤولية تدوير دورته والسيارة المخصصة له حتى البيع وتكفّل كافة الإجراءات مع توزيع الأرباح بالتساوي.</p>
-          </div>
-          <div class="pt-20 grid grid-cols-2 gap-8 text-center text-xs">
-            <div>توقيع الأدمن الرئيسي / ممثل الصندوق<br><br>____________________</div>
-            <div>اعتماد الشركاء الأطراف<br><br>____________________</div>
-          </div>
-        `;
-      } else {
-        body.innerHTML = `
-          <div class="text-center space-y-2 border-b pb-4">
-            <h1 class="text-2xl font-bold">إقرار وتعهد ضمان تنفيذي فردي</h1>
-            <p class="text-sm text-slate-600">صندوق تدوير الـ 8 سيارات</p>
-          </div>
-          <div class="space-y-4 text-sm leading-relaxed">
-            <p>أقر أنا الشريك المذكور أدناه باستلام التمويل المخصص لشراء السيارة المحددة بالدورة، وأتعهد بالتزامي الكامل بإنجاز كافة عمليات الشحن والتصدير والبيع وتوريد رأس المال والأرباح لحساب الصندوق.</p>
-          </div>
-          <div class="pt-20 grid grid-cols-2 gap-8 text-center text-xs">
-            <div>توقيع الشريك المستلم<br><br>____________________</div>
-            <div>توقيع اعتماد الأدمن<br><br>____________________</div>
-          </div>
-        `;
-      }
-
-      area.classList.remove('hidden');
-      window.print();
-      area.classList.add('hidden');
-    }
-
-    function previewPartnerSignedContract() {
-      const user = JSON.parse(sessionStorage.getItem('current_user'));
-      if (!user || !user.signedContractUrl) return;
-
-      const area = document.getElementById('printable-a4-area');
-      const body = document.getElementById('a4-content-body');
-
-      body.innerHTML = `
-        <div class="text-center space-y-2 border-b pb-4">
-          <h1 class="text-xl font-bold">عقد الالتزام الفردي الموقّع للشريك: ${user.name}</h1>
-        </div>
-        <div class="flex justify-center p-4">
-          <img src="${user.signedContractUrl}" class="max-w-full h-auto rounded border shadow">
-        </div>
-      `;
-
-      area.classList.remove('hidden');
-      window.print();
-      area.classList.add('hidden');
-    }
-
-    function uploadSignedGroupContract(input) {
-      if (input.files && input.files[0]) {
-        document.getElementById('signed-group-contract-status').classList.remove('hidden');
-        alert('تم رفع العقد الجماعي الموقّع بنجاح!');
-      }
-    }
-
-    function loadAppData() {
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const activeCycle = cycles.find(c => c.status === 'active') || cycles[0];
-      const initialBudgetKwd = parseFloat(localStorage.getItem('app_initial_budget_kwd') || '0');
-
-      document.getElementById('dash-active-partner').innerText = `الدور الحالي: ${activeCycle.partner}`;
-      document.getElementById('dash-active-car').innerText = `السيارة: ${activeCycle.car}`;
-      document.getElementById('dash-stage-name').innerText = activeCycle.stage;
-      document.getElementById('dash-stage-pct').innerText = `${activeCycle.pct}%`;
-      document.getElementById('dash-stage-bar').style.width = `${activeCycle.pct}%`;
-
-      document.getElementById('dash-capital-available').innerText = `${initialBudgetKwd.toLocaleString()} د.ك`;
-
-      renderCyclesList(cycles);
-      renderExpensesHistory();
-    }
-
-    function renderCyclesList(cycles) {
-      const container = document.getElementById('cycles-list');
-      container.innerHTML = '';
-      cycles.forEach(c => {
-        const div = document.createElement('div');
-        div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'} space-y-1 text-xs`;
-        div.innerHTML = `
-          <div class="flex justify-between font-bold">
-            <span class="text-slate-900">الدور ${c.id}: ${c.partner}</span>
-            <span class="${c.status === 'active' ? 'text-emerald-700' : 'text-slate-400'}">${c.status === 'active' ? 'نشط حالياً' : 'قيد الانتظار'}</span>
-          </div>
-          <div class="text-slate-600">السيارة: ${c.car} | الميزانية المرصودة: ${c.priceKwd || 3000} د.ك</div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function renderExpensesHistory() {
-      const expenses = JSON.parse(localStorage.getItem('app_expenses') || '[]');
-      const container = document.getElementById('expenses-history');
-      const approved = expenses.filter(e => e.status === 'approved');
-
-      if (approved.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 text-center py-2">لا توجد مصروفات معتمدة بعد</p>';
-        document.getElementById('dash-total-expenses').innerText = '0 د.ك';
-        return;
-      }
-      container.innerHTML = '';
-      let totalKwd = 0;
-      approved.forEach(e => {
-        totalKwd += e.amount;
-        const div = document.createElement('div');
-        div.className = 'flex justify-between py-1.5';
-        div.innerHTML = `<span>${e.desc} (${e.date}) - بواسطة: ${e.partner}</span><strong class="text-slate-800">${e.amount} ${e.curr}</strong>`;
-        container.appendChild(div);
-      });
-      document.getElementById('dash-total-expenses').innerText = `${totalKwd.toFixed(2)} د.ك`;
-    }
-
-    function populateCyclesSelect() {
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const select = document.getElementById('admin-cycle-select');
-      if (!select) return;
-      select.innerHTML = '';
-      cycles.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.innerText = `الدور ${c.id}: ${c.partner} (${c.car})`;
-        select.appendChild(opt);
-      });
-      loadCycleDetailsForEdit();
-    }
-
-    function loadCycleDetailsForEdit() {
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const id = parseInt(document.getElementById('admin-cycle-select').value) || 1;
-      const cycle = cycles.find(c => c.id === id);
-      if (cycle) {
-        document.getElementById('edit-car-name').value = cycle.car !== "لم تُحدد" ? cycle.car : '';
-        document.getElementById('edit-car-price').value = cycle.priceKwd || 3000;
-        document.getElementById('edit-cycle-stage').value = cycle.stage || 'تجهيز الميزانية';
-      }
-    }
-
-    function saveCycleUpdates() {
-      const cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(emptyCycles));
-      const id = parseInt(document.getElementById('admin-cycle-select').value);
-      const carName = document.getElementById('edit-car-name').value.trim();
-      const priceKwd = parseFloat(document.getElementById('edit-car-price').value) || 0;
-      const stage = document.getElementById('edit-cycle-stage').value;
-
-      let pct = 0;
-      if (stage === 'الشراء بالكويت') pct = 25;
-      if (stage === 'الشحن والتصدير') pct = 50;
-      if (stage === 'التخليص بمصر') pct = 75;
-      if (stage === 'البيع وتسوية الدور') pct = 100;
-
-      const idx = cycles.findIndex(c => c.id === id);
-      if (idx !== -1) {
-        cycles[idx].car = carName || "لم تُحدد";
-        cycles[idx].priceKwd = priceKwd;
-        cycles[idx].stage = stage;
-        cycles[idx].pct = pct;
-        localStorage.setItem('app_cycles', JSON.stringify(cycles));
-        alert('تم حفظ تعديلات الدور والميزانية المرصودة بنجاح!');
-        loadAppData();
-      }
-    }
-
-    function resetSystemData() {
-      if (confirm('⚠️ هل أنت متأكد من تصفير البيانات والتجربة من الصفر؟')) {
-        localStorage.removeItem('app_expenses');
-        localStorage.setItem('app_cycles', JSON.stringify(emptyCycles));
-        alert('✅ تم تصفير البيانات بنجاح!');
-        loadAppData();
-      }
-    }
-
-    // تشغيل المزامنة فور فتح الرابط
-    syncUsersFromCloud();
     checkAuth();
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
   </script>
 </body>
 </html>
