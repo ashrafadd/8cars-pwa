@@ -57,13 +57,18 @@
     
     <!-- Screen 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
+      <!-- Active Partner Card -->
       <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700">
         <div class="text-xs text-slate-400 mb-1">الدور الحالي للمشروع</div>
         <div class="font-bold text-lg text-emerald-400" id="dash-active-partner">الدور الحالي: أشرف عابد</div>
-        <div class="text-xs text-slate-300 mt-1" id="dash-active-car">السيارة: غير محددة بعد</div>
+        <div class="text-xs text-slate-300 mt-1" id="dash-active-car">السيارة: لم تُحدد بعد</div>
+        <div class="mt-2 text-[11px] bg-slate-800 p-2 rounded-lg text-slate-300 flex justify-between">
+          <span>المرحلة: <strong id="dash-stage-name" class="text-amber-400">تجهيز الميزانية</strong></span>
+          <span>الإنجاز: <strong id="dash-progress-pct" class="text-emerald-400">0%</strong></span>
+        </div>
       </div>
 
-      <!-- Partner Budget & Expense Financial Report -->
+      <!-- Financial Report -->
       <div id="partner-financial-report" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
           <span>📊 تقرير ميزانية ومصروفات دورك</span>
@@ -84,6 +89,26 @@
           </div>
         </div>
       </div>
+
+      <!-- Expense Input Form (For Partner) -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs">➕ إضافة مصروف جديد للسيارة</h3>
+        <div class="space-y-2">
+          <input type="text" id="exp-desc" placeholder="بيان المصروف (مثال: شحن، جمارك...)" class="w-full p-2 text-xs border rounded-lg outline-none">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none">
+            <select id="exp-curr" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
+              <option value="KWD">دينار كويتي (KWD)</option>
+              <option value="USD">دولار أمريكي (USD)</option>
+              <option value="EUR">يورو (EUR)</option>
+            </select>
+          </div>
+          <input type="text" id="exp-receipt" placeholder="رابط صورة الفاتورة (اختياري)" class="w-full p-2 text-xs border rounded-lg outline-none">
+          <button onclick="addExpense()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">
+            تسجيل المصروف وتحديث الميزانية
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- Screen 2: Cycles & Roles / الأدوار والعمليات -->
@@ -94,8 +119,9 @@
 
     <!-- Screen 3: Admin Panel / الإعدادات -->
     <section id="screen-admin" class="screen space-y-4">
+      <!-- Add Partner Form -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-sm">تسجيل وتفعيل حساب شريك جديد</h3>
+        <h3 class="font-bold text-amber-900 text-sm">👤 تسجيل وتفعيل حساب شريك جديد</h3>
         <div class="space-y-2">
           <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
             <option value="1">الشريك 1 (الدور الأول)</option>
@@ -115,6 +141,36 @@
           </button>
         </div>
       </div>
+
+      <!-- Manage Cycle Roles and Stages -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs">⚙️ تحديث مراحل وأدوار الشركاء الـ 8</h3>
+        <div class="space-y-2">
+          <select id="admin-cycle-select" onchange="loadAdminCycleData()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
+            <!-- Dynamically Loaded -->
+          </select>
+          <input type="text" id="admin-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg outline-none">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="admin-budget" placeholder="الميزانية (د.ك)" class="w-full p-2 text-xs border rounded-lg outline-none">
+            <input type="number" id="admin-pct" placeholder="نسبة الإنجاز %" class="w-full p-2 text-xs border rounded-lg outline-none">
+          </div>
+          <select id="admin-stage" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <option value="تجهيز الميزانية">تجهيز الميزانية</option>
+            <option value="الشراء والتعاقد">الشراء والتعاقد</option>
+            <option value="الشحن البحري">الشحن البحري</option>
+            <option value="الجمارك والتخليص">الجمارك والتخليص</option>
+            <option value="جاهزة للتسليم">جاهزة للتسليم</option>
+          </select>
+          <select id="admin-status" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
+            <option value="active">نشط الان 🟢</option>
+            <option value="pending">في الانتظار ⏳</option>
+            <option value="completed">مكتمل 🏁</option>
+          </select>
+          <button onclick="updateCycleFromAdmin()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">
+            تحديث بيانات الدور
+          </button>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -130,18 +186,18 @@
 
     const defaultUsers = [
       { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1" },
-      { email: "amooooer2017@gmail.com", pass: "123456", name: "الشريك الثاني", role: "editor", partnerNum: "2" }
+      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2" }
     ];
 
     const defaultCycles = [
-      { id: 1, partner: "أشرف عابد", status: "active", budget: 3000, spent: 0 },
-      { id: 2, partner: "الشريك الثاني", status: "pending", budget: 3000, spent: 0 },
-      { id: 3, partner: "الشريك 3", status: "pending", budget: 3000, spent: 0 },
-      { id: 4, partner: "الشريك 4", status: "pending", budget: 3000, spent: 0 },
-      { id: 5, partner: "الشريك 5", status: "pending", budget: 3000, spent: 0 },
-      { id: 6, partner: "الشريك 6", status: "pending", budget: 3000, spent: 0 },
-      { id: 7, partner: "الشريك 7", status: "pending", budget: 3000, spent: 0 },
-      { id: 8, partner: "الشريك 8", status: "pending", budget: 3000, spent: 0 }
+      { id: 1, partner: "أشرف عابد", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "active" },
+      { id: 2, partner: "عبدالرحمن عادل محمد احمد", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 3, partner: "شريك 3", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 4, partner: "شريك 4", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 5, partner: "شريك 5", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 6, partner: "شريك 6", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 7, partner: "شريك 7", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" },
+      { id: 8, partner: "شريك 8", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية", pct: 0, status: "pending" }
     ];
 
     function togglePasswordVisibility(inputId, btn) {
@@ -248,6 +304,50 @@
       }
     }
 
+    function addExpense() {
+      const desc = document.getElementById('exp-desc').value.trim();
+      const amount = parseFloat(document.getElementById('exp-amount').value) || 0;
+      const curr = document.getElementById('exp-curr').value;
+      const receipt = document.getElementById('exp-receipt').value.trim();
+
+      if (!desc || amount <= 0) {
+        alert('يرجى كتابة بيان المصروف والمبلغ بشكل صحيح');
+        return;
+      }
+
+      let cycles = defaultCycles;
+      try {
+        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      } catch(e) {}
+
+      let activeIdx = cycles.findIndex(c => c.status === 'active');
+      if (activeIdx === -1) activeIdx = 0;
+
+      cycles[activeIdx].spent = (cycles[activeIdx].spent || 0) + amount;
+      localStorage.setItem('app_cycles', JSON.stringify(cycles));
+
+      // إرسال لـ Google Sheets
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "new_expense",
+          desc,
+          amount,
+          curr,
+          partner: cycles[activeIdx].partner,
+          receipt_url: receipt
+        })
+      });
+
+      alert(`✅ تم تسجيل المصروف بمبلغ ${amount} ${curr} بنجاح!`);
+      document.getElementById('exp-desc').value = '';
+      document.getElementById('exp-amount').value = '';
+      document.getElementById('exp-receipt').value = '';
+      loadAppData();
+    }
+
     function loadAppData() {
       let cycles = defaultCycles;
       try {
@@ -261,6 +361,10 @@
 
       // 1. تحديث شاشة الرئيسية
       document.getElementById('dash-active-partner').textContent = `الدور الحالي: ${activeCycle.partner}`;
+      document.getElementById('dash-active-car').textContent = `السيارة: ${activeCycle.car || 'لم تُحدد بعد'}`;
+      document.getElementById('dash-stage-name').textContent = activeCycle.stage || 'تجهيز الميزانية';
+      document.getElementById('dash-progress-pct').textContent = `${activeCycle.pct || 0}%`;
+
       document.getElementById('rep-partner-tag').textContent = activeCycle.partner;
       document.getElementById('rep-allocated-budget').textContent = `${(activeCycle.budget || 3000).toLocaleString()} د.ك`;
       document.getElementById('rep-spent-budget').textContent = `${(activeCycle.spent || 0).toLocaleString()} د.ك`;
@@ -272,18 +376,75 @@
         container.innerHTML = '';
         cycles.forEach(c => {
           const div = document.createElement('div');
-          div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300' : 'bg-white border-slate-200'} text-xs font-bold flex justify-between items-center shadow-sm`;
+          div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300 shadow-sm' : 'bg-white border-slate-200'} text-xs font-bold space-y-2`;
           div.innerHTML = `
-            <div>
-              <span class="text-slate-500 block text-[10px]">الدور ${c.id}</span>
-              <span class="text-slate-900 font-bold">${c.partner}</span>
+            <div class="flex justify-between items-center">
+              <div>
+                <span class="text-slate-400 block text-[10px]">الدور ${c.id}</span>
+                <span class="text-slate-900 font-bold">${c.partner}</span>
+              </div>
+              <span class="${c.status === 'active' ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-600'} px-2 py-1 rounded text-[10px]">
+                ${c.status === 'active' ? 'نشط الان 🟢' : 'في الانتظار ⏳'}
+              </span>
             </div>
-            <span class="${c.status === 'active' ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-100 text-slate-600'} px-2 py-1 rounded text-[10px]">
-              ${c.status === 'active' ? 'نشط الان 🟢' : 'في الانتظار ⏳'}
-            </span>
+            <div class="text-[11px] text-slate-600 flex justify-between border-t pt-2 border-slate-100">
+              <span>السيارة: <strong class="text-slate-800">${c.car || 'غير محددة'}</strong></span>
+              <span>المرحلة: <strong class="text-amber-700">${c.stage || 'تجهيز الميزانية'}</strong> (${c.pct || 0}%)</span>
+            </div>
           `;
           container.appendChild(div);
         });
+      }
+
+      // 3. تحديث قائمة الأدمن
+      const adminSelect = document.getElementById('admin-cycle-select');
+      if (adminSelect) {
+        adminSelect.innerHTML = '';
+        cycles.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = `الدور ${c.id}: ${c.partner}`;
+          adminSelect.appendChild(opt);
+        });
+        loadAdminCycleData();
+      }
+    }
+
+    function loadAdminCycleData() {
+      const id = document.getElementById('admin-cycle-select').value;
+      let cycles = defaultCycles;
+      try {
+        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      } catch(e) {}
+
+      const c = cycles.find(item => item.id == id);
+      if (c) {
+        document.getElementById('admin-car-model').value = c.car || '';
+        document.getElementById('admin-budget').value = c.budget || 3000;
+        document.getElementById('admin-pct').value = c.pct || 0;
+        document.getElementById('admin-stage').value = c.stage || 'تجهيز الميزانية';
+        document.getElementById('admin-status').value = c.status || 'pending';
+      }
+    }
+
+    function updateCycleFromAdmin() {
+      const id = document.getElementById('admin-cycle-select').value;
+      let cycles = defaultCycles;
+      try {
+        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      } catch(e) {}
+
+      const idx = cycles.findIndex(item => item.id == id);
+      if (idx !== -1) {
+        cycles[idx].car = document.getElementById('admin-car-model').value.trim() || 'لم تُحدد بعد';
+        cycles[idx].budget = parseFloat(document.getElementById('admin-budget').value) || 3000;
+        cycles[idx].pct = parseInt(document.getElementById('admin-pct').value) || 0;
+        cycles[idx].stage = document.getElementById('admin-stage').value;
+        cycles[idx].status = document.getElementById('admin-status').value;
+
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+        alert('✅ تم تحديث بيانات الدور بنجاح!');
+        loadAppData();
       }
     }
 
