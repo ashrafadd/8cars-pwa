@@ -1,19 +1,20 @@
 {
-  "name": "مبادرة الـ 8 سيارات - صندوق الشركاء",
-  "short_name": "صندوق 8 سيارات",
+  "name": "صندوق الـ 8 سيارات",
+  "short_name": "8Cars",
+  "description": "منصة إدارة واستيراد صندوق الـ 8 سيارات",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1e293b",
-  "theme_color": "#1e293b",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3202/3202061.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/3202/3202003.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3202/3202061.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/3202/3202003.png",
       "sizes": "512x512",
       "type": "image/png"
     }
