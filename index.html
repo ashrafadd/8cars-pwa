@@ -301,7 +301,7 @@
       <!-- Admin Tab 1: Permissions & Partner Control & WhatsApp -->
       <div id="subtab-admin-permissions" class="subtab-admin-content space-y-4">
         
-        <!-- إدارة الصلاحيات مرتاً رأسياً تحت بعضها -->
+        <!-- إدارة الصلاحيات مرتبة رأسياً تحت بعض -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء ودراسة التكلفة (تفعيل / إغلاق)</h3>
           <div id="admin-permissions-toggle-list" class="space-y-3"></div>
@@ -324,12 +324,12 @@
             </select>
             <input type="text" id="new-user-name-ar" placeholder="اسم الشريك الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             <input type="email" id="new-user-email" placeholder="البريد الإلكتروني" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <input type="tel" id="new-user-phone" placeholder="رقم الواتساب (مثال: 96590000000)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="tel" id="new-user-phone" placeholder="رقم الواتساب (مثال: 12345678)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             <input type="text" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             
             <div class="flex space-x-2 space-x-reverse">
               <button id="add-btn" onclick="saveOrUpdateUser()" class="flex-1 bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-                + تسجيل وتفعيل الحساب وإرسال الواتساب 💬
+                + حفظ التعديلات وإرسال الواتساب 💬
               </button>
               <button id="cancel-edit-btn" onclick="resetUserForm()" class="hidden bg-slate-500 text-white px-3 py-2.5 rounded-lg text-xs font-bold">إلغاء</button>
             </div>
@@ -410,10 +410,23 @@
       7: { name: "7. بيع السيارة (مصر)", pct: 100, sub: ["التقييم وعرض السيارة للبيع", "تحرير عقد بيع مسجل بالشهر العقاري", "استلام الثمن ونقل الملكية للمشتري"] }
     };
 
-    const defaultUsers = [
-      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000", studyPreApproval: true },
-      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "96590000000", studyPreApproval: false }
+    const initialUsers = [
+      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "12345678", studyPreApproval: true },
+      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "12345678", studyPreApproval: false }
     ];
+
+    function getAllUsers() {
+      try {
+        let saved = localStorage.getItem('app_users');
+        if (!saved) {
+          localStorage.setItem('app_users', JSON.stringify(initialUsers));
+          return initialUsers;
+        }
+        return JSON.parse(saved);
+      } catch(e) {
+        return initialUsers;
+      }
+    }
 
     const defaultCycles = [
       { id: 1, partner: "أشرف عابد", car: "كيا سبورتاج 2026", budget: 3000, spent: 0, step: 1, pct: 14, status: "active", depositUsd: 0 },
@@ -483,14 +496,8 @@
         return;
       }
 
-      let user = defaultUsers.find(u => u.email.toLowerCase() === emailInput && u.pass === passInput);
-
-      if (!user) {
-        try {
-          const localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
-          user = localUsers.find(u => u.email.toLowerCase() === emailInput && u.pass === passInput);
-        } catch (e) {}
-      }
+      const users = getAllUsers();
+      const user = users.find(u => u.email.toLowerCase() === emailInput && u.pass === passInput);
 
       if (user) {
         sessionStorage.setItem('current_user', JSON.stringify(user));
@@ -547,13 +554,8 @@
     }
 
     function toggleStudyPreApproval(email) {
-      let users = defaultUsers;
-      try {
-        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
-        locals.forEach(u => { if (!users.find(x => x.email === u.email)) users.push(u); });
-      } catch(e) {}
-
-      const user = users.find(u => u.email === email);
+      let users = getAllUsers();
+      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (user) {
         user.studyPreApproval = !user.studyPreApproval;
         localStorage.setItem('app_users', JSON.stringify(users));
@@ -563,34 +565,27 @@
     }
 
     function sendWhatsAppCredentials(name, email, pass, phone) {
-      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '12345678';
       const appUrl = window.location.href.split('?')[0];
       const msg = `أهلاً بك م/ ${name}%0Aإليك بيانات الدخول الخاصة بك لمنصة صندوق الـ 8 سيارات 🚗:%0A%0Aالبريد: ${email}%0Aكلمة المرور: ${pass}%0A%0Aرابط المنصة:%0A${appUrl}`;
-      const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
-      window.open(url, '_blank');
+      window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
     }
 
     function sendWhatsAppCustom(name, phone) {
-      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '12345678';
       const msg = `أهلاً بك م/ ${name}%0Aبخصوص طلب الموافقة أو الاستفسار الإداري لصندوق الـ 8 سيارات:`;
-      const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
-      window.open(url, '_blank');
+      window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank');
     }
 
     function editPartnerData(email) {
-      let allUsers = defaultUsers;
-      try {
-        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
-        locals.forEach(u => { if (!allUsers.find(x => x.email === u.email)) allUsers.push(u); });
-      } catch(e) {}
-
-      const user = allUsers.find(u => u.email === email);
+      const users = getAllUsers();
+      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
       if (user) {
         document.getElementById('edit-user-original-email').value = user.email;
         document.getElementById('new-user-partner-num').value = user.partnerNum || "1";
         document.getElementById('new-user-name-ar').value = user.name || "";
         document.getElementById('new-user-email').value = user.email || "";
-        document.getElementById('new-user-phone').value = user.phone || "";
+        document.getElementById('new-user-phone').value = user.phone || "12345678";
         document.getElementById('new-user-pass').value = user.pass || "";
 
         document.getElementById('form-mode-title').textContent = `✏️ تعديل بيانات الشريك: ${user.name}`;
@@ -604,10 +599,10 @@
       document.getElementById('edit-user-original-email').value = "";
       document.getElementById('new-user-name-ar').value = "";
       document.getElementById('new-user-email').value = "";
-      document.getElementById('new-user-phone').value = "";
+      document.getElementById('new-user-phone').value = "12345678";
       document.getElementById('new-user-pass').value = "";
       document.getElementById('form-mode-title').textContent = "👤 تسجيل أو استبدال شريك";
-      document.getElementById('add-btn').textContent = "+ تسجيل وتفعيل الحساب وإرسال الواتساب 💬";
+      document.getElementById('add-btn').textContent = "+ حفظ التعديلات وإرسال الواتساب 💬";
       document.getElementById('cancel-edit-btn').classList.add('hidden');
     }
 
@@ -616,7 +611,7 @@
       const partnerNum = document.getElementById('new-user-partner-num').value;
       const nameAr = document.getElementById('new-user-name-ar').value.trim();
       const email = document.getElementById('new-user-email').value.trim().toLowerCase();
-      const phone = document.getElementById('new-user-phone').value.trim();
+      const phone = document.getElementById('new-user-phone').value.trim() || "12345678";
       const pass = document.getElementById('new-user-pass').value.trim();
 
       if (!nameAr || !email || !pass) {
@@ -624,26 +619,20 @@
         return;
       }
 
-      let localUsers = [];
-      try { localUsers = JSON.parse(localStorage.getItem('app_users') || '[]'); } catch(e) {}
+      let users = getAllUsers();
 
       if (originalEmail) {
-        // تحديث شريك حالي
-        let uIdx = localUsers.findIndex(u => u.email.toLowerCase() === originalEmail);
+        let uIdx = users.findIndex(u => u.email.toLowerCase() === originalEmail);
         if (uIdx !== -1) {
-          localUsers[uIdx] = { ...localUsers[uIdx], name: nameAr, email, phone, pass, partnerNum };
+          users[uIdx] = { ...users[uIdx], name: nameAr, email, phone, pass, partnerNum };
         } else {
-          let defU = defaultUsers.find(u => u.email.toLowerCase() === originalEmail);
-          if (defU) {
-            localUsers.push({ ...defU, name: nameAr, email, phone, pass, partnerNum });
-          }
+          users.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone, studyPreApproval: false });
         }
-        localStorage.setItem('app_users', JSON.stringify(localUsers));
-        alert(`✅ تم تحديث بيانات الشريك [${nameAr}] بنجاح!`);
+        localStorage.setItem('app_users', JSON.stringify(users));
+        alert(`✅ تم تحديث بيانات الشريك [${nameAr}] وحفظها بنجاح!`);
       } else {
-        // إضافة شريك جديد
-        localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone, studyPreApproval: false });
-        localStorage.setItem('app_users', JSON.stringify(localUsers));
+        users.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone, studyPreApproval: false });
+        localStorage.setItem('app_users', JSON.stringify(users));
         alert(`✅ تم تسجيل الشريك [${nameAr}] بنجاح! جاري فتح الواتساب لإرسال بياناته.`);
         sendWhatsAppCredentials(nameAr, email, pass, phone);
       }
@@ -895,13 +884,8 @@
       document.getElementById('current-step-pct-tag').textContent = `نسبة الإنجاز: ${myCycle.pct || 0}%`;
       renderSubTasks(myCycle.step || 1);
 
-      // 3. الصلاحيات وإدارة الواتساب وأزرار الأيقونات مرتبة رأسياً تحت بعض
-      let allUsers = defaultUsers;
-      try {
-        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
-        locals.forEach(u => { if (!allUsers.find(x => x.email === u.email)) allUsers.push(u); });
-      } catch(e) {}
-
+      // 3. الصلاحيات وإدارة الواتساب وأزرار الأيقونات مرتبة رأسياً
+      const allUsers = getAllUsers();
       const permBox = document.getElementById('admin-permissions-toggle-list');
       if (permBox) {
         permBox.innerHTML = '';
@@ -912,7 +896,7 @@
             <div class="flex justify-between items-center border-b pb-2">
               <div>
                 <strong class="text-sm block text-slate-900">${u.name}</strong>
-                <span class="text-[10px] text-slate-500">${u.email} (الدور: ${u.partnerNum || 'غير محدد'})</span>
+                <span class="text-[10px] text-slate-500">${u.email} | هاتف: ${u.phone || '12345678'} (الدور: ${u.partnerNum || 'غير محدد'})</span>
               </div>
               <div class="flex space-x-1 space-x-reverse">
                 <button onclick="editPartnerData('${u.email}')" class="bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-lg font-bold shadow flex items-center space-x-1 space-x-reverse">
@@ -921,7 +905,7 @@
               </div>
             </div>
 
-            <!-- أزرار التفعيل والإغلاق عمودياً تحت بعض -->
+            <!-- أزرار التفعيل والإغلاق عمودياً -->
             <div class="space-y-1.5 pt-1">
               <div class="flex justify-between items-center bg-white p-2 rounded-lg border">
                 <span class="text-slate-700">إذن دراسة التكلفة (للتجهيز):</span>
@@ -933,10 +917,10 @@
 
             <!-- أزرار الواتساب مرتبة على شكل أيقونات -->
             <div class="flex space-x-2 space-x-reverse pt-2 border-t">
-              <button onclick="sendWhatsAppCredentials('${u.name}', '${u.email}', '${u.pass}', '${u.phone || ''}')" class="flex-1 bg-emerald-600 text-white text-[10px] py-2 rounded-lg font-bold shadow flex items-center justify-center space-x-1 space-x-reverse">
+              <button onclick="sendWhatsAppCredentials('${u.name}', '${u.email}', '${u.pass}', '${u.phone || '12345678'}')" class="flex-1 bg-emerald-600 text-white text-[10px] py-2 rounded-lg font-bold shadow flex items-center justify-center space-x-1 space-x-reverse">
                 <span>💬</span> <span>بيانات الدخول</span>
               </button>
-              <button onclick="sendWhatsAppCustom('${u.name}', '${u.phone || ''}')" class="flex-1 bg-sky-600 text-white text-[10px] py-2 rounded-lg font-bold shadow flex items-center justify-center space-x-1 space-x-reverse">
+              <button onclick="sendWhatsAppCustom('${u.name}', '${u.phone || '12345678'}')" class="flex-1 bg-sky-600 text-white text-[10px] py-2 rounded-lg font-bold shadow flex items-center justify-center space-x-1 space-x-reverse">
                 <span>📲</span> <span>مراسلة استفسار</span>
               </button>
             </div>
