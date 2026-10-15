@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>منصة مبادرة الـ 8 سيارات</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
@@ -43,7 +46,7 @@
     </div>
   </div>
 
-  <!-- Login Overlay -->
+  <!-- Login Overlay (Email & Password Only) -->
   <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-xl text-right">
       <div class="text-center space-y-1">
@@ -52,10 +55,6 @@
         <p class="text-xs text-slate-500">صندوق مبادرة الـ 8 سيارات</p>
       </div>
       <div id="login-error" class="text-xs text-red-500 hidden text-center bg-red-50 p-2 rounded-lg">البريد أو كلمة المرور غير صحيحة</div>
-      <div>
-        <label for="login-name" class="block text-xs font-medium text-slate-600 mb-1">اسم الشريك / اللقب الصريح</label>
-        <input type="text" id="login-name" placeholder="أدخل اسمك الصريح" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
-      </div>
       <div>
         <label for="login-email" class="block text-xs font-medium text-slate-600 mb-1">البريد الإلكتروني</label>
         <input type="email" id="login-email" placeholder="email@example.com" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
@@ -92,7 +91,6 @@
       
       <!-- FIXED ALWAYS-VISIBLE TREASURY DASHBOARD -->
       <div class="space-y-3">
-        <!-- Master Pool Treasury Card -->
         <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700 space-y-3">
           <div class="flex justify-between items-center">
             <span class="text-xs text-slate-400 font-bold">🏦 الخزينة العامة للصندوق المباشر</span>
@@ -114,11 +112,10 @@
           </div>
         </div>
 
-        <!-- Individual Budget & Frozen Deposit Card -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <div class="flex justify-between items-center">
             <h3 class="font-bold text-slate-800 text-xs">📊 العهدة الفردية لسيارتك والوديعة المجمدة</h3>
-            <span id="permission-status-tag" class="text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">صلاحية التعديل مجهزة ✅</span>
+            <span id="permission-status-tag" class="text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">الحالة: مفعل ✅</span>
           </div>
           <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
             <div class="bg-slate-50 p-2 rounded-xl border">
@@ -135,7 +132,7 @@
             </div>
           </div>
           <div class="bg-blue-50 p-2 rounded-xl border border-blue-200 text-xs flex justify-between items-center">
-            <span>الوديعة الدولارية المجمدة (حساب تطبيق المصريين):</span>
+            <span>الوديعة الدولارية المجمدة (تطبيق المصريين):</span>
             <strong id="frozen-deposit-val" class="text-blue-900 font-bold">0 $ (0 د.ك)</strong>
           </div>
         </div>
@@ -154,18 +151,18 @@
         <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
           <h3 class="font-bold text-amber-900 text-xs">📝 تقديم دراسة تكلفة السيارة (KWD / USD / EGP)</h3>
           <div class="space-y-2">
-            <input type="text" id="study-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+            <input type="text" id="study-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg bg-white outline-none study-field">
             <div class="grid grid-cols-2 gap-2">
-              <input type="number" id="study-car-price" placeholder="سعر السيارة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
-              <input type="number" id="study-shipping-fee" placeholder="الشحن (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+              <input type="number" id="study-car-price" placeholder="سعر السيارة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none study-field">
+              <input type="number" id="study-shipping-fee" placeholder="الشحن (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none study-field">
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <input type="number" id="study-usd-deposit" placeholder="الوديعة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
-              <input type="number" id="study-customs-fee" placeholder="جمارك مصر (EGP)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+              <input type="number" id="study-usd-deposit" placeholder="الوديعة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none study-field">
+              <input type="number" id="study-customs-fee" placeholder="جمارك مصر (EGP)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none study-field">
             </div>
-            <input type="number" id="study-license-fee" placeholder="ترخيص وإداريات (KWD د.ك)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+            <input type="number" id="study-license-fee" placeholder="ترخيص وإداريات (KWD د.ك)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none study-field">
             
-            <button onclick="submitCarStudy()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow edit-btn">
+            <button onclick="submitCarStudy()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow study-btn">
               إرسال الدراسة للتصويت الجماعي
             </button>
           </div>
@@ -188,7 +185,7 @@
           <div class="space-y-3">
             <div>
               <label class="block text-[10px] font-bold text-slate-600 mb-1">الخطوة الأساسية الحالية:</label>
-              <select id="partner-main-step-select" onchange="previewStepChange()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none edit-field">
+              <select id="partner-main-step-select" onchange="previewStepChange()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none active-field">
                 <option value="1">1. شراء السيارة (الكويت) - [14%]</option>
                 <option value="2">2. الترخيص والتوكيلات (الكويت) - [29%]</option>
                 <option value="3">3. تحويل الوديعة (تطبيق سيارات المصريين) - [43%]</option>
@@ -202,12 +199,12 @@
             <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
               <div class="flex justify-between items-center">
                 <span class="text-[10px] font-bold text-slate-700">الخطوات الفرعية:</span>
-                <button onclick="addNewSubTaskPrompt()" class="text-[10px] bg-slate-900 text-white px-2 py-1 rounded font-bold edit-btn">+ إضافة فرعية</button>
+                <button onclick="addNewSubTaskPrompt()" class="text-[10px] bg-slate-900 text-white px-2 py-1 rounded font-bold active-btn">+ إضافة فرعية</button>
               </div>
               <div id="sub-tasks-list" class="space-y-1.5 text-xs"></div>
             </div>
 
-            <button onclick="saveAndConfirmStepUpgrade()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform edit-btn">
+            <button onclick="saveAndConfirmStepUpgrade()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform active-btn">
               💾 حفظ وتأكيد الترقية والإرسال للشركاء
             </button>
           </div>
@@ -219,10 +216,10 @@
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <h3 class="font-bold text-slate-800 text-xs">💸 إدخال مصروف جديد مرتبط بسيارتك</h3>
           <div class="space-y-2">
-            <input type="text" id="exp-desc" placeholder="بيان المصروف (مثال: شحن، جمارك، وديعة...)" class="w-full p-2 text-xs border rounded-lg outline-none bg-white edit-field">
+            <input type="text" id="exp-desc" placeholder="بيان المصروف (مثال: شحن، جمارك، وديعة...)" class="w-full p-2 text-xs border rounded-lg outline-none bg-white active-field">
             <div class="grid grid-cols-3 gap-1.5">
-              <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none col-span-2 bg-white edit-field">
-              <select id="exp-curr" onchange="calculateConvertedAmount()" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold edit-field">
+              <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none col-span-2 bg-white active-field">
+              <select id="exp-curr" onchange="calculateConvertedAmount()" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold active-field">
                 <option value="KWD">D.K (كويتي)</option>
                 <option value="USD">$ (دولار)</option>
                 <option value="EGP">EGP (جنيه)</option>
@@ -231,8 +228,8 @@
             <div id="currency-calc-info" class="text-[10px] text-slate-500 bg-slate-50 p-1.5 rounded hidden">
               المعادل بالدينار: <strong id="converted-kwd-val" class="text-emerald-600">0 د.ك</strong>
             </div>
-            <input type="file" id="exp-file" accept="image/*,.pdf" class="w-full text-xs text-slate-500 edit-field">
-            <button id="exp-submit-btn" onclick="addExpenseDirect()" class="w-full bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold shadow edit-btn">
+            <input type="file" id="exp-file" accept="image/*,.pdf" class="w-full text-xs text-slate-500 active-field">
+            <button id="exp-submit-btn" onclick="addExpenseDirect()" class="w-full bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold shadow active-btn">
               تسجيل المصروف والخصم من العهدة
             </button>
           </div>
@@ -264,49 +261,31 @@
       </div>
     </section>
 
-    <!-- SCREEN 3: Contracts / العقود -->
+    <!-- SCREEN 3: Contracts / العقود (الشريك يرى عقوده الخاصة فقط) -->
     <section id="screen-contracts" class="screen space-y-4">
-      <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 flex space-x-2 space-x-reverse text-xs shadow-sm">
-        <button onclick="switchSubTab('contracts', 'editor')" class="sub-tab-btn-contracts bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">📄 نموذج ومحرر العقد</button>
-        <button onclick="switchSubTab('contracts', 'upload')" class="sub-tab-btn-contracts bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">✍️ رفع النسخة الموقعة</button>
-      </div>
-
-      <div id="subtab-contracts-editor" class="subtab-contracts-content space-y-3">
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-[10px] font-bold text-slate-600 mb-1">نوع العقد:</label>
-              <select id="contract-type-select" onchange="renderContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
-                <option value="1">العقد 1: عقد التزام جماعي وتأسيس الصندوق</option>
-                <option value="2">العقد 2: عقد توريد وسداد حصة الافتتاحية</option>
-                <option value="3">العقد 3: عقد تسليم عهدة الميزانية</option>
-                <option value="4">العقد 4: عقد الانتهاء من الدور وتوريد المقابل</option>
-                <option value="5">العقد 5: عقد مخالصة وتسوية مالية نهائية</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-[10px] font-bold text-slate-600 mb-1">طرف العقد (الشريك):</label>
-              <select id="contract-partner-select" onchange="renderContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none"></select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-[10px] font-bold text-slate-600 mb-1">محرر ومعاينة نص العقد (تعديل مباشر):</label>
-            <div id="printable-contract" contenteditable="true" class="p-4 bg-slate-50 rounded-xl border border-slate-300 text-xs leading-relaxed space-y-3 text-slate-800 min-h-[200px] outline-none focus:ring-2 focus:ring-slate-900"></div>
-          </div>
-
-          <div class="flex justify-between items-center pt-2">
-            <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold shadow">🖨️ طباعة العقد PDF</button>
-            <span class="text-[10px] text-emerald-700 font-bold">التزام وتضامن قانوني متساوٍ ✅</span>
-          </div>
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs">📄 عقودك الشخصية والمستندات الرسمية</h3>
+        
+        <div class="space-y-2">
+          <select id="my-personal-contract-select" onchange="renderPersonalContract()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
+            <option value="1">العقد 1: عقد الالتزام الجماعي وتأسيس الصندوق</option>
+            <option value="2">العقد 2: عقد سداد حصة الافتتاحية</option>
+            <option value="3">العقد 3: عقد عهدة الميزانية المعتمدة لسيارتك</option>
+            <option value="4">العقد 4: عقد الانتهاء من الدور وتوريد المقابل</option>
+            <option value="5">العقد 5: عقد المخالصة والتسوية المالية النهائية</option>
+          </select>
         </div>
-      </div>
 
-      <div id="subtab-contracts-upload" class="subtab-contracts-content hidden space-y-3">
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <h3 class="font-bold text-slate-800 text-xs">إرفاق العقود الموقعة وردها للأدمن</h3>
+        <div id="personal-printable-contract" class="p-4 bg-slate-50 rounded-xl border border-slate-300 text-xs leading-relaxed space-y-3 text-slate-800 min-h-[180px]"></div>
+
+        <div class="space-y-2 pt-2 border-t">
+          <label class="block text-[10px] font-bold text-slate-600">إرفاق صورة العقد الموقّع (تسليم للأدمن):</label>
           <input type="file" id="signed-contract-file" class="w-full text-xs text-slate-500">
-          <button onclick="alert('✅ تم إرفاق العقد الموقّع وتسليمه للأدمن بنجاح!')" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">رفع العقد الموقّع</button>
+          <button onclick="alert('✅ تم رفع وإرسال العقد الموقّع للأدمن بنجاح!')" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">رفع وتسليم العقد الموقّع</button>
+        </div>
+
+        <div class="text-center pt-1">
+          <button onclick="window.print()" class="bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg text-xs font-bold border">🖨️ طباعة العقد PDF</button>
         </div>
       </div>
     </section>
@@ -321,9 +300,8 @@
 
       <!-- Admin Tab 1: Permissions & Partner Control -->
       <div id="subtab-admin-permissions" class="subtab-admin-content space-y-4">
-        <!-- Partner Permissions Toggle List -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء (عرض فقط vs. تعديل)</h3>
+          <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء ودراسة التكلفة للمنتظرين</h3>
           <div id="admin-permissions-toggle-list" class="space-y-2"></div>
         </div>
 
@@ -392,7 +370,7 @@
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 px-2 flex justify-around items-center text-[11px] text-slate-500 z-50">
     <button onclick="switchScreen('dashboard', 'الرئيسية')" class="nav-btn text-slate-900 font-bold flex flex-col items-center">📊 الرئيسية</button>
     <button onclick="switchScreen('cycles', 'الأدوار')" class="nav-btn flex flex-col items-center">🔄 الأدوار</button>
-    <button onclick="switchScreen('contracts', 'العقود')" class="nav-btn flex flex-col items-center">📄 العقود</button>
+    <button onclick="switchScreen('contracts', 'عقودي')" class="nav-btn flex flex-col items-center">📄 عقودي</button>
     <button onclick="switchScreen('admin', 'الإعدادات')" id="nav-admin-btn" class="nav-btn flex flex-col items-center hidden">⚙️ الإعدادات</button>
   </nav>
 
@@ -400,7 +378,6 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOTLG3acOS9A3XY5_44dtKe-P362_vt_nBKaSooVrgWo57rCkQ4R2CNIwgzKT6SZSSbw/exec";
 
     let deferredPrompt = null;
-
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -411,9 +388,7 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choice) => {
-          if (choice.outcome === 'accepted') {
-            closePwaBanner();
-          }
+          if (choice.outcome === 'accepted') closePwaBanner();
         });
       }
     }
@@ -433,8 +408,8 @@
     };
 
     const defaultUsers = [
-      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000", canEdit: true },
-      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "", canEdit: true }
+      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000", studyPreApproval: true },
+      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "", studyPreApproval: false }
     ];
 
     const defaultCycles = [
@@ -497,7 +472,6 @@
     }
 
     function handleLogin() {
-      const nameInput = document.getElementById('login-name').value.trim();
       const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
       const passInput = document.getElementById('login-password').value.trim();
 
@@ -516,7 +490,6 @@
       }
 
       if (user) {
-        if (nameInput) user.name = nameInput;
         sessionStorage.setItem('current_user', JSON.stringify(user));
         document.getElementById('login-error').classList.add('hidden');
         checkAuth();
@@ -547,31 +520,32 @@
     }
 
     function applyPermissionsUI(user) {
-      const canEdit = user.role === 'admin' || user.canEdit !== false;
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const myCycle = cycles.find(c => c.id == (user.partnerNum || "1")) || cycles[0];
+      const isActive = myCycle.status === 'active' || user.role === 'admin';
+      const canStudyPre = user.studyPreApproval === true || isActive;
+
       const tag = document.getElementById('permission-status-tag');
-      
-      if (!canEdit) {
-        tag.className = "text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold";
-        tag.textContent = "وضع العرض فقط (مشاهدة) 👁️";
-        
-        document.querySelectorAll('.edit-field').forEach(el => el.disabled = true);
-        document.querySelectorAll('.edit-btn').forEach(el => {
-          el.disabled = true;
-          el.classList.add('opacity-50', 'cursor-not-allowed');
-        });
-      } else {
-        tag.className = "text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold";
-        tag.textContent = "صلاحية التعديل مفعلة ✅";
-        
-        document.querySelectorAll('.edit-field').forEach(el => el.disabled = false);
-        document.querySelectorAll('.edit-btn').forEach(el => {
-          el.disabled = false;
-          el.classList.remove('opacity-50', 'cursor-not-allowed');
-        });
-      }
+      tag.textContent = isActive ? "شريك نشط - صلاحيات كاملة 🟢" : (canStudyPre ? "شريك منتظر - مسموح بدراسة التكلفة 📝" : "شريك منتظر - وضع عرض فقط 👁️");
+
+      // تفعيل/تعطيل حقول الدراسة والتصويت
+      document.querySelectorAll('.study-field').forEach(el => el.disabled = !canStudyPre);
+      document.querySelectorAll('.study-btn').forEach(el => {
+        el.disabled = !canStudyPre;
+        if (!canStudyPre) el.classList.add('opacity-50', 'cursor-not-allowed');
+        else el.classList.remove('opacity-50', 'cursor-not-allowed');
+      });
+
+      // تفعيل/تعطيل حقول ترقية الخطوات والمصروفات للشريك النشط حصراً
+      document.querySelectorAll('.active-field').forEach(el => el.disabled = !isActive);
+      document.querySelectorAll('.active-btn').forEach(el => {
+        el.disabled = !isActive;
+        if (!isActive) el.classList.add('opacity-50', 'cursor-not-allowed');
+        else el.classList.remove('opacity-50', 'cursor-not-allowed');
+      });
     }
 
-    function togglePartnerPermission(email) {
+    function toggleStudyPreApproval(email) {
       let users = defaultUsers;
       try {
         const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
@@ -580,9 +554,9 @@
 
       const user = users.find(u => u.email === email);
       if (user) {
-        user.canEdit = !user.canEdit;
+        user.studyPreApproval = !user.studyPreApproval;
         localStorage.setItem('app_users', JSON.stringify(users));
-        alert(`✅ تم تغيير صلاحية [${user.name}] إلى: ${user.canEdit ? 'تعديل وإدخال ✅' : 'عرض فقط 👁️'}`);
+        alert(`✅ تم تحديث صلاحية تقديم الدراسات للشريك [${user.name}]: ${user.studyPreApproval ? 'مفعلة ✅' : 'مغلقة ❌'}`);
         loadAppData();
       }
     }
@@ -701,8 +675,8 @@
         row.innerHTML = `
           <span class="text-slate-800">${st}</span>
           <div class="space-x-1 space-x-reverse">
-            <button onclick="editSubTask(${stepVal}, ${idx})" class="text-[9px] text-blue-600 font-bold edit-btn">تعديل</button>
-            <button onclick="deleteSubTask(${stepVal}, ${idx})" class="text-[9px] text-red-600 font-bold edit-btn">حذف</button>
+            <button onclick="editSubTask(${stepVal}, ${idx})" class="text-[9px] text-blue-600 font-bold">تعديل</button>
+            <button onclick="deleteSubTask(${stepVal}, ${idx})" class="text-[9px] text-red-600 font-bold">حذف</button>
           </div>
         `;
         container.appendChild(row);
@@ -743,14 +717,12 @@
       if (confirm("⚠️ هل أنت متأكد من مسح جميع بيانات التجربة كلياً والبدء الفعلي بالصندوق الحقيقي؟")) {
         localStorage.clear();
         sessionStorage.clear();
-
         fetch(SCRIPT_URL, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ type: "reset_all_data" })
         });
-
         alert("🧹 تم تفريغ البيانات بنجاح والمنصة جاهزة الآن للبدء الفعلي!");
         window.location.reload();
       }
@@ -761,7 +733,6 @@
       const totalSpent = cycles.reduce((s, c) => s + (c.spent || 0), 0);
       const totalDepositUsd = cycles.reduce((s, c) => s + (c.depositUsd || 0), 0);
       const totalDepositKwd = totalDepositUsd * 0.307;
-
       const grandTotalCost = totalSpent + totalDepositKwd;
       const averageCostPerPartner = Math.round(grandTotalCost / cycles.length);
 
@@ -783,40 +754,38 @@
       });
     }
 
-    function renderContractText() {
-      const type = document.getElementById('contract-type-select').value;
-      const partnerNum = document.getElementById('contract-partner-select').value || "1";
-      const box = document.getElementById('printable-contract');
-      
+    function renderPersonalContract() {
+      const type = document.getElementById('my-personal-contract-select').value;
+      const box = document.getElementById('personal-printable-contract');
+      const currentUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
       let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-      const targetCycle = cycles.find(c => c.id == partnerNum) || cycles[0];
+      const myCycle = cycles.find(c => c.id == (currentUser.partnerNum || "1")) || cycles[0];
 
       let text = "";
       if (type === "1") {
         text = `
           <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد التزام جماعي وتأسيس صندوق الـ 8 سيارات</h2>
-          <p>حرر هذا العقد التأسيسي بين كافة الشركاء الموقّعين أدناه، بما فيهم الأدمن الشريك المهندس/ أشرف عابد بصفته عضواً وشريكاً متساوياً في الحقوق والالتزامات.</p>
-          <p><strong>بنود الاتفاق:</strong> يتعهد جميع الشركاء بالتضامن المالي، والالتزام بقرارات الإجماع، وعدم الانسحاب التعسفي المضر بالخزينة العامة، وتحمل كافة الفروقات المحسوبة بالتساوي عند التصفية الشاملة.</p>
+          <p>أقر أنا الشريك/ <strong>${currentUser.name || myCycle.partner}</strong> بالتزامي التام بكافة بنود التأسيس والتضامن المالي المتساوي مع كافة الشركاء والأدمن المهندس/ أشرف عابد.</p>
         `;
       } else if (type === "2") {
         text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد توريد وسداد حصة افتتاحية الصندوق</h2>
-          <p>يقر الصندوق بكافة أعضائه باستلام مبلغ حصة الافتتاحية المعتمد وقدره [3,000 د.ك] من الشريك/ <strong>${targetCycle.partner}</strong>، وتثبيت حسابه رسمياً بالدور رقم [${targetCycle.id}].</p>
+          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد توريد وسداد حصة الافتتاحية</h2>
+          <p>إقرار رسمي بسداد الشريك/ <strong>${currentUser.name || myCycle.partner}</strong> مبلغ حصة الافتتاحية وقدره [3,000 د.ك] واعتماده بالدور رقم [${myCycle.id}].</p>
         `;
       } else if (type === "3") {
         text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد تسليم واستلام عهدة الميزانية المعتمدة</h2>
-          <p>إقرار بتسليم العهدة المالية المعتمدة لسيارة الشريك/ <strong>${targetCycle.partner}</strong> وقدرها [${targetCycle.budget} د.ك] لسيارته [${targetCycle.car}] والتزامه بصرفها في البنود المحددة بحسب دراسة التكلفة المعتمدة.</p>
+          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد تسليم عهدة الميزانية المعتمدة</h2>
+          <p>إقرار بتسليم عهدة ميزانية سيارتك [${myCycle.car}] بقيمة [${myCycle.budget} د.ك] للشريك/ <strong>${currentUser.name || myCycle.partner}</strong> طبقاً للدراسة.</p>
         `;
       } else if (type === "4") {
         text = `
           <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد الانتهاء من الدور وتوريد المقابل</h2>
-          <p>إقرار رسمي بإتمام بيع سيارة الشريك/ <strong>${targetCycle.partner}</strong> في مصر وتوريد الحصيلة وتصفية المرحلة المالية لسيارته بنسبة إنجاز 100%.</p>
+          <p>إقرار الشريك/ <strong>${currentUser.name || myCycle.partner}</strong> بإتمام توريد مقابل السيارة وإغلاق دورته المالية بنجاح.</p>
         `;
       } else if (type === "5") {
         text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد مخالصة وتسوية مالية نهائية</h2>
-          <p>مخالصة نهائية وتصفية كاملة وإبراء ذمة متقابل بين الصندوق والشريك/ <strong>${targetCycle.partner}</strong> بعد خصم/إضافة كافة الفروقات بالدينار الكويتي.</p>
+          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد المخالصة والتسوية المالية النهائية</h2>
+          <p>مخالصة نهائية وإبراء ذمة متبادل للشريك/ <strong>${currentUser.name || myCycle.partner}</strong> مع الصندوق.</p>
         `;
       }
       box.innerHTML = text;
@@ -853,7 +822,7 @@
       document.getElementById('current-step-pct-tag').textContent = `نسبة الإنجاز: ${myCycle.pct || 0}%`;
       renderSubTasks(myCycle.step || 1);
 
-      // 3. الصلاحيات للأدمن
+      // 3. صلاحيات الأدمن والمنتظرين
       let allUsers = defaultUsers;
       try {
         const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
@@ -869,29 +838,17 @@
           row.innerHTML = `
             <div>
               <strong>${u.name}</strong> (${u.email})
-              <span class="block text-[9px] text-slate-500">الحالة: ${u.canEdit !== false ? 'تعديل مفعل ✅' : 'عرض فقط 👁️'}</span>
+              <span class="block text-[9px] text-slate-500">دراسة التكلفة للتجهيز: ${u.studyPreApproval ? 'مسموح ✅' : 'مغلق ❌'}</span>
             </div>
-            <button onclick="togglePartnerPermission('${u.email}')" class="${u.canEdit !== false ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
-              ${u.canEdit !== false ? 'تحويل لـ عرض فقط 👁️' : 'منح صلاحية التعديل ✅'}
+            <button onclick="toggleStudyPreApproval('${u.email}')" class="${u.studyPreApproval ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
+              ${u.studyPreApproval ? 'إلغاء إذن الدراسة ❌' : 'منح إذن دراسة التكلفة ✅'}
             </button>
           `;
           permBox.appendChild(row);
         });
       }
 
-      // 4. العقود
-      const pContractSelect = document.getElementById('contract-partner-select');
-      if (pContractSelect) {
-        pContractSelect.innerHTML = '';
-        cycles.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = `الدور ${c.id}: ${c.partner}`;
-          pContractSelect.appendChild(opt);
-        });
-      }
-
-      // 5. المصروفات
+      // 4. المصروفات
       const expList = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
       const ledgerBox = document.getElementById('expenses-ledger-list');
       if (ledgerBox) {
@@ -915,7 +872,7 @@
         });
       }
 
-      // 6. جدول الأدوار
+      // 5. جدول الأدوار
       const container = document.getElementById('cycles-list');
       const activeOnlyContainer = document.getElementById('active-cycles-only-list');
       if (container) {
@@ -942,14 +899,13 @@
             </div>
           `;
           container.appendChild(div);
-
           if (c.status === 'active' && activeOnlyContainer) {
             activeOnlyContainer.appendChild(div.cloneNode(true));
           }
         });
       }
 
-      renderContractText();
+      renderPersonalContract();
     }
 
     function handleLogout() {
