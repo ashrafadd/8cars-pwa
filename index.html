@@ -294,20 +294,19 @@
     <section id="screen-admin" class="screen space-y-4">
       <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
         <button onclick="switchSubTab('admin', 'permissions')" class="sub-tab-btn-admin bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">🔐 الصلاحيات والشركاء</button>
-        <button onclick="switchSubTab('admin', 'expenses')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛡️ المصروفات المعلقة</button>
-        <button onclick="switchSubTab('admin', 'liquidation')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">⚖️ التصفية والضبط</button>
+        <button onclick="switchSubTab('admin', 'contracts')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📜 صياغة العقود</button>
+        <button onclick="switchSubTab('admin', 'expenses')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛡️ المصروفات</button>
+        <button onclick="switchSubTab('admin', 'liquidation')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">⚖️ التصفية</button>
       </div>
 
       <!-- Admin Tab 1: Permissions & Partner Control & WhatsApp -->
       <div id="subtab-admin-permissions" class="subtab-admin-content space-y-4">
         
-        <!-- إدارة الصلاحيات مرتبة رأسياً تحت بعض -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء ودراسة التكلفة (تفعيل / إغلاق)</h3>
           <div id="admin-permissions-toggle-list" class="space-y-3"></div>
         </div>
 
-        <!-- تسجيل أو استبدال أو تعديل بيانات شريك -->
         <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
           <h3 id="form-mode-title" class="font-bold text-amber-900 text-sm">👤 تسجيل أو استبدال شريك</h3>
           <div class="space-y-2">
@@ -338,7 +337,31 @@
 
       </div>
 
-      <!-- Admin Tab 2: Expenses Approvals -->
+      <!-- Admin Tab 2: Contracts Form Editor -->
+      <div id="subtab-admin-contracts" class="subtab-admin-content hidden space-y-4">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-bold text-slate-800 text-xs">📜 تعديل وصياغة العقود الرسمية (للأدمن)</h3>
+          <div class="space-y-2">
+            <label class="block text-[10px] font-bold text-slate-600">اختر العقد للتعديل:</label>
+            <select id="admin-contract-select" onchange="loadAdminContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
+              <option value="1">العقد 1: عقد الالتزام الجماعي وتأسيس الصندوق</option>
+              <option value="2">العقد 2: عقد سداد حصة الافتتاحية</option>
+              <option value="3">العقد 3: عقد عهدة الميزانية المعتمدة لسيارتك</option>
+              <option value="4">العقد 4: عقد الانتهاء من الدور وتوريد المقابل</option>
+              <option value="5">العقد 5: عقد المخالصة والتسوية المالية النهائية</option>
+            </select>
+            
+            <label class="block text-[10px] font-bold text-slate-600 pt-1">صيغة وبنود العقد:</label>
+            <textarea id="admin-contract-textarea" rows="6" class="w-full p-2.5 text-xs border rounded-lg bg-slate-50 outline-none leading-relaxed"></textarea>
+            
+            <button onclick="saveAdminContract()" class="w-full bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+              💾 حفظ ونشر الصيغة المحدثة للشريك
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Tab 3: Expenses Approvals -->
       <div id="subtab-admin-expenses" class="subtab-admin-content hidden space-y-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
@@ -349,7 +372,7 @@
         </div>
       </div>
 
-      <!-- Admin Tab 3: Liquidation & Reset -->
+      <!-- Admin Tab 4: Liquidation & Reset -->
       <div id="subtab-admin-liquidation" class="subtab-admin-content hidden space-y-4">
         <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-700 space-y-3">
           <h3 class="font-bold text-amber-400 text-xs">⚖️ تسوية الفروقات وتصفية الصندوق</h3>
@@ -405,7 +428,7 @@
       2: { name: "2. الترخيص والتوكيلات (الكويت)", pct: 29, sub: ["إلغاء التسجيل المحلي بالمرور", "استخراج لوحات وتأمين التصدير", "إصدار شهادة التصدير للجمرك", "توثيق الفواتير والأوراق الرسمية"] },
       3: { name: "3. تحويل الوديعة (تطبيق سيارات المصريين)", pct: 43, sub: ["بيانات السيارة على التطبيق المفعل", "استخراج أمر الدفع وتفاصيل البنك", "تحويل الوديعة بالدولار", "متابعة صدور الموافقة الاستيرادية"] },
       4: { name: "4. الشحن إلى مصر", pct: 57, sub: ["الاتفاق مع شركة شحن متخصصة", "تسليم السيارة والأوراق لشركة الشحن", "إصدار بوليصة الشحن وتتبع الرحلة", "وصول الشحنة لميناء الوصول بمصر"] },
-      5: { name: "5. إجراءات الميناء (مصر)", pct: 71, sub: ["التعاقد مع مخلص جمركي في الميناء", "تقديم الموافقة وبوليصة الشحن", "معاينة وتدقيق السيارة بالجمرك", "سداد مصاريف التخزين والتخليص", "استلام إذن الإفراج الجمركي"] },
+      5: { name: "5. إجراءات الميناء (مصر)", pct: 71, sub: ["التعاقد مع مخلص جمركي في الميناء", "تقديم الموافقة وبوليصة الشحن", "معاينة وتدقيق السيارة بالجمرك", "سداد مصاريف التخزين والتخليص", "استلاستلام إذن الإفراج الجمركي"] },
       6: { name: "6. ترخيص السيارة (مصر)", pct: 86, sub: ["نقل السيارة لوحدة المرور التابع لها", "إجراء الفحص الفني واستخراج النموذج", "سداد التأمين الإجباري والضريبة", "تركيب اللوحات واستلام الرخصة"] },
       7: { name: "7. بيع السيارة (مصر)", pct: 100, sub: ["التقييم وعرض السيارة للبيع", "تحرير عقد بيع مسجل بالشهر العقاري", "استلام الثمن ونقل الملكية للمشتري"] }
     };
@@ -414,6 +437,14 @@
       { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "12345678", studyPreApproval: true },
       { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "12345678", studyPreApproval: false }
     ];
+
+    const defaultContracts = {
+      1: "عقد التزام جماعي وتأسيس صندوق الـ 8 سيارات\n\nأقر أنا الشريك بالتزامي التام بكافة بنود التأسيس والتضامن المالي المتساوي مع كافة الشركاء والأدمن المهندس/ أشرف عابد.",
+      2: "عقد توريد وسداد حصة الافتتاحية\n\nإقرار رسمي بسداد مبلغ حصة الافتتاحية وقدره [3,000 د.ك] واعتماده بالدور المخصص.",
+      3: "عقد تسليم عهدة الميزانية المعتمدة\n\nإقرار بتسليم عهدة ميزانية سيارتك طبقاً للدراسة المعتمدة.",
+      4: "عقد الانتهاء من الدور وتوريد المقابل\n\nإقرار الشريك بإتمام توريد مقابل السيارة وإغلاق دورته المالية بنجاح.",
+      5: "عقد المخالصة والتسوية المالية النهائية\n\nمخالصة نهائية وإبراء ذمة متبادل مع الصندوق."
+    };
 
     function getAllUsers() {
       try {
@@ -454,6 +485,9 @@
       document.getElementById(`subtab-${screenName}-${tabName}`).classList.remove('hidden');
       event.target.classList.remove('bg-slate-100', 'text-slate-600');
       event.target.classList.add('bg-slate-900', 'text-white');
+      if (screenName === 'admin' && tabName === 'contracts') {
+        loadAdminContractText();
+      }
     }
 
     function showNotification(msg) {
@@ -648,6 +682,44 @@
       loadAppData();
     }
 
+    function loadAdminContractText() {
+      const type = document.getElementById('admin-contract-select').value;
+      let contracts = defaultContracts;
+      try {
+        const saved = localStorage.getItem('app_custom_contracts');
+        if (saved) contracts = JSON.parse(saved);
+      } catch(e) {}
+      document.getElementById('admin-contract-textarea').value = contracts[type] || defaultContracts[type];
+    }
+
+    function saveAdminContract() {
+      const type = document.getElementById('admin-contract-select').value;
+      const textVal = document.getElementById('admin-contract-textarea').value.trim();
+      let contracts = defaultContracts;
+      try {
+        const saved = localStorage.getItem('app_custom_contracts');
+        if (saved) contracts = JSON.parse(saved);
+      } catch(e) {}
+
+      contracts[type] = textVal;
+      localStorage.setItem('app_custom_contracts', JSON.stringify(contracts));
+      alert("✅ تم حفظ ونشر صيغة العقد المحدثة بنجاح لتظهر للشركاء فوراً!");
+    }
+
+    function renderPersonalContract() {
+      const type = document.getElementById('my-personal-contract-select').value;
+      const box = document.getElementById('personal-printable-contract');
+      
+      let contracts = defaultContracts;
+      try {
+        const saved = localStorage.getItem('app_custom_contracts');
+        if (saved) contracts = JSON.parse(saved);
+      } catch(e) {}
+
+      const contractText = contracts[type] || defaultContracts[type];
+      box.innerHTML = `<div style="white-space: pre-line; line-height: 1.6;">${contractText}</div>`;
+    }
+
     function previewStepChange() {
       const stepVal = parseInt(document.getElementById('partner-main-step-select').value);
       renderSubTasks(stepVal);
@@ -814,43 +886,6 @@
         row.innerHTML = `<span>الدور ${c.id} (${c.partner}):</span> ${statusText}`;
         box.appendChild(row);
       });
-    }
-
-    function renderPersonalContract() {
-      const type = document.getElementById('my-personal-contract-select').value;
-      const box = document.getElementById('personal-printable-contract');
-      const currentUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
-      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-      const myCycle = cycles.find(c => c.id == (currentUser.partnerNum || "1")) || cycles[0];
-
-      let text = "";
-      if (type === "1") {
-        text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد التزام جماعي وتأسيس صندوق الـ 8 سيارات</h2>
-          <p>أقر أنا الشريك/ <strong>${currentUser.name || myCycle.partner}</strong> بالتزامي التام بكافة بنود التأسيس والتضامن المالي المتساوي مع كافة الشركاء والأدمن المهندس/ أشرف عابد.</p>
-        `;
-      } else if (type === "2") {
-        text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد توريد وسداد حصة الافتتاحية</h2>
-          <p>إقرار رسمي بسداد الشريك/ <strong>${currentUser.name || myCycle.partner}</strong> مبلغ حصة الافتتاحية وقدره [3,000 د.ك] واعتماده بالدور رقم [${myCycle.id}].</p>
-        `;
-      } else if (type === "3") {
-        text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد تسليم عهدة الميزانية المعتمدة</h2>
-          <p>إقرار بتسليم عهدة ميزانية سيارتك [${myCycle.car}] بقيمة [${myCycle.budget} د.ك] للشريك/ <strong>${currentUser.name || myCycle.partner}</strong> طبقاً للدراسة المعتمدة.</p>
-        `;
-      } else if (type === "4") {
-        text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد الانتهاء من الدور وتوريد المقابل</h2>
-          <p>إقرار الشريك/ <strong>${currentUser.name || myCycle.partner}</strong> بإتمام توريد مقابل السيارة وإغلاق دورته المالية بنجاح.</p>
-        `;
-      } else if (type === "5") {
-        text = `
-          <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد المخالصة والتسوية المالية النهائية</h2>
-          <p>مخالصة نهائية وإبراء ذمة متبادل للشريك/ <strong>${currentUser.name || myCycle.partner}</strong> مع الصندوق.</p>
-        `;
-      }
-      box.innerHTML = text;
     }
 
     function loadAppData() {
