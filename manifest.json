@@ -2,7 +2,7 @@
   "name": "صندوق الـ 8 سيارات",
   "short_name": "8Cars",
   "description": "منصة إدارة واستيراد صندوق الـ 8 سيارات",
-  "start_url": "./index.html",
+  "start_url": "./index.html?v=20261015",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
