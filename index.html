@@ -261,7 +261,7 @@
       </div>
     </section>
 
-    <!-- SCREEN 3: Contracts / العقود (الشريك يرى عقوده الخاصة فقط) -->
+    <!-- SCREEN 3: Contracts / العقود الشخصية -->
     <section id="screen-contracts" class="screen space-y-4">
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-xs">📄 عقودك الشخصية والمستندات الرسمية</h3>
@@ -290,7 +290,7 @@
       </div>
     </section>
 
-    <!-- SCREEN 4: Admin / الإعدادات -->
+    <!-- SCREEN 4: Admin / الإعدادات (مع قفل التعديل في العقود وتوافر الواتساب والاصلاحات) -->
     <section id="screen-admin" class="screen space-y-4">
       <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
         <button onclick="switchSubTab('admin', 'permissions')" class="sub-tab-btn-admin bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">🔐 الصلاحيات والشركاء</button>
@@ -298,7 +298,7 @@
         <button onclick="switchSubTab('admin', 'liquidation')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">⚖️ التصفية والضبط</button>
       </div>
 
-      <!-- Admin Tab 1: Permissions & Partner Control -->
+      <!-- Admin Tab 1: Permissions & Partner Control & WhatsApp -->
       <div id="subtab-admin-permissions" class="subtab-admin-content space-y-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء ودراسة التكلفة للمنتظرين</h3>
@@ -320,17 +320,17 @@
             </select>
             <input type="text" id="new-user-name-ar" placeholder="اسم الشريك الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             <input type="email" id="new-user-email" placeholder="البريد الإلكتروني" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <input type="tel" id="new-user-phone" placeholder="رقم الواتساب" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="tel" id="new-user-phone" placeholder="رقم الواتساب (مثال: 96590000000)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             <input type="password" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             
             <button id="add-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-              + تسجيل وتفعيل الحساب
+              + تسجيل وتفعيل الحساب وإرسال الواتساب 💬
             </button>
           </div>
         </div>
 
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <h3 class="font-bold text-slate-800 text-xs">💬 إرسال بيانات الدخول عبر الواتساب</h3>
+          <h3 class="font-bold text-slate-800 text-xs">💬 مراسلة الشركاء وإرسال بيانات الدخول عبر الواتساب</h3>
           <div id="whatsapp-partners-list" class="space-y-2"></div>
         </div>
       </div>
@@ -402,14 +402,14 @@
       2: { name: "2. الترخيص والتوكيلات (الكويت)", pct: 29, sub: ["إلغاء التسجيل المحلي بالمرور", "استخراج لوحات وتأمين التصدير", "إصدار شهادة التصدير للجمرك", "توثيق الفواتير والأوراق الرسمية"] },
       3: { name: "3. تحويل الوديعة (تطبيق سيارات المصريين)", pct: 43, sub: ["بيانات السيارة على التطبيق المفعل", "استخراج أمر الدفع وتفاصيل البنك", "تحويل الوديعة بالدولار", "متابعة صدور الموافقة الاستيرادية"] },
       4: { name: "4. الشحن إلى مصر", pct: 57, sub: ["الاتفاق مع شركة شحن متخصصة", "تسليم السيارة والأوراق لشركة الشحن", "إصدار بوليصة الشحن وتتبع الرحلة", "وصول الشحنة لميناء الوصول بمصر"] },
-      5: { name: "5. إجراءات الميناء (مصر)", pct: 71, sub: ["التعاقد مع مخلص جمركي في الميناء", "تقديم الموافقة وبوليصة الشحن", "معاينة وتدقيق السيارة بالجمرك", "سداد مصاريف التخزين والتخليص", "استلام إذن الإفراج الجمركي"] },
+      5: { name: "5. إجراءات الميناء (مصر)", pct: 71, sub: ["التعاقد مع مخلص جمركي في الميناء", "تقديم الموافقة وبوليصة الشحن", "معاينة وتدقيق السيارة بالجمرك", "سداد مصاريف التخزين والتخليص", "استلاستلام إذن الإفراج الجمركي"] },
       6: { name: "6. ترخيص السيارة (مصر)", pct: 86, sub: ["نقل السيارة لوحدة المرور التابع لها", "إجراء الفحص الفني واستخراج النموذج", "سداد التأمين الإجباري والضريبة", "تركيب اللوحات واستلام الرخصة"] },
       7: { name: "7. بيع السيارة (مصر)", pct: 100, sub: ["التقييم وعرض السيارة للبيع", "تحرير عقد بيع مسجل بالشهر العقاري", "استلام الثمن ونقل الملكية للمشتري"] }
     };
 
     const defaultUsers = [
       { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000", studyPreApproval: true },
-      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "", studyPreApproval: false }
+      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "96590000000", studyPreApproval: false }
     ];
 
     const defaultCycles = [
@@ -528,7 +528,6 @@
       const tag = document.getElementById('permission-status-tag');
       tag.textContent = isActive ? "شريك نشط - صلاحيات كاملة 🟢" : (canStudyPre ? "شريك منتظر - مسموح بدراسة التكلفة 📝" : "شريك منتظر - وضع عرض فقط 👁️");
 
-      // تفعيل/تعطيل حقول الدراسة والتصويت
       document.querySelectorAll('.study-field').forEach(el => el.disabled = !canStudyPre);
       document.querySelectorAll('.study-btn').forEach(el => {
         el.disabled = !canStudyPre;
@@ -536,7 +535,6 @@
         else el.classList.remove('opacity-50', 'cursor-not-allowed');
       });
 
-      // تفعيل/تعطيل حقول ترقية الخطوات والمصروفات للشريك النشط حصراً
       document.querySelectorAll('.active-field').forEach(el => el.disabled = !isActive);
       document.querySelectorAll('.active-btn').forEach(el => {
         el.disabled = !isActive;
@@ -556,9 +554,53 @@
       if (user) {
         user.studyPreApproval = !user.studyPreApproval;
         localStorage.setItem('app_users', JSON.stringify(users));
-        alert(`✅ تم تحديث صلاحية تقديم الدراسات للشريك [${user.name}]: ${user.studyPreApproval ? 'مفعلة ✅' : 'مغلقة ❌'}`);
+        alert(`✅ تم تحديث إذن الدراسة للشريك [${user.name}]: ${user.studyPreApproval ? 'مفعل ✅' : 'مغلق ❌'}`);
         loadAppData();
       }
+    }
+
+    function sendWhatsAppCredentials(name, email, pass, phone) {
+      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+      const appUrl = window.location.href.split('?')[0];
+      const msg = `أهلاً بك م/ ${name}%0Aإليك بيانات الدخول الخاصة بك لمنصة صندوق الـ 8 سيارات 🚗:%0A%0Aالبريد: ${email}%0Aكلمة المرور: ${pass}%0A%0Aرابط المنصة:%0A${appUrl}`;
+      const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    function sendWhatsAppCustom(name, phone) {
+      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+      const msg = `أهلاً بك م/ ${name}%0Aبخصوص طلب الموافقة أو الاستفسار الإداري لصندوق الـ 8 سيارات:`;
+      const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+      window.open(url, '_blank');
+    }
+
+    async function addUser() {
+      const partnerNum = document.getElementById('new-user-partner-num').value;
+      const nameAr = document.getElementById('new-user-name-ar').value.trim();
+      const email = document.getElementById('new-user-email').value.trim().toLowerCase();
+      const phone = document.getElementById('new-user-phone').value.trim();
+      const pass = document.getElementById('new-user-pass').value.trim();
+
+      if (!nameAr || !email || !pass) {
+        alert('يرجى كتابة اسم الشريك، البريد، وكلمة المرور');
+        return;
+      }
+
+      let localUsers = [];
+      try { localUsers = JSON.parse(localStorage.getItem('app_users') || '[]'); } catch(e) {}
+      localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone, studyPreApproval: false });
+      localStorage.setItem('app_users', JSON.stringify(localUsers));
+
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const idx = cycles.findIndex(c => c.id == partnerNum);
+      if (idx !== -1) {
+        cycles[idx].partner = nameAr;
+        localStorage.setItem('app_cycles', JSON.stringify(cycles));
+      }
+
+      alert(`✅ تم تسجيل الشريك [${nameAr}] بنجاح! جاري فتح الواتساب لإرسال بياناته.`);
+      sendWhatsAppCredentials(nameAr, email, pass, phone);
+      loadAppData();
     }
 
     function previewStepChange() {
@@ -636,26 +678,7 @@
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
       }
 
-      try {
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "new_expense",
-            desc,
-            amount: rawAmt,
-            curr,
-            amount_kwd: convertedKwd,
-            partner: currentUser.name,
-            fileData,
-            fileName,
-            fileType
-          })
-        });
-      } catch(e) {}
-
-      alert(fileData ? '✅ تم تسجيل المصروف وخصمه من العهدة بنجاح!' : '⏳ تم إرسال المصروف وبانتظار موافقة الأدمن (لأنه بدون مستند).');
+      alert(fileData ? '✅ تم تسجيل المصروف وخصمه من العهدة بنجاح!' : '⏳ تم إرسال المصروف وبانتظار موافقة الأدمن.');
       submitBtn.innerText = "تسجيل المصروف والخصم من العهدة";
       submitBtn.disabled = false;
       document.getElementById('exp-desc').value = '';
@@ -717,12 +740,6 @@
       if (confirm("⚠️ هل أنت متأكد من مسح جميع بيانات التجربة كلياً والبدء الفعلي بالصندوق الحقيقي؟")) {
         localStorage.clear();
         sessionStorage.clear();
-        fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "reset_all_data" })
-        });
         alert("🧹 تم تفريغ البيانات بنجاح والمنصة جاهزة الآن للبدء الفعلي!");
         window.location.reload();
       }
@@ -775,7 +792,7 @@
       } else if (type === "3") {
         text = `
           <h2 style="text-align: center; font-weight: bold; margin-bottom: 8px;">عقد تسليم عهدة الميزانية المعتمدة</h2>
-          <p>إقرار بتسليم عهدة ميزانية سيارتك [${myCycle.car}] بقيمة [${myCycle.budget} د.ك] للشريك/ <strong>${currentUser.name || myCycle.partner}</strong> طبقاً للدراسة.</p>
+          <p>إقرار بتسليم عهدة ميزانية سيارتك [${myCycle.car}] بقيمة [${myCycle.budget} د.ك] للشريك/ <strong>${currentUser.name || myCycle.partner}</strong> طبقاً للدراسة المعتمدة.</p>
         `;
       } else if (type === "4") {
         text = `
@@ -822,7 +839,7 @@
       document.getElementById('current-step-pct-tag').textContent = `نسبة الإنجاز: ${myCycle.pct || 0}%`;
       renderSubTasks(myCycle.step || 1);
 
-      // 3. صلاحيات الأدمن والمنتظرين
+      // 3. الصلاحيات وإدارة الواتساب في لوحة الأدمن
       let allUsers = defaultUsers;
       try {
         const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
@@ -830,6 +847,8 @@
       } catch(e) {}
 
       const permBox = document.getElementById('admin-permissions-toggle-list');
+      const waBox = document.getElementById('whatsapp-partners-list');
+
       if (permBox) {
         permBox.innerHTML = '';
         allUsers.forEach(u => {
@@ -840,11 +859,36 @@
               <strong>${u.name}</strong> (${u.email})
               <span class="block text-[9px] text-slate-500">دراسة التكلفة للتجهيز: ${u.studyPreApproval ? 'مسموح ✅' : 'مغلق ❌'}</span>
             </div>
-            <button onclick="toggleStudyPreApproval('${u.email}')" class="${u.studyPreApproval ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
-              ${u.studyPreApproval ? 'إلغاء إذن الدراسة ❌' : 'منح إذن دراسة التكلفة ✅'}
-            </button>
+            <div class="space-x-1 space-x-reverse">
+              <button onclick="toggleStudyPreApproval('${u.email}')" class="${u.studyPreApproval ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[10px] px-2 py-1 rounded font-bold shadow">
+                ${u.studyPreApproval ? 'إلغاء الإذن ❌' : 'منح إذن الدراسة ✅'}
+              </button>
+              <button onclick="sendWhatsAppCustom('${u.name}', '${u.phone || ''}')" class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded font-bold shadow">
+                💬 مراسلة
+              </button>
+            </div>
           `;
           permBox.appendChild(row);
+        });
+      }
+
+      if (waBox) {
+        waBox.innerHTML = '';
+        allUsers.forEach(u => {
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg border text-xs';
+          row.innerHTML = `
+            <span>الشريك: <strong>${u.name}</strong></span>
+            <div class="space-x-1 space-x-reverse">
+              <button onclick="sendWhatsAppCredentials('${u.name}', '${u.email}', '${u.pass}', '${u.phone || ''}')" class="bg-emerald-600 text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
+                💬 إرسال بيانات الدخول
+              </button>
+              <button onclick="sendWhatsAppCustom('${u.name}', '${u.phone || ''}')" class="bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
+                💬 مراسلة استفسار
+              </button>
+            </div>
+          `;
+          waBox.appendChild(row);
         });
       }
 
