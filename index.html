@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>منصة صندوق الـ 8 سيارات - التطوير المكتمل</title>
+  <title>منصة مبادرة الـ 8 سيارات</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -26,6 +26,21 @@
   <div id="live-notification" class="fixed top-0 left-0 right-0 bg-emerald-600 text-white p-3 text-xs font-bold text-center z-50 shadow-lg transition-transform -translate-y-full flex justify-between items-center px-4">
     <span id="notification-text">📣 إشعار مباشر</span>
     <button onclick="hideNotification()" class="text-white text-base">✕</button>
+  </div>
+
+  <!-- PWA Install Prompt Banner -->
+  <div id="pwa-install-banner" class="fixed bottom-16 left-4 right-4 bg-slate-900 text-white p-3 rounded-2xl shadow-2xl z-50 flex justify-between items-center hidden border border-slate-700">
+    <div class="flex items-center space-x-2 space-x-reverse">
+      <span class="text-2xl">🚗</span>
+      <div class="text-xs">
+        <strong class="block text-emerald-400">تثبيت التطبيق على الهاتف</strong>
+        <span class="text-[10px] text-slate-300">أضف المنصة للشاشة الرئيسية لسرعة الوصول</span>
+      </div>
+    </div>
+    <div class="flex space-x-1 space-x-reverse">
+      <button onclick="installPWAApp()" class="bg-emerald-500 text-slate-900 font-bold px-3 py-1.5 rounded-xl text-xs shadow">تثبيت 📲</button>
+      <button onclick="closePwaBanner()" class="text-slate-400 px-2 text-xs">إلغاء</button>
+    </div>
   </div>
 
   <!-- Login Overlay -->
@@ -61,7 +76,7 @@
   <!-- Header -->
   <header class="bg-slate-900 text-white p-4 shadow-lg sticky top-0 z-40 flex justify-between items-center">
     <div class="flex items-center space-x-2 space-x-reverse">
-      <span class="text-2xl">🚗</span>
+      <button onclick="switchScreen('dashboard', 'الرئيسية')" class="text-xl bg-slate-800 p-1.5 rounded-xl border border-slate-700 hover:bg-slate-700 active:scale-95 transition-transform" title="العودة للرئيسية">🏠</button>
       <div>
         <h1 class="font-bold text-sm" id="header-title">الرئيسية - صندوق الـ 8 سيارات</h1>
         <div id="user-badge" class="text-[10px] text-slate-400">...</div>
@@ -70,24 +85,23 @@
     <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-white font-bold border border-red-500 shadow">خروج 🚪</button>
   </header>
 
-  <!-- Mobile Tab Menu Bar -->
-  <div class="bg-white border-b border-slate-200 px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs sticky top-[60px] z-30 shadow-sm">
-    <button onclick="switchTab('dash-overview')" class="tab-btn bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">📊 نظرة عامة والخزينة</button>
-    <button onclick="switchTab('dash-tracker')" class="tab-btn bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛣️ متابعة ترقية الخطوات</button>
-    <button onclick="switchTab('dash-study')" class="tab-btn bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📝 دراسة التكلفة والتصويت</button>
-    <button onclick="switchTab('dash-ledger')" class="tab-btn bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📜 سجل المصروفات</button>
-  </div>
-
   <main class="p-4 max-w-md mx-auto space-y-4">
     
-    <!-- Screen 1: Dashboard / الرئيسية (Mobile Tabs) -->
+    <!-- SCREEN 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
-      
-      <!-- TAB 1: Overview & Treasury -->
-      <div id="tab-dash-overview" class="tab-content space-y-4">
+      <!-- Sub-Tabs Bar for Dashboard ONLY -->
+      <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
+        <button onclick="switchSubTab('dash', 'overview')" class="sub-tab-btn-dash bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">📊 الخزينة والعهدة</button>
+        <button onclick="switchSubTab('dash', 'tracker')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛣️ ترقية الخطوات</button>
+        <button onclick="switchSubTab('dash', 'study')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📝 الدراسة والتصويت</button>
+        <button onclick="switchSubTab('dash', 'ledger')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📜 سجل المصروفات</button>
+      </div>
+
+      <!-- Tab 1: Overview & Treasury -->
+      <div id="subtab-dash-overview" class="subtab-dash-content space-y-4">
         <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700 space-y-3">
           <div class="flex justify-between items-center">
-            <span class="text-xs text-slate-400 font-bold">🏦 الخزينة العامة للصندوق</span>
+            <span class="text-xs text-slate-400 font-bold">🏦 الخزينة العامة للصندوق المباشر</span>
             <span id="pool-active-cars-count" class="bg-blue-600 text-white px-2 py-0.5 rounded font-bold text-[10px]">1 سيارة نشطة</span>
           </div>
           <div class="grid grid-cols-3 gap-2 text-center text-xs">
@@ -123,14 +137,14 @@
             </div>
           </div>
           <div class="bg-blue-50 p-2 rounded-xl border border-blue-200 text-xs flex justify-between items-center">
-            <span>الوديعة الدولارية المجمدة (حسابك بتطبيق المصريين):</span>
+            <span>الوديعة الدولارية المجمدة (تطبيق المصريين بالخارج):</span>
             <strong id="frozen-deposit-val" class="text-blue-900 font-bold">0 $ (0 د.ك)</strong>
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: Step Tracker & Save Confirm Button -->
-      <div id="tab-dash-tracker" class="tab-content hidden space-y-4">
+      <!-- Tab 2: Step Tracker -->
+      <div id="subtab-dash-tracker" class="subtab-dash-content hidden space-y-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <div class="flex justify-between items-center">
             <h3 class="font-bold text-slate-800 text-xs">🚗 ترقية وتحديث خطوة سيارتك</h3>
@@ -143,7 +157,7 @@
               <select id="partner-main-step-select" onchange="previewStepChange()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
                 <option value="1">1. شراء السيارة (الكويت) - [14%]</option>
                 <option value="2">2. الترخيص والتوكيلات (الكويت) - [29%]</option>
-                <option value="3">3. تحويل الوديعة (تطبيق المصريين بالخارج) - [43%]</option>
+                <option value="3">3. تحويل الوديعة (تطبيق سيارات المصريين) - [43%]</option>
                 <option value="4">4. الشحن إلى مصر - [57%]</option>
                 <option value="5">5. إجراءات الخروج من الميناء (مصر) - [71%]</option>
                 <option value="6">6. ترخيص السيارة (مصر) - [86%]</option>
@@ -151,7 +165,6 @@
               </select>
             </div>
 
-            <!-- Sub Tasks Container -->
             <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
               <div class="flex justify-between items-center">
                 <span class="text-[10px] font-bold text-slate-700">الخطوات الفرعية:</span>
@@ -160,13 +173,12 @@
               <div id="sub-tasks-list" class="space-y-1.5 text-xs"></div>
             </div>
 
-            <!-- Expense Mandatory Selection Radio -->
             <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-2">
-              <label class="block text-[10px] font-bold text-amber-900">هل هذه الخطوة تحتوي على مصروفات مالية؟ (شرط حاسم):</label>
+              <label class="block text-[10px] font-bold text-amber-900">هل تحتوي الخطوة على مصروف مالية؟ (شرط حاسم):</label>
               <div class="flex space-x-4 space-x-reverse text-xs font-bold">
                 <label class="flex items-center space-x-1 space-x-reverse">
                   <input type="radio" name="has_expense_opt" value="no" checked onchange="toggleExpenseSection(false)">
-                  <span>بدون مصروف (تحديث إداري فقط)</span>
+                  <span>بدون مصروف (تحديث فقط)</span>
                 </label>
                 <label class="flex items-center space-x-1 space-x-reverse">
                   <input type="radio" name="has_expense_opt" value="yes" onchange="toggleExpenseSection(true)">
@@ -174,7 +186,6 @@
                 </label>
               </div>
 
-              <!-- Dynamic Expense Form -->
               <div id="step-expense-form-box" class="hidden space-y-2 pt-2 border-t border-amber-200">
                 <input type="text" id="exp-desc" placeholder="بيان المصروف" class="w-full p-2 text-xs border rounded-lg outline-none bg-white">
                 <div class="grid grid-cols-3 gap-1.5">
@@ -192,7 +203,6 @@
               </div>
             </div>
 
-            <!-- Mandatory Save Confirmation Button -->
             <button onclick="saveAndConfirmStepUpgrade()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform">
               💾 حفظ وتأكيد الترقية والإرسال للشركاء
             </button>
@@ -200,8 +210,8 @@
         </div>
       </div>
 
-      <!-- TAB 3: Feasibility Study & Voting -->
-      <div id="tab-dash-study" class="tab-content hidden space-y-4">
+      <!-- Tab 3: Feasibility Study -->
+      <div id="subtab-dash-study" class="subtab-dash-content hidden space-y-4">
         <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
           <h3 class="font-bold text-amber-900 text-xs">📝 تقديم دراسة تكلفة السيارة</h3>
           <div class="space-y-2">
@@ -228,8 +238,8 @@
         </div>
       </div>
 
-      <!-- TAB 4: Expenses Ledger -->
-      <div id="tab-dash-ledger" class="tab-content hidden space-y-4">
+      <!-- Tab 4: Expenses Ledger -->
+      <div id="subtab-dash-ledger" class="subtab-dash-content hidden space-y-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <h3 class="font-bold text-slate-800 text-xs">📜 كشف المصروفات والعمليات المسجلة</h3>
           <div id="expenses-ledger-list" class="space-y-2 text-xs"></div>
@@ -237,98 +247,136 @@
       </div>
     </section>
 
-    <!-- Screen 2: Cycles & Roles / الأدوار والعمليات -->
+    <!-- SCREEN 2: Cycles / الأدوار -->
     <section id="screen-cycles" class="screen space-y-4">
-      <h2 class="font-bold text-slate-900 text-base">جدول متابعة الشركاء ونسب الإنجاز</h2>
-      <div id="cycles-list" class="space-y-3"></div>
+      <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 flex space-x-2 space-x-reverse text-xs shadow-sm">
+        <button onclick="switchSubTab('cycles', 'list')" class="sub-tab-btn-cycles bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">🔄 جدول الأدوار الـ 8</button>
+        <button onclick="switchSubTab('cycles', 'active')" class="sub-tab-btn-cycles bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🟢 السيارات النشطة</button>
+      </div>
+
+      <div id="subtab-cycles-list" class="subtab-cycles-content space-y-3">
+        <div id="cycles-list" class="space-y-3"></div>
+      </div>
+
+      <div id="subtab-cycles-active" class="subtab-cycles-content hidden space-y-3">
+        <div id="active-cycles-only-list" class="space-y-3"></div>
+      </div>
     </section>
 
-    <!-- Screen 3: Contracts / العقود القانونية الديناميكية -->
+    <!-- SCREEN 3: Contracts / العقود -->
     <section id="screen-contracts" class="screen space-y-4">
-      <h2 class="font-bold text-slate-900 text-base">📄 منظومة العقود القانونية المعتمدة</h2>
-      
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[10px] font-bold text-slate-600 mb-1">نوع العقد:</label>
-            <select id="contract-type-select" onchange="renderContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
-              <option value="1">العقد 1: عقد التزام جماعي وتأسيس الصندوق</option>
-              <option value="2">العقد 2: عقد توريد وسداد حصة الافتتاحية</option>
-              <option value="3">العقد 3: عقد تسليم عهدة الميزانية</option>
-              <option value="4">العقد 4: عقد الانتهاء من الدور وتوريد المقابل</option>
-              <option value="5">العقد 5: عقد مخالصة وتسوية مالية نهائية</option>
-            </select>
+      <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 flex space-x-2 space-x-reverse text-xs shadow-sm">
+        <button onclick="switchSubTab('contracts', 'editor')" class="sub-tab-btn-contracts bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">📄 نموذج ومحرر العقد</button>
+        <button onclick="switchSubTab('contracts', 'upload')" class="sub-tab-btn-contracts bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">✍️ رفع النسخة الموقعة</button>
+      </div>
+
+      <div id="subtab-contracts-editor" class="subtab-contracts-content space-y-3">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-1">نوع العقد:</label>
+              <select id="contract-type-select" onchange="renderContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
+                <option value="1">العقد 1: عقد التزام جماعي وتأسيس الصندوق</option>
+                <option value="2">العقد 2: عقد توريد وسداد حصة الافتتاحية</option>
+                <option value="3">العقد 3: عقد تسليم عهدة الميزانية</option>
+                <option value="4">العقد 4: عقد الانتهاء من الدور وتوريد المقابل</option>
+                <option value="5">العقد 5: عقد مخالصة وتسوية مالية نهائية</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-1">طرف العقد (الشريك):</label>
+              <select id="contract-partner-select" onchange="renderContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none"></select>
+            </div>
           </div>
+
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 mb-1">طرف العقد (الشريك):</label>
-            <select id="contract-partner-select" onchange="renderContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none"></select>
+            <label class="block text-[10px] font-bold text-slate-600 mb-1">محرر ومعاينة نص العقد (تعديل مباشر):</label>
+            <div id="printable-contract" contenteditable="true" class="p-4 bg-slate-50 rounded-xl border border-slate-300 text-xs leading-relaxed space-y-3 text-slate-800 min-h-[200px] outline-none focus:ring-2 focus:ring-slate-900"></div>
+          </div>
+
+          <div class="flex justify-between items-center pt-2">
+            <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold shadow">🖨️ طباعة العقد PDF</button>
+            <span class="text-[10px] text-emerald-700 font-bold">التزام وتضامن قانوني متساوٍ ✅</span>
           </div>
         </div>
+      </div>
 
-        <!-- Editable Contract Box for Admin -->
-        <div>
-          <label class="block text-[10px] font-bold text-slate-600 mb-1">محرر ومعاينة نص العقد (قابل للتعديل المباشر):</label>
-          <div id="printable-contract" contenteditable="true" class="p-4 bg-slate-50 rounded-xl border border-slate-300 text-xs leading-relaxed space-y-3 text-slate-800 min-h-[200px] outline-none focus:ring-2 focus:ring-slate-900">
-            <!-- Rendered dynamically -->
-          </div>
-        </div>
-
-        <div class="flex justify-between items-center pt-2">
-          <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold shadow">🖨️ طباعة العقد PDF</button>
-          <span class="text-[10px] text-emerald-700 font-bold">التزام وتضامن قانوني متساوٍ لجميع الأعضاء والأدمن ✅</span>
+      <div id="subtab-contracts-upload" class="subtab-contracts-content hidden space-y-3">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-bold text-slate-800 text-xs">إرفاق العقود الموقعة وردها للأدمن</h3>
+          <input type="file" id="signed-contract-file" class="w-full text-xs text-slate-500">
+          <button onclick="alert('✅ تم إرفاق العقد الموقّع وتسليمه للأدمن بنجاح!')" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">رفع العقد الموقّع</button>
         </div>
       </div>
     </section>
 
-    <!-- Screen 4: Admin Panel / الإعدادات -->
+    <!-- SCREEN 4: Admin / الإعدادات -->
     <section id="screen-admin" class="screen space-y-4">
-      
-      <!-- Reset All Data Button -->
-      <div class="bg-red-50 rounded-2xl p-4 shadow-sm border border-red-200 space-y-2 text-center">
-        <h3 class="font-bold text-red-900 text-xs">⚠️ تصفية وإعادة ضبط البيانات للبدء الفعلي</h3>
-        <button onclick="resetAllDataForProduction()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-xs font-bold shadow">
-          مسح بيانات التجربة والبدء الفعلي 🧹
-        </button>
+      <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
+        <button onclick="switchSubTab('admin', 'partners')" class="sub-tab-btn-admin bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">👤 الشركاء والواتساب</button>
+        <button onclick="switchSubTab('admin', 'expenses')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛡️ المصروفات المعلقة</button>
+        <button onclick="switchSubTab('admin', 'liquidation')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">⚖️ التصفية والضبط</button>
       </div>
 
-      <!-- Final Liquidation -->
-      <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-700 space-y-3">
-        <h3 class="font-bold text-amber-400 text-xs">⚖️ تسوية الفروقات وتصفية الصندوق</h3>
-        <button onclick="calculateFinalLiquidation()" class="w-full bg-amber-500 text-slate-900 py-2 rounded-lg text-xs font-bold shadow">
-          حساب كشف التصفية والفروقات بالتساوي 🧮
-        </button>
-        <div id="liquidation-result-box" class="space-y-1 text-xs hidden bg-slate-800 p-2 rounded-lg border border-slate-700"></div>
+      <!-- Admin Tab 1: Partners & WhatsApp -->
+      <div id="subtab-admin-partners" class="subtab-admin-content space-y-4">
+        <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
+          <h3 class="font-bold text-amber-900 text-sm">👤 تسجيل أو استبدال شريك</h3>
+          <div class="space-y-2">
+            <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
+              <option value="1">الشريك 1</option>
+              <option value="2">الشريك 2</option>
+              <option value="3">الشريك 3</option>
+              <option value="4">الشريك 4</option>
+              <option value="5">الشريك 5</option>
+              <option value="6">الشريك 6</option>
+              <option value="7">الشريك 7</option>
+              <option value="8">الشريك 8</option>
+            </select>
+            <input type="text" id="new-user-name-ar" placeholder="اسم الشريك الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="email" id="new-user-email" placeholder="البريد الإلكتروني" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="tel" id="new-user-phone" placeholder="رقم الواتساب" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="password" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            
+            <button id="add-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+              + تسجيل وتفعيل الحساب
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-bold text-slate-800 text-xs">💬 إرسال بيانات الدخول عبر الواتساب</h3>
+          <div id="whatsapp-partners-list" class="space-y-2"></div>
+        </div>
       </div>
 
-      <!-- Add / Replace Partner Form -->
-      <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-sm">👤 تسجيل أو استبدال أو تعديل شريك</h3>
-        <div class="space-y-2">
-          <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-            <option value="1">الشريك 1</option>
-            <option value="2">الشريك 2</option>
-            <option value="3">الشريك 3</option>
-            <option value="4">الشريك 4</option>
-            <option value="5">الشريك 5</option>
-            <option value="6">الشريك 6</option>
-            <option value="7">الشريك 7</option>
-            <option value="8">الشريك 8</option>
-          </select>
-          <input type="text" id="new-user-name-ar" placeholder="اسم الشريك بالعربية الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="email" id="new-user-email" placeholder="البريد الإلكتروني" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="tel" id="new-user-phone" placeholder="رقم الهاتف/الواتساب" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="password" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          
-          <button id="add-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            + تسجيل وتفعيل الحساب
+      <!-- Admin Tab 2: Expenses Approvals -->
+      <div id="subtab-admin-expenses" class="subtab-admin-content hidden space-y-4">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
+            <span>🛡️ لوحة اعتماد المصروفات المعلقة</span>
+            <span id="pending-count-tag" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded font-bold">0 معلق</span>
+          </h3>
+          <div id="admin-pending-expenses" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+
+      <!-- Admin Tab 3: Liquidation & Reset -->
+      <div id="subtab-admin-liquidation" class="subtab-admin-content hidden space-y-4">
+        <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-700 space-y-3">
+          <h3 class="font-bold text-amber-400 text-xs">⚖️ تسوية الفروقات وتصفية الصندوق</h3>
+          <button onclick="calculateFinalLiquidation()" class="w-full bg-amber-500 text-slate-900 py-2 rounded-lg text-xs font-bold shadow">
+            حساب كشف التصفية والفروقات بالتساوي 🧮
+          </button>
+          <div id="liquidation-result-box" class="space-y-1 text-xs hidden bg-slate-800 p-2 rounded-lg border border-slate-700"></div>
+        </div>
+
+        <div class="bg-red-50 rounded-2xl p-4 shadow-sm border border-red-200 space-y-2 text-center">
+          <h3 class="font-bold text-red-900 text-xs">⚠️ تصفية وإعادة ضبط البيانات للبدء الفعلي</h3>
+          <button onclick="resetAllDataForProduction()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-xs font-bold shadow">
+            مسح بيانات التجربة والبدء الفعلي 🧹
           </button>
         </div>
-      </div>
-
-      <!-- WhatsApp Invite List -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs">💬 إرسال بيانات الدخول عبر الواتساب</h3>
-        <div id="whatsapp-partners-list" class="space-y-2"></div>
       </div>
     </section>
   </main>
@@ -343,6 +391,29 @@
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOTLG3acOS9A3XY5_44dtKe-P362_vt_nBKaSooVrgWo57rCkQ4R2CNIwgzKT6SZSSbw/exec";
+
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwa-install-banner').classList.remove('hidden');
+    });
+
+    function installPWAApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+          if (choice.outcome === 'accepted') {
+            closePwaBanner();
+          }
+        });
+      }
+    }
+
+    function closePwaBanner() {
+      document.getElementById('pwa-install-banner').classList.add('hidden');
+    }
 
     const defaultStepsConfig = {
       1: { name: "1. شراء السيارة (الكويت)", pct: 14, sub: ["البحث واختيار السيارة والموديل", "الاتفاق على السعر واستلام الفاتورة", "فحص السيارة واستلام المستندات", "سداد الثمن واستلام سند القبض"] },
@@ -376,13 +447,13 @@
       btn.innerText = input.type === "password" ? "👁️" : "🙈";
     }
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(b => {
+    function switchSubTab(screenName, tabName) {
+      document.querySelectorAll(`.subtab-${screenName}-content`).forEach(c => c.classList.add('hidden'));
+      document.querySelectorAll(`.sub-tab-btn-${screenName}`).forEach(b => {
         b.classList.remove('bg-slate-900', 'text-white');
         b.classList.add('bg-slate-100', 'text-slate-600');
       });
-      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`subtab-${screenName}-${tabName}`).classList.remove('hidden');
       event.target.classList.remove('bg-slate-100', 'text-slate-600');
       event.target.classList.add('bg-slate-900', 'text-white');
     }
@@ -724,7 +795,7 @@
       document.getElementById('master-pool-spent').textContent = `${totalSpentAllCars.toLocaleString()} د.ك`;
       document.getElementById('master-pool-available').textContent = `${availableCashPool.toLocaleString()} د.ك`;
 
-      // 2. العهدة والخطوات
+      // 2. العهدة
       document.getElementById('rep-allocated-budget').textContent = `${(myCycle.budget || 3000).toLocaleString()} د.ك`;
       document.getElementById('rep-spent-budget').textContent = `${(myCycle.spent || 0).toLocaleString()} د.ك`;
       document.getElementById('rep-remaining-budget').textContent = `${((myCycle.budget || 3000) - (myCycle.spent || 0)).toLocaleString()} د.ك`;
@@ -734,7 +805,7 @@
       document.getElementById('current-step-pct-tag').textContent = `نسبة الإنجاز: ${myCycle.pct || 0}%`;
       renderSubTasks(myCycle.step || 1);
 
-      // 3. قائمة العقود والشركاء
+      // 3. العقود
       const pContractSelect = document.getElementById('contract-partner-select');
       if (pContractSelect) {
         pContractSelect.innerHTML = '';
@@ -746,7 +817,7 @@
         });
       }
 
-      // 4. كشف المصروفات
+      // 4. المصروفات
       const expList = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
       const ledgerBox = document.getElementById('expenses-ledger-list');
       if (ledgerBox) {
@@ -770,10 +841,13 @@
         });
       }
 
-      // 5. جدول الأدوار والـ 7 خطوات
+      // 5. جدول الأدوار
       const container = document.getElementById('cycles-list');
+      const activeOnlyContainer = document.getElementById('active-cycles-only-list');
       if (container) {
         container.innerHTML = '';
+        if (activeOnlyContainer) activeOnlyContainer.innerHTML = '';
+
         cycles.forEach(c => {
           const stepConf = defaultStepsConfig[c.step || 1];
           const div = document.createElement('div');
@@ -794,6 +868,10 @@
             </div>
           `;
           container.appendChild(div);
+
+          if (c.status === 'active' && activeOnlyContainer) {
+            activeOnlyContainer.appendChild(div.cloneNode(true));
+          }
         });
       }
 
