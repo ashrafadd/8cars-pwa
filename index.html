@@ -89,16 +89,10 @@
     
     <!-- SCREEN 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
-      <!-- Sub-Tabs Bar for Dashboard ONLY -->
-      <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
-        <button onclick="switchSubTab('dash', 'overview')" class="sub-tab-btn-dash bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">📊 الخزينة والعهدة</button>
-        <button onclick="switchSubTab('dash', 'tracker')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛣️ ترقية الخطوات</button>
-        <button onclick="switchSubTab('dash', 'study')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📝 الدراسة والتصويت</button>
-        <button onclick="switchSubTab('dash', 'ledger')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📜 سجل المصروفات</button>
-      </div>
-
-      <!-- Tab 1: Overview & Treasury -->
-      <div id="subtab-dash-overview" class="subtab-dash-content space-y-4">
+      
+      <!-- FIXED ALWAYS-VISIBLE TREASURY DASHBOARD -->
+      <div class="space-y-3">
+        <!-- Master Pool Treasury Card -->
         <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700 space-y-3">
           <div class="flex justify-between items-center">
             <span class="text-xs text-slate-400 font-bold">🏦 الخزينة العامة للصندوق المباشر</span>
@@ -120,8 +114,12 @@
           </div>
         </div>
 
+        <!-- Individual Budget & Frozen Deposit Card -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <h3 class="font-bold text-slate-800 text-xs">📊 العهدة الفردية لسيارتك والوديعة المجمدة</h3>
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-slate-800 text-xs">📊 العهدة الفردية لسيارتك والوديعة المجمدة</h3>
+            <span id="permission-status-tag" class="text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">صلاحية التعديل مجهزة ✅</span>
+          </div>
           <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
             <div class="bg-slate-50 p-2 rounded-xl border">
               <span class="text-[9px] text-slate-500 block">الميزانية المعتمدة</span>
@@ -137,13 +135,49 @@
             </div>
           </div>
           <div class="bg-blue-50 p-2 rounded-xl border border-blue-200 text-xs flex justify-between items-center">
-            <span>الوديعة الدولارية المجمدة (تطبيق المصريين بالخارج):</span>
+            <span>الوديعة الدولارية المجمدة (حساب تطبيق المصريين):</span>
             <strong id="frozen-deposit-val" class="text-blue-900 font-bold">0 $ (0 د.ك)</strong>
           </div>
         </div>
       </div>
 
-      <!-- Tab 2: Step Tracker -->
+      <!-- PRIORITY ORDERED SUB-TABS BAR -->
+      <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
+        <button onclick="switchSubTab('dash', 'study')" class="sub-tab-btn-dash bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">📝 1. الدراسة والتصويت</button>
+        <button onclick="switchSubTab('dash', 'tracker')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛣️ 2. ترقية الخطوات</button>
+        <button onclick="switchSubTab('dash', 'expense')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">💸 3. إدخال مصروف</button>
+        <button onclick="switchSubTab('dash', 'ledger')" class="sub-tab-btn-dash bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">📜 4. سجل المصروفات</button>
+      </div>
+
+      <!-- PRIORITY 1: Study & Voting -->
+      <div id="subtab-dash-study" class="subtab-dash-content space-y-4">
+        <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
+          <h3 class="font-bold text-amber-900 text-xs">📝 تقديم دراسة تكلفة السيارة (KWD / USD / EGP)</h3>
+          <div class="space-y-2">
+            <input type="text" id="study-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+            <div class="grid grid-cols-2 gap-2">
+              <input type="number" id="study-car-price" placeholder="سعر السيارة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+              <input type="number" id="study-shipping-fee" placeholder="الشحن (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="number" id="study-usd-deposit" placeholder="الوديعة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+              <input type="number" id="study-customs-fee" placeholder="جمارك مصر (EGP)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+            </div>
+            <input type="number" id="study-license-fee" placeholder="ترخيص وإداريات (KWD د.ك)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none edit-field">
+            
+            <button onclick="submitCarStudy()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow edit-btn">
+              إرسال الدراسة للتصويت الجماعي
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-bold text-slate-800 text-xs">🗳️ الدراسات المطروحة لتصويت الأعضاء الـ 8</h3>
+          <div id="active-studies-list" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- PRIORITY 2: Step Tracker -->
       <div id="subtab-dash-tracker" class="subtab-dash-content hidden space-y-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <div class="flex justify-between items-center">
@@ -154,7 +188,7 @@
           <div class="space-y-3">
             <div>
               <label class="block text-[10px] font-bold text-slate-600 mb-1">الخطوة الأساسية الحالية:</label>
-              <select id="partner-main-step-select" onchange="previewStepChange()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
+              <select id="partner-main-step-select" onchange="previewStepChange()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none edit-field">
                 <option value="1">1. شراء السيارة (الكويت) - [14%]</option>
                 <option value="2">2. الترخيص والتوكيلات (الكويت) - [29%]</option>
                 <option value="3">3. تحويل الوديعة (تطبيق سيارات المصريين) - [43%]</option>
@@ -168,77 +202,44 @@
             <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
               <div class="flex justify-between items-center">
                 <span class="text-[10px] font-bold text-slate-700">الخطوات الفرعية:</span>
-                <button onclick="addNewSubTaskPrompt()" class="text-[10px] bg-slate-900 text-white px-2 py-1 rounded font-bold">+ إضافة فرعية</button>
+                <button onclick="addNewSubTaskPrompt()" class="text-[10px] bg-slate-900 text-white px-2 py-1 rounded font-bold edit-btn">+ إضافة فرعية</button>
               </div>
               <div id="sub-tasks-list" class="space-y-1.5 text-xs"></div>
             </div>
 
-            <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-2">
-              <label class="block text-[10px] font-bold text-amber-900">هل تحتوي الخطوة على مصروف مالية؟ (شرط حاسم):</label>
-              <div class="flex space-x-4 space-x-reverse text-xs font-bold">
-                <label class="flex items-center space-x-1 space-x-reverse">
-                  <input type="radio" name="has_expense_opt" value="no" checked onchange="toggleExpenseSection(false)">
-                  <span>بدون مصروف (تحديث فقط)</span>
-                </label>
-                <label class="flex items-center space-x-1 space-x-reverse">
-                  <input type="radio" name="has_expense_opt" value="yes" onchange="toggleExpenseSection(true)">
-                  <span>بمصروف (خصم من العهدة)</span>
-                </label>
-              </div>
-
-              <div id="step-expense-form-box" class="hidden space-y-2 pt-2 border-t border-amber-200">
-                <input type="text" id="exp-desc" placeholder="بيان المصروف" class="w-full p-2 text-xs border rounded-lg outline-none bg-white">
-                <div class="grid grid-cols-3 gap-1.5">
-                  <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none col-span-2 bg-white">
-                  <select id="exp-curr" onchange="calculateConvertedAmount()" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-                    <option value="KWD">D.K (كويتي)</option>
-                    <option value="USD">$ (دولار)</option>
-                    <option value="EGP">EGP (جنيه)</option>
-                  </select>
-                </div>
-                <div id="currency-calc-info" class="text-[10px] text-slate-500 bg-white p-1.5 rounded hidden">
-                  المعادل بالدينار: <strong id="converted-kwd-val" class="text-emerald-600">0 د.ك</strong>
-                </div>
-                <input type="file" id="exp-file" accept="image/*,.pdf" class="w-full text-xs text-slate-500">
-              </div>
-            </div>
-
-            <button onclick="saveAndConfirmStepUpgrade()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform">
+            <button onclick="saveAndConfirmStepUpgrade()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-xs font-bold shadow-md active:scale-95 transition-transform edit-btn">
               💾 حفظ وتأكيد الترقية والإرسال للشركاء
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Tab 3: Feasibility Study -->
-      <div id="subtab-dash-study" class="subtab-dash-content hidden space-y-4">
-        <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-          <h3 class="font-bold text-amber-900 text-xs">📝 تقديم دراسة تكلفة السيارة</h3>
+      <!-- PRIORITY 3: Expense Input -->
+      <div id="subtab-dash-expense" class="subtab-dash-content hidden space-y-4">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-bold text-slate-800 text-xs">💸 إدخال مصروف جديد مرتبط بسيارتك</h3>
           <div class="space-y-2">
-            <input type="text" id="study-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <div class="grid grid-cols-2 gap-2">
-              <input type="number" id="study-car-price" placeholder="سعر السيارة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-              <input type="number" id="study-shipping-fee" placeholder="الشحن (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="text" id="exp-desc" placeholder="بيان المصروف (مثال: شحن، جمارك، وديعة...)" class="w-full p-2 text-xs border rounded-lg outline-none bg-white edit-field">
+            <div class="grid grid-cols-3 gap-1.5">
+              <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none col-span-2 bg-white edit-field">
+              <select id="exp-curr" onchange="calculateConvertedAmount()" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold edit-field">
+                <option value="KWD">D.K (كويتي)</option>
+                <option value="USD">$ (دولار)</option>
+                <option value="EGP">EGP (جنيه)</option>
+              </select>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-              <input type="number" id="study-usd-deposit" placeholder="الوديعة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-              <input type="number" id="study-customs-fee" placeholder="جمارك مصر (EGP)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <div id="currency-calc-info" class="text-[10px] text-slate-500 bg-slate-50 p-1.5 rounded hidden">
+              المعادل بالدينار: <strong id="converted-kwd-val" class="text-emerald-600">0 د.ك</strong>
             </div>
-            <input type="number" id="study-license-fee" placeholder="ترخيص وإداريات (KWD د.ك)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            
-            <button onclick="submitCarStudy()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-              إرسال الدراسة للتصويت الجماعي
+            <input type="file" id="exp-file" accept="image/*,.pdf" class="w-full text-xs text-slate-500 edit-field">
+            <button id="exp-submit-btn" onclick="addExpenseDirect()" class="w-full bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold shadow edit-btn">
+              تسجيل المصروف والخصم من العهدة
             </button>
           </div>
         </div>
-
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <h3 class="font-bold text-slate-800 text-xs">🗳️ الدراسات المطروحة لتصويت الأعضاء</h3>
-          <div id="active-studies-list" class="space-y-2"></div>
-        </div>
       </div>
 
-      <!-- Tab 4: Expenses Ledger -->
+      <!-- PRIORITY 4: Expenses Ledger -->
       <div id="subtab-dash-ledger" class="subtab-dash-content hidden space-y-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
           <h3 class="font-bold text-slate-800 text-xs">📜 كشف المصروفات والعمليات المسجلة</h3>
@@ -313,13 +314,19 @@
     <!-- SCREEN 4: Admin / الإعدادات -->
     <section id="screen-admin" class="screen space-y-4">
       <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
-        <button onclick="switchSubTab('admin', 'partners')" class="sub-tab-btn-admin bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">👤 الشركاء والواتساب</button>
+        <button onclick="switchSubTab('admin', 'permissions')" class="sub-tab-btn-admin bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">🔐 الصلاحيات والشركاء</button>
         <button onclick="switchSubTab('admin', 'expenses')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">🛡️ المصروفات المعلقة</button>
         <button onclick="switchSubTab('admin', 'liquidation')" class="sub-tab-btn-admin bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg font-bold">⚖️ التصفية والضبط</button>
       </div>
 
-      <!-- Admin Tab 1: Partners & WhatsApp -->
-      <div id="subtab-admin-partners" class="subtab-admin-content space-y-4">
+      <!-- Admin Tab 1: Permissions & Partner Control -->
+      <div id="subtab-admin-permissions" class="subtab-admin-content space-y-4">
+        <!-- Partner Permissions Toggle List -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+          <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء (عرض فقط vs. تعديل)</h3>
+          <div id="admin-permissions-toggle-list" class="space-y-2"></div>
+        </div>
+
         <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
           <h3 class="font-bold text-amber-900 text-sm">👤 تسجيل أو استبدال شريك</h3>
           <div class="space-y-2">
@@ -426,8 +433,8 @@
     };
 
     const defaultUsers = [
-      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000" },
-      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "" }
+      { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000", canEdit: true },
+      { email: "amooooer2017@gmail.com", pass: "123456", name: "عبدالرحمن عادل محمد احمد", role: "editor", partnerNum: "2", phone: "", canEdit: true }
     ];
 
     const defaultCycles = [
@@ -456,12 +463,6 @@
       document.getElementById(`subtab-${screenName}-${tabName}`).classList.remove('hidden');
       event.target.classList.remove('bg-slate-100', 'text-slate-600');
       event.target.classList.add('bg-slate-900', 'text-white');
-    }
-
-    function toggleExpenseSection(show) {
-      const box = document.getElementById('step-expense-form-box');
-      if (show) box.classList.remove('hidden');
-      else box.classList.add('hidden');
     }
 
     function showNotification(msg) {
@@ -540,6 +541,48 @@
         } else {
           document.getElementById('nav-admin-btn').classList.add('hidden');
         }
+        applyPermissionsUI(currentUser);
+        loadAppData();
+      }
+    }
+
+    function applyPermissionsUI(user) {
+      const canEdit = user.role === 'admin' || user.canEdit !== false;
+      const tag = document.getElementById('permission-status-tag');
+      
+      if (!canEdit) {
+        tag.className = "text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold";
+        tag.textContent = "وضع العرض فقط (مشاهدة) 👁️";
+        
+        document.querySelectorAll('.edit-field').forEach(el => el.disabled = true);
+        document.querySelectorAll('.edit-btn').forEach(el => {
+          el.disabled = true;
+          el.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+      } else {
+        tag.className = "text-[9px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold";
+        tag.textContent = "صلاحية التعديل مفعلة ✅";
+        
+        document.querySelectorAll('.edit-field').forEach(el => el.disabled = false);
+        document.querySelectorAll('.edit-btn').forEach(el => {
+          el.disabled = false;
+          el.classList.remove('opacity-50', 'cursor-not-allowed');
+        });
+      }
+    }
+
+    function togglePartnerPermission(email) {
+      let users = defaultUsers;
+      try {
+        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
+        locals.forEach(u => { if (!users.find(x => x.email === u.email)) users.push(u); });
+      } catch(e) {}
+
+      const user = users.find(u => u.email === email);
+      if (user) {
+        user.canEdit = !user.canEdit;
+        localStorage.setItem('app_users', JSON.stringify(users));
+        alert(`✅ تم تغيير صلاحية [${user.name}] إلى: ${user.canEdit ? 'تعديل وإدخال ✅' : 'عرض فقط 👁️'}`);
         loadAppData();
       }
     }
@@ -555,18 +598,6 @@
       let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
       const idx = cycles.findIndex(c => c.id == (currentUser.partnerNum || "1"));
 
-      const hasExpense = document.querySelector('input[name="has_expense_opt"]:checked').value === "yes";
-
-      if (hasExpense) {
-        const desc = document.getElementById('exp-desc').value.trim();
-        const rawAmt = parseFloat(document.getElementById('exp-amount').value) || 0;
-        if (!desc || rawAmt <= 0) {
-          alert("يرجى إدخال بيان المصروف والمبلغ بشكل صحيح قبل الحفظ");
-          return;
-        }
-        await addExpenseInternal();
-      }
-
       if (idx !== -1) {
         const stepConf = defaultStepsConfig[stepVal];
         cycles[idx].step = stepVal;
@@ -579,12 +610,21 @@
       }
     }
 
-    async function addExpenseInternal() {
+    async function addExpenseDirect() {
       const desc = document.getElementById('exp-desc').value.trim();
       const rawAmt = parseFloat(document.getElementById('exp-amount').value) || 0;
       const curr = document.getElementById('exp-curr').value;
       const fileInput = document.getElementById('exp-file');
+      const submitBtn = document.getElementById('exp-submit-btn');
+
+      if (!desc || rawAmt <= 0) {
+        alert("يرجى كتابة بيان المصروف والمبلغ بشكل صحيح");
+        return;
+      }
+
       const convertedKwd = calculateConvertedAmount() || rawAmt;
+      submitBtn.innerText = "جاري الحفظ والخصم... ⏳";
+      submitBtn.disabled = true;
 
       let fileData = null, fileName = "", fileType = "";
       if (fileInput.files.length > 0) {
@@ -640,6 +680,14 @@
           })
         });
       } catch(e) {}
+
+      alert(fileData ? '✅ تم تسجيل المصروف وخصمه من العهدة بنجاح!' : '⏳ تم إرسال المصروف وبانتظار موافقة الأدمن (لأنه بدون مستند).');
+      submitBtn.innerText = "تسجيل المصروف والخصم من العهدة";
+      submitBtn.disabled = false;
+      document.getElementById('exp-desc').value = '';
+      document.getElementById('exp-amount').value = '';
+      fileInput.value = '';
+      loadAppData();
     }
 
     function renderSubTasks(stepVal) {
@@ -653,8 +701,8 @@
         row.innerHTML = `
           <span class="text-slate-800">${st}</span>
           <div class="space-x-1 space-x-reverse">
-            <button onclick="editSubTask(${stepVal}, ${idx})" class="text-[9px] text-blue-600 font-bold">تعديل</button>
-            <button onclick="deleteSubTask(${stepVal}, ${idx})" class="text-[9px] text-red-600 font-bold">حذف</button>
+            <button onclick="editSubTask(${stepVal}, ${idx})" class="text-[9px] text-blue-600 font-bold edit-btn">تعديل</button>
+            <button onclick="deleteSubTask(${stepVal}, ${idx})" class="text-[9px] text-red-600 font-bold edit-btn">حذف</button>
           </div>
         `;
         container.appendChild(row);
@@ -805,7 +853,33 @@
       document.getElementById('current-step-pct-tag').textContent = `نسبة الإنجاز: ${myCycle.pct || 0}%`;
       renderSubTasks(myCycle.step || 1);
 
-      // 3. العقود
+      // 3. الصلاحيات للأدمن
+      let allUsers = defaultUsers;
+      try {
+        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
+        locals.forEach(u => { if (!allUsers.find(x => x.email === u.email)) allUsers.push(u); });
+      } catch(e) {}
+
+      const permBox = document.getElementById('admin-permissions-toggle-list');
+      if (permBox) {
+        permBox.innerHTML = '';
+        allUsers.forEach(u => {
+          const row = document.createElement('div');
+          row.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg border text-xs';
+          row.innerHTML = `
+            <div>
+              <strong>${u.name}</strong> (${u.email})
+              <span class="block text-[9px] text-slate-500">الحالة: ${u.canEdit !== false ? 'تعديل مفعل ✅' : 'عرض فقط 👁️'}</span>
+            </div>
+            <button onclick="togglePartnerPermission('${u.email}')" class="${u.canEdit !== false ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
+              ${u.canEdit !== false ? 'تحويل لـ عرض فقط 👁️' : 'منح صلاحية التعديل ✅'}
+            </button>
+          `;
+          permBox.appendChild(row);
+        });
+      }
+
+      // 4. العقود
       const pContractSelect = document.getElementById('contract-partner-select');
       if (pContractSelect) {
         pContractSelect.innerHTML = '';
@@ -817,7 +891,7 @@
         });
       }
 
-      // 4. المصروفات
+      // 5. المصروفات
       const expList = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
       const ledgerBox = document.getElementById('expenses-ledger-list');
       if (ledgerBox) {
@@ -841,7 +915,7 @@
         });
       }
 
-      // 5. جدول الأدوار
+      // 6. جدول الأدوار
       const container = document.getElementById('cycles-list');
       const activeOnlyContainer = document.getElementById('active-cycles-only-list');
       if (container) {
