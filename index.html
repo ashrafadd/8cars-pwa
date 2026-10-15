@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>منصة صندوق الـ 8 سيارات</title>
+  <title>منصة مبادرة الـ 8 سيارات الشاملة</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0f172a">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,22 +13,32 @@
     .screen.active { display: block; }
     @media print {
       body * { visibility: hidden; }
-      #printable-area, #printable-area * { visibility: visible; }
-      #printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+      #printable-contract, #printable-contract * { visibility: visible; }
+      #printable-contract { position: absolute; left: 0; top: 0; width: 100%; }
     }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen pb-20">
+
+  <!-- Smart Live Notification Banner -->
+  <div id="live-notification" class="fixed top-0 left-0 right-0 bg-emerald-600 text-white p-3 text-xs font-bold text-center z-50 shadow-lg transition-transform -translate-y-full flex justify-between items-center px-4">
+    <span id="notification-text">📣 إشعار مباشر</span>
+    <button onclick="hideNotification()" class="text-white text-base">✕</button>
+  </div>
 
   <!-- Login Overlay -->
   <div id="login-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-xl text-right">
       <div class="text-center space-y-1">
         <span class="text-4xl">🚗</span>
-        <h2 class="font-bold text-xl text-slate-900">تسجيل الدخول</h2>
+        <h2 class="font-bold text-xl text-slate-900">تسجيل الدخول المنصة</h2>
         <p class="text-xs text-slate-500">صندوق مبادرة الـ 8 سيارات</p>
       </div>
-      <div id="login-error" class="text-xs text-red-500 hidden text-center bg-red-50 p-2 rounded-lg">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
+      <div id="login-error" class="text-xs text-red-500 hidden text-center bg-red-50 p-2 rounded-lg">البريد أو كلمة المرور غير صحيحة</div>
+      <div>
+        <label for="login-name" class="block text-xs font-medium text-slate-600 mb-1">اسم الشريك / اللقب الصريح</label>
+        <input type="text" id="login-name" placeholder="أدخل اسمك الصريح" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
+      </div>
       <div>
         <label for="login-email" class="block text-xs font-medium text-slate-600 mb-1">البريد الإلكتروني</label>
         <input type="email" id="login-email" placeholder="email@example.com" class="w-full p-2.5 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-slate-900">
@@ -41,7 +51,7 @@
         </div>
       </div>
       <button onclick="handleLogin()" class="w-full bg-slate-900 text-white font-medium py-3 rounded-xl shadow-md text-sm active:scale-95 transition-transform">
-        دخول
+        دخول للمنصة
       </button>
     </div>
   </div>
@@ -58,7 +68,7 @@
     <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg text-white font-bold border border-red-500 shadow">خروج 🚪</button>
   </header>
 
-  <main class="p-4 max-w-md mx-auto space-y-4" id="printable-area">
+  <main class="p-4 max-w-md mx-auto space-y-4">
     
     <!-- Screen 1: Dashboard / الرئيسية -->
     <section id="screen-dashboard" class="screen active space-y-4">
@@ -66,7 +76,7 @@
       <!-- 1. Master Pool Global Budget Card -->
       <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-700 space-y-3">
         <div class="flex justify-between items-center">
-          <span class="text-xs text-slate-400 font-bold">🏦 الخزينة العامة للصندوق</span>
+          <span class="text-xs text-slate-400 font-bold">🏦 الخزينة العامة للصندوق المباشر</span>
           <span id="pool-active-cars-count" class="bg-blue-600 text-white px-2 py-0.5 rounded font-bold text-[10px]">1 سيارة نشطة</span>
         </div>
         <div class="grid grid-cols-3 gap-2 text-center text-xs">
@@ -85,182 +95,218 @@
         </div>
       </div>
 
-      <!-- 2. Individual Car Budget Report (For Current User's Car) -->
-      <div id="partner-financial-report" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+      <!-- 2. Individual Car Budget Report & Frozen Deposit Info -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <div class="flex justify-between items-center">
-          <h3 class="font-bold text-slate-800 text-xs">📊 العهدة الفردية لسيارتك</h3>
-          <button onclick="window.print()" class="text-[10px] bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded border">🖨️ طباعة PDF</button>
+          <h3 class="font-bold text-slate-800 text-xs">📊 عهدة سيارتك والوديعة المجمدة</h3>
         </div>
         <div class="grid grid-cols-3 gap-1.5 text-center text-xs">
           <div class="bg-slate-50 p-2 rounded-xl border">
-            <span class="text-[10px] text-slate-500 block">الميزانية المعتمدة</span>
+            <span class="text-[9px] text-slate-500 block">الميزانية المعتمدة</span>
             <strong id="rep-allocated-budget" class="text-slate-900 font-bold">3,000 د.ك</strong>
           </div>
           <div class="bg-red-50 p-2 rounded-xl border border-red-100">
-            <span class="text-[10px] text-red-600 block">المصروف الفعلي</span>
+            <span class="text-[9px] text-red-600 block">المصروف الفعلي</span>
             <strong id="rep-spent-budget" class="text-red-700 font-bold">0 د.ك</strong>
           </div>
           <div class="bg-emerald-50 p-2 rounded-xl border border-emerald-100">
-            <span class="text-[10px] text-emerald-600 block">المتبقي من العهدة</span>
+            <span class="text-[9px] text-emerald-600 block">المتبقي للسيارة</span>
             <strong id="rep-remaining-budget" class="text-emerald-700 font-bold">3,000 د.ك</strong>
           </div>
         </div>
-      </div>
-
-      <!-- 3. Car Cost Feasibility Study Submission Form -->
-      <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-xs">📝 تقديم دراسة جدوى وتكلفة للسيارة</h3>
-        <p class="text-[10px] text-amber-800">تطلب موافقة جميع الأعضاء ثم اعتماد الأدمن النهائي لبدء الشراء.</p>
-        <div class="space-y-2">
-          <input type="text" id="study-car-model" placeholder="نوع السيارة والموديل (مثال: كيا سبورتاج 2026)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="study-car-price" placeholder="سعر السيارة المباشر (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <input type="number" id="study-shipping-fee" placeholder="الشحن البحري والركوب (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="study-usd-deposit" placeholder="الوديعة الدولارية (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <input type="number" id="study-customs-fee" placeholder="جمارك واستخراج مصر (EGP)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          </div>
-          <input type="number" id="study-license-fee" placeholder="ترخيص وإداريات أخرى (KWD د.ك)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          
-          <button onclick="submitCarStudy()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            إرسال الدراسة للمراجعة والتصويت
-          </button>
+        <div class="bg-blue-50 p-2 rounded-xl border border-blue-200 text-xs flex justify-between items-center">
+          <span>الوديعة الدولارية المجمدة (تسترد بعد 5 سنوات):</span>
+          <strong id="frozen-deposit-val" class="text-blue-900 font-bold">0 $ (0 د.ك)</strong>
         </div>
       </div>
 
-      <!-- 4. Active Studies for Partner Voting -->
+      <!-- 3. Interactive Progress Tracker on 7 Main Steps -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs">🗳️ دراسات السيارات المطروحة للتصويت</h3>
-        <div id="active-studies-list" class="space-y-2">
-          <!-- Rendered dynamically -->
+        <div class="flex justify-between items-center">
+          <h3 class="font-bold text-slate-800 text-xs">🚗 مسار ترقية خطوات استيراد سيارتك</h3>
+          <span id="current-step-pct-tag" class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded font-bold">نسبة الإنجاز: 0%</span>
+        </div>
+        
+        <div class="space-y-2">
+          <label class="block text-[10px] font-bold text-slate-600">اختر الخطوة الأساسية الحالية:</label>
+          <select id="partner-main-step-select" onchange="changeMainStep()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
+            <option value="1">1. شراء السيارة (في الكويت) - [14%]</option>
+            <option value="2">2. الترخيص والتوكيلات (في الكويت) - [29%]</option>
+            <option value="3">3. دفع قيمة الوديعة الجمركية (تطبيق سيارات المصريين بالخارج) - [43%]</option>
+            <option value="4">4. الشحن إلى مصر - [57%]</option>
+            <option value="5">5. إجراءات الخروج من الميناء (مصر) - [71%]</option>
+            <option value="6">6. إجراءات ترخيص السيارة (مصر) - [86%]</option>
+            <option value="7">7. بيع السيارة (مصر) وتوريد المقابل - [100% 🏁]</option>
+          </select>
+
+          <!-- Dynamic Sub-Tasks Container -->
+          <div class="bg-slate-50 p-3 rounded-xl border space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-700">الخطوات الفرعية للخطوة الحالية:</span>
+              <button onclick="addNewSubTaskPrompt()" class="text-[10px] bg-slate-900 text-white px-2 py-1 rounded font-bold">+ إضافة خطوة فرعية</button>
+            </div>
+            <div id="sub-tasks-list" class="space-y-1.5 text-xs">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 5. Expense Form with Direct File Upload -->
+      <!-- 4. Expense Form with Currency Converter & Upload -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs">➕ إضافة مصروف جديد لسيارتك</h3>
+        <h3 class="font-bold text-slate-800 text-xs">➕ إضافة مصروف مرتبط بخطوتك</h3>
         <div class="space-y-2">
-          <input type="text" id="exp-desc" placeholder="بيان المصروف (مثال: شحن، جمارك...)" class="w-full p-2 text-xs border rounded-lg outline-none">
+          <input type="text" id="exp-desc" placeholder="بيان المصروف (مثال: شحن، جمارك، وديعة...)" class="w-full p-2 text-xs border rounded-lg outline-none">
           <div class="grid grid-cols-3 gap-1.5">
             <input type="number" id="exp-amount" placeholder="المبلغ" class="w-full p-2 text-xs border rounded-lg outline-none col-span-2">
             <select id="exp-curr" onchange="calculateConvertedAmount()" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
               <option value="KWD">D.K (كويتي)</option>
               <option value="USD">$ (دولار)</option>
-              <option value="EUR">€ (يورو)</option>
+              <option value="EGP">EGP (جنيه)</option>
             </select>
           </div>
           <div id="currency-calc-info" class="text-[10px] text-slate-500 bg-slate-50 p-1.5 rounded hidden">
             المعادل بالدينار الكويتي: <strong id="converted-kwd-val" class="text-emerald-600">0 د.ك</strong>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 mb-1">إرفاق فاتورة أو مستند (PDF / Image):</label>
+            <label class="block text-[10px] font-bold text-slate-600 mb-1">إرفاق الفاتورة أو المستند الرسمية (PDF / Image):</label>
             <input type="file" id="exp-file" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white">
           </div>
           <button id="exp-submit-btn" onclick="addExpense()" class="w-full bg-slate-900 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            تسجيل المصروف والخصم من الميزانية
+            تسجيل المصروف والخصم من العهدة
           </button>
         </div>
       </div>
 
-      <!-- Recent Expenses Ledger -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs">📜 كشف المصروفات الأخيرة لسيارتك</h3>
-        <div id="expenses-ledger-list" class="space-y-2 text-xs">
-          <!-- Rendered dynamically -->
+      <!-- 5. Car Cost Feasibility Study Submission Form -->
+      <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
+        <h3 class="font-bold text-amber-900 text-xs">📝 تقديم دراسة تكلفة السيارة (KWD / USD / EGP)</h3>
+        <div class="space-y-2">
+          <input type="text" id="study-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="study-car-price" placeholder="سعر السيارة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="number" id="study-shipping-fee" placeholder="الشحن (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="study-usd-deposit" placeholder="الوديعة (USD $)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="number" id="study-customs-fee" placeholder="جمارك مصر (EGP)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          </div>
+          <input type="number" id="study-license-fee" placeholder="ترخيص وإداريات (KWD د.ك)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          
+          <button onclick="submitCarStudy()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+            إرسال الدراسة للتصويت الجماعي
+          </button>
         </div>
+      </div>
+
+      <!-- 6. Active Studies for Partner Voting -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs">🗳️ دراسات التكلفة المطروحة لتصويت الأعضاء الـ 8</h3>
+        <div id="active-studies-list" class="space-y-2"></div>
+      </div>
+
+      <!-- 7. Recent Expenses Ledger -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <h3 class="font-bold text-slate-800 text-xs">📜 كشف المصروفات والعمليات المسجلة</h3>
+        <div id="expenses-ledger-list" class="space-y-2 text-xs"></div>
       </div>
     </section>
 
     <!-- Screen 2: Cycles & Roles / الأدوار والعمليات -->
     <section id="screen-cycles" class="screen space-y-4">
-      <h2 class="font-bold text-slate-900 text-base">جدول متابعة أدوار الـ 8 شركاء</h2>
+      <h2 class="font-bold text-slate-900 text-base">جدول متابعة الشركاء ونسب الإنجاز</h2>
       <div id="cycles-list" class="space-y-3"></div>
     </section>
 
-    <!-- Screen 3: Admin Panel / الإعدادات -->
+    <!-- Screen 3: Contracts / العقود القانونية -->
+    <section id="screen-contracts" class="screen space-y-4">
+      <h2 class="font-bold text-slate-900 text-base">📄 منظومة العقود القانونية المعتمدة</h2>
+      
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+        <label class="block text-xs font-bold text-slate-700">اختر العقد للطباعة/التوقيع:</label>
+        <select id="contract-type-select" onchange="renderContractText()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none">
+          <option value="1">العقد 1: عقد التزام جماعي وتأسيس الصندوق</option>
+          <option value="2">العقد 2: عقد توريد وسداد حصة افتتاحية الصندوق</option>
+          <option value="3">العقد 3: عقد تسليم واستلام عهدة الميزانية المعتمدة</option>
+          <option value="4">العقد 4: عقد الانتهاء من الدور وتوريد المقابل</option>
+          <option value="5">العقد 5: عقد مخالصة وتسوية مالية نهائية</option>
+        </select>
+
+        <!-- Printable Contract Box -->
+        <div id="printable-contract" class="p-4 bg-slate-50 rounded-xl border border-slate-300 text-xs leading-relaxed space-y-3 text-slate-800">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <button onclick="window.print()" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold shadow">🖨️ طباعة العقد</button>
+          <div>
+            <label class="text-[10px] font-bold block text-slate-600">إرفاق صورة العقد الموقعة:</label>
+            <input type="file" id="signed-contract-file" class="text-xs text-slate-500">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 4: Admin Panel / الإعدادات -->
     <section id="screen-admin" class="screen space-y-4">
       
-      <!-- Add Partner Form -->
+      <!-- Reset All Data Button (For Admin After Testing) -->
+      <div class="bg-red-50 rounded-2xl p-4 shadow-sm border border-red-200 space-y-2 text-center">
+        <h3 class="font-bold text-red-900 text-xs">⚠️ تصفية وإعادة ضبط البيانات للبدء الفعلي</h3>
+        <p class="text-[10px] text-red-700">تفريغ كافة بيانات التجربة والبدء الفعلي بالصندوق الحقيقي.</p>
+        <button onclick="resetAllDataForProduction()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-xs font-bold shadow">
+          مسح بيانات التجربة والبدء الفعلي 🧹
+        </button>
+      </div>
+
+      <!-- Final Liquidation & Balance Settlement -->
+      <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-sm border border-slate-700 space-y-3">
+        <h3 class="font-bold text-amber-400 text-xs">⚖️ تسوية الفروقات وتصفية الصندوق (بما فيها الودائع)</h3>
+        <p class="text-[10px] text-slate-300">خصم/إضافة الفروقات تلقائياً من نصيب العضو المتبقي دون دفع كاش إضافي.</p>
+        <button onclick="calculateFinalLiquidation()" class="w-full bg-amber-500 text-slate-900 py-2 rounded-lg text-xs font-bold shadow">
+          حساب كشف التصفية والفروقات بالتساوي 🧮
+        </button>
+        <div id="liquidation-result-box" class="space-y-1 text-xs hidden bg-slate-800 p-2 rounded-lg border border-slate-700"></div>
+      </div>
+
+      <!-- Add / Replace Partner Form -->
       <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-        <h3 class="font-bold text-amber-900 text-sm">👤 تسجيل وتفعيل حساب شريك جديد</h3>
+        <h3 class="font-bold text-amber-900 text-sm">👤 تسجيل أو استبدال أو تعديل شريك</h3>
         <div class="space-y-2">
           <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-            <option value="1">الشريك 1 (الدور الأول)</option>
-            <option value="2">الشريك 2 (الدور الثاني)</option>
-            <option value="3">الشريك 3 (الدور الثالث)</option>
-            <option value="4">الشريك 4 (الدور الرابع)</option>
-            <option value="5">الشريك 5 (الدور الخامس)</option>
-            <option value="6">الشريك 6 (الدور السادس)</option>
-            <option value="7">الشريك 7 (الدور السابع)</option>
-            <option value="8">الشريك 8 (الدور الثامن)</option>
+            <option value="1">الشريك 1</option>
+            <option value="2">الشريك 2</option>
+            <option value="3">الشريك 3</option>
+            <option value="4">الشريك 4</option>
+            <option value="5">الشريك 5</option>
+            <option value="6">الشريك 6</option>
+            <option value="7">الشريك 7</option>
+            <option value="8">الشريك 8</option>
           </select>
           <input type="text" id="new-user-name-ar" placeholder="اسم الشريك بالعربية الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="email" id="new-user-email" placeholder="البريد الإلكتروني لشريك" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-          <input type="tel" id="new-user-phone" placeholder="رقم الهاتف/الواتساب (مثال: 96590000000)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          <input type="email" id="new-user-email" placeholder="البريد الإلكتروني" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+          <input type="tel" id="new-user-phone" placeholder="رقم الهاتف/الواتساب" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           <input type="password" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
           
           <button id="add-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-            + تسجيل وتفعيل الشريك
+            + تسجيل وتفعيل الحساب
           </button>
         </div>
       </div>
 
-      <!-- Partners WhatsApp Direct Invite List -->
+      <!-- WhatsApp Invite List -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-xs">💬 إرسال بيانات الدخول عبر الواتساب</h3>
-        <div id="whatsapp-partners-list" class="space-y-2">
-          <!-- Rendered dynamically -->
-        </div>
+        <div id="whatsapp-partners-list" class="space-y-2"></div>
       </div>
 
-      <!-- Admin Final Study Approval Center -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <h3 class="font-bold text-slate-800 text-xs">👑 اعتماد دراسات التكلفة وتفعيل الشراء (بعد إجماع الأعضاء)</h3>
-        <div id="admin-studies-approval-box" class="space-y-2 text-xs">
-          <!-- Rendered dynamically -->
-        </div>
-      </div>
-
-      <!-- Expense Approval Center for Admin -->
+      <!-- Expense Approvals -->
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
         <h3 class="font-bold text-slate-800 text-xs flex justify-between items-center">
           <span>🛡️ لوحة اعتماد المصروفات المعلقة</span>
           <span id="pending-count-tag" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded font-bold">0 معلق</span>
         </h3>
-        <div id="admin-pending-expenses" class="space-y-2 text-xs">
-          <!-- Rendered dynamically -->
-        </div>
-      </div>
-
-      <!-- Cycle Rotation & Stage Controls -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-        <div class="flex justify-between items-center border-b pb-2">
-          <h3 class="font-bold text-slate-800 text-xs">🔄 إدارة وتدوير الأدوار والتفعيل المتوازي</h3>
-        </div>
-        <div class="space-y-2">
-          <select id="admin-cycle-select" onchange="loadAdminCycleData()" class="w-full p-2 text-xs border rounded-lg bg-slate-50 font-bold outline-none"></select>
-          <input type="text" id="admin-car-model" placeholder="نوع السيارة والموديل" class="w-full p-2 text-xs border rounded-lg outline-none">
-          <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="admin-budget" placeholder="الميزانية المعتمدة (د.ك)" class="w-full p-2 text-xs border rounded-lg outline-none">
-            <input type="number" id="admin-pct" placeholder="نسبة الإنجاز %" class="w-full p-2 text-xs border rounded-lg outline-none">
-          </div>
-          <select id="admin-stage" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <option value="تجهيز الميزانية والدراسة">تجهيز الميزانية والدراسة</option>
-            <option value="الشراء والتعاقد">الشراء والتعاقد</option>
-            <option value="الشحن البحري">الشحن البحري</option>
-            <option value="الجمارك والتخليص بمصر">الجمارك والتخليص بمصر</option>
-            <option value="جاهزة للتسليم والترخيص">جاهزة للتسليم والترخيص</option>
-          </select>
-          <select id="admin-status" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
-            <option value="active">نشط وتجري إجراءات الشراء 🟢</option>
-            <option value="pending">في الانتظار ⏳</option>
-            <option value="completed">مكتمل وتسلم السيارة 🏁</option>
-          </select>
-          <button onclick="updateCycleFromAdmin()" class="w-full bg-slate-900 text-white py-2 rounded-lg text-xs font-bold shadow">
-            تحديث بيانات الدور والميزانية الفردية
-          </button>
-        </div>
+        <div id="admin-pending-expenses" class="space-y-2 text-xs"></div>
       </div>
     </section>
   </main>
@@ -268,12 +314,24 @@
   <!-- Bottom Navigation -->
   <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-2 px-2 flex justify-around items-center text-[11px] text-slate-500 z-50">
     <button onclick="switchScreen('dashboard', 'الرئيسية')" class="nav-btn text-slate-900 font-bold flex flex-col items-center">📊 الرئيسية</button>
-    <button onclick="switchScreen('cycles', 'جدول الأدوار')" class="nav-btn flex flex-col items-center">🔄 الأدوار</button>
+    <button onclick="switchScreen('cycles', 'الأدوار')" class="nav-btn flex flex-col items-center">🔄 الأدوار</button>
+    <button onclick="switchScreen('contracts', 'العقود')" class="nav-btn flex flex-col items-center">📄 العقود</button>
     <button onclick="switchScreen('admin', 'الإعدادات')" id="nav-admin-btn" class="nav-btn flex flex-col items-center hidden">⚙️ الإعدادات</button>
   </nav>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOTLG3acOS9A3XY5_44dtKe-P362_vt_nBKaSooVrgWo57rCkQ4R2CNIwgzKT6SZSSbw/exec";
+
+    // القواعد الافتراضية المحددة للـ 7 خطوات أساسية مع خطط فرعية
+    const defaultStepsConfig = {
+      1: { name: "1. شراء السيارة (الكويت)", pct: 14, sub: ["البحث واختيار السيارة والموديل", "الاتفاق على السعر واستلام الفاتورة", "فحص السيارة واستلام المستندات", "سداد الثمن واستلام سند القبض"] },
+      2: { name: "2. الترخيص والتوكيلات (الكويت)", pct: 29, sub: ["إلغاء التسجيل المحلي بالمرور", "استخراج لوحات وتأمين التصدير", "إصدار شهادة التصدير للجمرك", "توثيق الفواتير والأوراق الرسمية"] },
+      3: { name: "3. دفع قيمة الوديعة (تطبيق المصريين)", pct: 43, sub: ["إنشاء حساب على تطبيق سيارات المصريين", "إدخال بيانات السيارة والمحرك", "استخراج أمر الدفع وتفاصيل البنك", "تحويل الوديعة بالدولار", "متابعة إصدار الموافقة الاستيرادية"] },
+      4: { name: "4. الشحن إلى مصر", pct: 57, sub: ["الاتفاق مع شركة شحن متخصصة", "تسليم السيارة والأوراق لشركة الشحن", "إصدار بوليصة الشحن وتتبع الرحلة", "وصول الشحنة لميناء الوصول بمصر"] },
+      5: { name: "5. إجراءات الميناء (مصر)", pct: 71, sub: ["التعاقد مع مخلص جمركي في الميناء", "تقديم الموافقة وبوليصة الشحن", "معاينة وتدقيق السيارة بالجمرك", "سداد مصاريف التخزين والتخليص", "استلام إذن الإفراج الجمركي"] },
+      6: { name: "6. ترخيص السيارة (مصر)", pct: 86, sub: ["نقل السيارة لوحدة المرور التابع لها", "إجراء الفحص الفني واستخراج النموذج", "سداد التأمين الإجباري والضريبة", "تركيب اللوحات واستلام الرخصة"] },
+      7: { name: "7. بيع السيارة (مصر)", pct: 100, sub: ["التقييم وعرض السيارة للبيع", "تحرير عقد بيع مسجل بالشهر العقاري", "استلام الثمن ونقل الملكية للمشتري"] }
+    };
 
     const defaultUsers = [
       { email: "ashrafadd@hotmail.com", pass: "Aa@@50940888", name: "أشرف عابد (الأدمن)", role: "admin", partnerNum: "1", phone: "96590000000" },
@@ -281,20 +339,31 @@
     ];
 
     const defaultCycles = [
-      { id: 1, partner: "أشرف عابد", car: "كيا سبورتاج 2026", budget: 3000, spent: 0, stage: "الشراء والتعاقد", pct: 40, status: "active" },
-      { id: 2, partner: "عبدالرحمن عادل محمد احمد", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية والدراسة", pct: 0, status: "pending" },
-      { id: 3, partner: "شريك 3", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية والدراسة", pct: 0, status: "pending" },
-      { id: 4, partner: "شريك 4", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية والدراسة", pct: 0, status: "pending" },
-      { id: 5, partner: "شريك 5", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية والدراسة", pct: 0, status: "pending" },
-      { id: 6, partner: "شريك 6", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية والدراسة", pct: 0, status: "pending" },
-      { id: 7, partner: "شريك 7", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية والدراسة", pct: 0, status: "pending" },
-      { id: 8, partner: "شريك 8", car: "لم تُحدد بعد", budget: 3000, spent: 0, stage: "تجهيز الميزانية والدراسة", pct: 0, status: "pending" }
+      { id: 1, partner: "أشرف عابد", car: "كيا سبورتاج 2026", budget: 3000, spent: 0, step: 1, pct: 14, status: "active", depositUsd: 0 },
+      { id: 2, partner: "عبدالرحمن عادل محمد احمد", car: "لم تُحدد بعد", budget: 3000, spent: 0, step: 1, pct: 0, status: "pending", depositUsd: 0 },
+      { id: 3, partner: "شريك 3", car: "لم تُحدد بعد", budget: 3000, spent: 0, step: 1, pct: 0, status: "pending", depositUsd: 0 },
+      { id: 4, partner: "شريك 4", car: "لم تُحدد بعد", budget: 3000, spent: 0, step: 1, pct: 0, status: "pending", depositUsd: 0 },
+      { id: 5, partner: "شريك 5", car: "لم تُحدد بعد", budget: 3000, spent: 0, step: 1, pct: 0, status: "pending", depositUsd: 0 },
+      { id: 6, partner: "شريك 6", car: "لم تُحدد بعد", budget: 3000, spent: 0, step: 1, pct: 0, status: "pending", depositUsd: 0 },
+      { id: 7, partner: "شريك 7", car: "لم تُحدد بعد", budget: 3000, spent: 0, step: 1, pct: 0, status: "pending", depositUsd: 0 },
+      { id: 8, partner: "شريك 8", car: "لم تُحدد بعد", budget: 3000, spent: 0, step: 1, pct: 0, status: "pending", depositUsd: 0 }
     ];
 
     function togglePasswordVisibility(inputId, btn) {
       const input = document.getElementById(inputId);
       input.type = input.type === "password" ? "text" : "password";
       btn.innerText = input.type === "password" ? "👁️" : "🙈";
+    }
+
+    function showNotification(msg) {
+      const banner = document.getElementById('live-notification');
+      document.getElementById('notification-text').textContent = msg;
+      banner.classList.remove('-translate-y-full');
+      setTimeout(() => hideNotification(), 6000);
+    }
+
+    function hideNotification() {
+      document.getElementById('live-notification').classList.add('-translate-y-full');
     }
 
     function calculateConvertedAmount() {
@@ -308,8 +377,8 @@
         return amt;
       }
 
-      let rate = 0.307;
-      if (curr === 'EUR') rate = 0.335;
+      let rate = 0.307; // سعر الدولار
+      if (curr === 'EGP') rate = 0.0063; // سعر الجنيه
 
       const kwdVal = (amt * rate).toFixed(3);
       valText.textContent = `${kwdVal} د.ك`;
@@ -318,6 +387,7 @@
     }
 
     function handleLogin() {
+      const nameInput = document.getElementById('login-name').value.trim();
       const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
       const passInput = document.getElementById('login-password').value.trim();
 
@@ -336,6 +406,7 @@
       }
 
       if (user) {
+        if (nameInput) user.name = nameInput;
         sessionStorage.setItem('current_user', JSON.stringify(user));
         document.getElementById('login-error').classList.add('hidden');
         checkAuth();
@@ -364,148 +435,151 @@
       }
     }
 
-    async function addUser() {
-      const partnerNum = document.getElementById('new-user-partner-num').value;
-      const nameAr = document.getElementById('new-user-name-ar').value.trim();
-      const email = document.getElementById('new-user-email').value.trim().toLowerCase();
-      const phone = document.getElementById('new-user-phone').value.trim();
-      const pass = document.getElementById('new-user-pass').value.trim();
+    function changeMainStep() {
+      const stepVal = parseInt(document.getElementById('partner-main-step-select').value);
+      const currentUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const idx = cycles.findIndex(c => c.id == (currentUser.partnerNum || "1"));
 
-      if (!nameAr || !email || !pass) {
-        alert('يرجى كتابة اسم الشريك، البريد الإلكتروني، وكلمة المرور');
-        return;
-      }
-
-      const newUserPayload = { type: "new_partner", nameAr, email, pass, role: "editor", partnerNum, phone };
-
-      let localUsers = [];
-      try {
-        localUsers = JSON.parse(localStorage.getItem('app_users') || '[]');
-      } catch(e) {}
-
-      localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone });
-      localStorage.setItem('app_users', JSON.stringify(localUsers));
-
-      let cycles = [];
-      try {
-        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-      } catch(e) {
-        cycles = defaultCycles;
-      }
-      const idx = cycles.findIndex(c => c.id == partnerNum);
       if (idx !== -1) {
-        cycles[idx].partner = nameAr;
+        const stepConf = defaultStepsConfig[stepVal];
+        cycles[idx].step = stepVal;
+        cycles[idx].pct = stepConf.pct; // أرقام صحيحة بدقة: 14%, 29%, 43%, 57%, 71%, 86%, 100%
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
-      }
 
-      try {
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newUserPayload)
-        });
-        alert(`✅ تم تسجيل وتفعيل الشريك [${nameAr}] بنجاح!`);
-      } catch (e) {
-        alert(`تم الحفظ بنجاح.`);
-      } finally {
-        document.getElementById('new-user-name-ar').value = '';
-        document.getElementById('new-user-email').value = '';
-        document.getElementById('new-user-phone').value = '';
-        document.getElementById('new-user-pass').value = '';
+        showNotification(`📣 قام الشريك [${currentUser.name}] بترقية خطوته إلى: [${stepConf.name}] بنسبة إنجاز ${stepConf.pct}%!`);
         loadAppData();
       }
     }
 
-    // تقديم دراسة جدوى وتكلفة السيارة
-    function submitCarStudy() {
-      const currentUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
-      const model = document.getElementById('study-car-model').value.trim();
-      const carPrice = parseFloat(document.getElementById('study-car-price').value) || 0;
-      const shipping = parseFloat(document.getElementById('study-shipping-fee').value) || 0;
-      const deposit = parseFloat(document.getElementById('study-usd-deposit').value) || 0;
-      const customs = parseFloat(document.getElementById('study-customs-fee').value) || 0;
-      const license = parseFloat(document.getElementById('study-license-fee').value) || 0;
-
-      if (!model || carPrice <= 0) {
-        alert('يرجى تعبئة نوع السيارة وسعرها المباشر');
-        return;
-      }
-
-      // تحويل الإجمالي التقديري للدينار الكويتي
-      const usdTotal = carPrice + shipping + deposit;
-      const kwdFromUsd = usdTotal * 0.307;
-      const kwdFromEgp = customs * 0.0063; // سعر الجنيه الافتراضي
-      const totalBudgetKwd = Math.round(kwdFromUsd + kwdFromEgp + license);
-
-      const studyObj = {
-        id: Date.now(),
-        partnerNum: currentUser.partnerNum || "1",
-        partnerName: currentUser.name || "الشريك",
-        carModel: model,
-        carPrice, shipping, deposit, customs, license,
-        totalBudgetKwd,
-        votes: [currentUser.email] // التصويت التلقائي لصاحب الدراسة
-      };
-
-      let studies = JSON.parse(localStorage.getItem('app_car_studies') || '[]');
-      studies.unshift(studyObj);
-      localStorage.setItem('app_car_studies', JSON.stringify(studies));
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "new_car_study", ...studyObj })
+    function renderSubTasks(stepVal) {
+      const container = document.getElementById('sub-tasks-list');
+      const customSub = JSON.parse(localStorage.getItem(`sub_tasks_step_${stepVal}`) || 'null') || defaultStepsConfig[stepVal].sub;
+      
+      container.innerHTML = '';
+      customSub.forEach((st, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex justify-between items-center p-1.5 bg-white rounded border border-slate-200';
+        row.innerHTML = `
+          <span class="text-slate-800">${st}</span>
+          <div class="space-x-1 space-x-reverse">
+            <button onclick="editSubTask(${stepVal}, ${idx})" class="text-[9px] text-blue-600 font-bold">تعديل</button>
+            <button onclick="deleteSubTask(${stepVal}, ${idx})" class="text-[9px] text-red-600 font-bold">حذف</button>
+          </div>
+        `;
+        container.appendChild(row);
       });
-
-      alert(`✅ تم تقديم دراسة التكلفة لسيارة [${model}] بإجمالي ميزانية تقديرية [${totalBudgetKwd} د.ك]. بانتظار تصويت جميع الأعضاء.`);
-      document.getElementById('study-car-model').value = '';
-      document.getElementById('study-car-price').value = '';
-      document.getElementById('study-shipping-fee').value = '';
-      document.getElementById('study-usd-deposit').value = '';
-      document.getElementById('study-customs-fee').value = '';
-      document.getElementById('study-license-fee').value = '';
-      loadAppData();
     }
 
-    function voteForStudy(studyId) {
+    function addNewSubTaskPrompt() {
+      const stepVal = parseInt(document.getElementById('partner-main-step-select').value);
+      const newText = prompt("أدخل نص الخطوة الفرعية الجديدة:");
+      if (newText && newText.trim()) {
+        let list = JSON.parse(localStorage.getItem(`sub_tasks_step_${stepVal}`) || 'null') || [...defaultStepsConfig[stepVal].sub];
+        list.push(newText.trim());
+        localStorage.setItem(`sub_tasks_step_${stepVal}`, JSON.stringify(list));
+        renderSubTasks(stepVal);
+      }
+    }
+
+    function editSubTask(stepVal, idx) {
+      let list = JSON.parse(localStorage.getItem(`sub_tasks_step_${stepVal}`) || 'null') || [...defaultStepsConfig[stepVal].sub];
+      const newText = prompt("عدل نص الخطوة الفرعية:", list[idx]);
+      if (newText && newText.trim()) {
+        list[idx] = newText.trim();
+        localStorage.setItem(`sub_tasks_step_${stepVal}`, JSON.stringify(list));
+        renderSubTasks(stepVal);
+      }
+    }
+
+    function deleteSubTask(stepVal, idx) {
+      if (confirm("هل أنت متأكد من حذف هذه الخطوة الفرعية؟")) {
+        let list = JSON.parse(localStorage.getItem(`sub_tasks_step_${stepVal}`) || 'null') || [...defaultStepsConfig[stepVal].sub];
+        list.splice(idx, 1);
+        localStorage.setItem(`sub_tasks_step_${stepVal}`, JSON.stringify(list));
+        renderSubTasks(stepVal);
+      }
+    }
+
+    function resetAllDataForProduction() {
+      if (confirm("⚠️ هل أنت متأكد من مسح جميع بيانات التجربة كلياً والبدء الفعلي بالصندوق الحقيقي؟")) {
+        localStorage.clear();
+        sessionStorage.clear();
+
+        fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "reset_all_data" })
+        });
+
+        alert("🧹 تم تفريغ البيانات بنجاح والمنصة جاهزة الآن للبدء الفعلي!");
+        window.location.reload();
+      }
+    }
+
+    function calculateFinalLiquidation() {
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const totalSpent = cycles.reduce((s, c) => s + (c.spent || 0), 0);
+      const totalDepositUsd = cycles.reduce((s, c) => s + (c.depositUsd || 0), 0);
+      const totalDepositKwd = totalDepositUsd * 0.307;
+
+      const grandTotalCost = totalSpent + totalDepositKwd;
+      const averageCostPerPartner = Math.round(grandTotalCost / cycles.length);
+
+      const box = document.getElementById('liquidation-result-box');
+      box.classList.remove('hidden');
+      box.innerHTML = `<strong class="block text-amber-400 border-b pb-1 mb-1">نتيجة التصفية: متوسط المستحق للعضو = ${averageCostPerPartner} د.ك</strong>`;
+
+      cycles.forEach(c => {
+        const partnerCost = (c.spent || 0) + ((c.depositUsd || 0) * 0.307);
+        const diff = Math.round(partnerCost - averageCostPerPartner);
+        const statusText = diff > 0 
+          ? `<span class="text-red-400">يُخصم من نصيبه المتبقي بالصندوق: ${diff} د.ك</span>`
+          : `<span class="text-emerald-400">يُضاف إلى نصيبه بالصندوق: ${Math.abs(diff)} د.ك</span>`;
+
+        const row = document.createElement('div');
+        row.className = 'flex justify-between items-center py-1 border-b border-slate-700';
+        row.innerHTML = `<span>الدور ${c.id} (${c.partner}):</span> ${statusText}`;
+        box.appendChild(row);
+      });
+    }
+
+    function renderContractText() {
+      const type = document.getElementById('contract-type-select').value;
+      const box = document.getElementById('printable-contract');
       const currentUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
-      let studies = JSON.parse(localStorage.getItem('app_car_studies') || '[]');
-      const idx = studies.findIndex(s => s.id == studyId);
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
+      const myCycle = cycles.find(c => c.id == (currentUser.partnerNum || "1")) || cycles[0];
 
-      if (idx !== -1) {
-        if (!studies[idx].votes.includes(currentUser.email)) {
-          studies[idx].votes.push(currentUser.email);
-          localStorage.setItem('app_car_studies', JSON.stringify(studies));
-          alert('👍 تم تسجيل موافقتك وتصويتك على الدراسة بنجاح!');
-          loadAppData();
-        } else {
-          alert('لقد قمت بالتصويت والموافقة على هذه الدراسة سابقاً.');
-        }
+      let text = "";
+      if (type === "1") {
+        text = `
+          <h2 class="font-bold text-center text-sm mb-2 text-slate-900">عقد التزام جماعي وتأسيس صندوق الـ 8 سيارات</h2>
+          <p>أقرت هذه الوثيقة الجماعية بين الشركاء الـ 8 والأدمن المهندس/ أشرف عابد بصفته عضواً وشريكاً، بالتزام كافة الأعضاء بالضوابط المالية والمواعيد وقرارات الإجماع الجماعية، والامتناع عن خرق أهداف الصندوق.</p>
+        `;
+      } else if (type === "2") {
+        text = `
+          <h2 class="font-bold text-center text-sm mb-2 text-slate-900">عقد توريد وسداد حصة افتتاحية الصندوق</h2>
+          <p>يقر الصندوق باستلام مبلغ الافتتاحية المعتمد وقدره [3,000 د.ك] من الشريك/ <strong>${currentUser.name || 'الشريك'}</strong>، وتم إدراج حسابه رسمياً بجدول الأدوار بالدور رقم [${myCycle.id}].</p>
+        `;
+      } else if (type === "3") {
+        text = `
+          <h2 class="font-bold text-center text-sm mb-2 text-slate-900">عقد تسليم واستلام عهدة الميزانية المعتمدة</h2>
+          <p>تم اعتماد ميزانية فردية لسيارة الشريك/ <strong>${currentUser.name}</strong> بمبلغ وقدره [${myCycle.budget} د.ك] لسيارته [${myCycle.car}] بناءً على دراسة التكلفة المعتمدة من جميع الأعضاء.</p>
+        `;
+      } else if (type === "4") {
+        text = `
+          <h2 class="font-bold text-center text-sm mb-2 text-slate-900">عقد الانتهاء من الدور وتوريد المقابل</h2>
+          <p>يقر الشريك/ <strong>${currentUser.name}</strong> بإتمام بيع وتصفية سيارته في مصر بنجاح وتوريد المقابل وإغلاق دورته المالية بنسبة إنجاز 100%.</p>
+        `;
+      } else if (type === "5") {
+        text = `
+          <h2 class="font-bold text-center text-sm mb-2 text-slate-900">عقد مخالصة وتسوية مالية نهائية</h2>
+          <p>مخالصة نهائية وإبراء ذمة شامل بين الصندوق والشريك/ <strong>${currentUser.name}</strong> بعد تسوية جميع الفروقات المالية والودائع بالدينار الكويتي.</p>
+        `;
       }
-    }
-
-    function adminApproveCarStudy(studyId) {
-      let studies = JSON.parse(localStorage.getItem('app_car_studies') || '[]');
-      const study = studies.find(s => s.id == studyId);
-
-      if (study) {
-        let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-        const cIdx = cycles.findIndex(c => c.id == study.partnerNum);
-
-        if (cIdx !== -1) {
-          cycles[cIdx].car = study.carModel;
-          cycles[cIdx].budget = study.totalBudgetKwd;
-          cycles[cIdx].status = 'active'; // تفعيل الشراء والتصرف فوراً
-          cycles[cIdx].stage = 'الشراء والتعاقد';
-          cycles[cIdx].pct = 20;
-
-          localStorage.setItem('app_cycles', JSON.stringify(cycles));
-          alert(`👑 تم اعتماد الميزانية الفردية لسيارة [${study.carModel}] بـ [${study.totalBudgetKwd} د.ك] وتفعيل الشراء بنجاح!`);
-          loadAppData();
-        }
-      }
+      box.innerHTML = text;
     }
 
     async function addExpense() {
@@ -536,11 +610,7 @@
         });
       }
 
-      let cycles = defaultCycles;
-      try {
-        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-      } catch(e) {}
-
+      let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
       const currentUser = JSON.parse(sessionStorage.getItem('current_user') || '{}');
       let myCycleIdx = cycles.findIndex(c => c.id == (currentUser.partnerNum || "1"));
       if (myCycleIdx === -1) myCycleIdx = 0;
@@ -584,38 +654,12 @@
       } catch(e) {}
 
       alert(fileData ? '✅ تم تسجيل المصروف وخصمه من العهدة المعتمدة بنجاح!' : '⏳ تم إرسال المصروف وبانتظار موافقة الأدمن (لأنه بدون مستند).');
-      submitBtn.innerText = "تسجيل المصروف والخصم من الميزانية";
+      submitBtn.innerText = "تسجيل المصروف والخصم من العهدة";
       submitBtn.disabled = false;
       document.getElementById('exp-desc').value = '';
       document.getElementById('exp-amount').value = '';
       fileInput.value = '';
       loadAppData();
-    }
-
-    function approvePendingExpense(expId) {
-      let expenses = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
-      const idx = expenses.findIndex(e => e.id == expId);
-      if (idx !== -1) {
-        expenses[idx].status = "approved";
-        localStorage.setItem('app_expenses_list', JSON.stringify(expenses));
-
-        let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-        let activeIdx = cycles.findIndex(c => c.status === 'active');
-        if (activeIdx === -1) activeIdx = 0;
-        cycles[activeIdx].spent = (cycles[activeIdx].spent || 0) + expenses[idx].amountKwd;
-        localStorage.setItem('app_cycles', JSON.stringify(cycles));
-
-        alert('✅ تم اعتماد المصروف واحتسابه ضمن الميزانية!');
-        loadAppData();
-      }
-    }
-
-    function sendWhatsAppInvite(name, email, pass, phone) {
-      const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
-      const appUrl = window.location.href.split('?')[0];
-      const msg = `أهلاً بك م/ ${name} في منصة صندوق الـ 8 سيارات! 🚗%0A%0Aبيانات الدخول الخاصة بك:%0Aالبريد: ${email}%0Aكلمة المرور: ${pass}%0A%0Aرابط المنصة:%0A${appUrl}`;
-      const url = cleanPhone ? `https://wa.me/${cleanPhone}?text=${msg}` : `https://wa.me/?text=${msg}`;
-      window.open(url, '_blank');
     }
 
     function loadAppData() {
@@ -630,7 +674,7 @@
       const activeCycles = cycles.filter(c => c.status === 'active');
 
       // 1. حساب الميزانية الإجمالية للصندوق (Master Treasury)
-      const totalCollected = 8 * 3000; // 24,000 د.ك محصل
+      const totalCollected = cycles.length * 3000;
       const totalSpentAllCars = cycles.reduce((sum, c) => sum + (c.spent || 0), 0);
       const availableCashPool = totalCollected - totalSpentAllCars;
 
@@ -639,72 +683,17 @@
       document.getElementById('master-pool-spent').textContent = `${totalSpentAllCars.toLocaleString()} د.ك`;
       document.getElementById('master-pool-available').textContent = `${availableCashPool.toLocaleString()} د.ك`;
 
-      // 2. تحديث بيانات العهدة الفردية للسيارة
+      // 2. تحديث العهدة الفردية والخطوات
       document.getElementById('rep-allocated-budget').textContent = `${(myCycle.budget || 3000).toLocaleString()} د.ك`;
       document.getElementById('rep-spent-budget').textContent = `${(myCycle.spent || 0).toLocaleString()} د.ك`;
       document.getElementById('rep-remaining-budget').textContent = `${((myCycle.budget || 3000) - (myCycle.spent || 0)).toLocaleString()} د.ك`;
+      document.getElementById('frozen-deposit-val').textContent = `${myCycle.depositUsd || 0} $ (${Math.round((myCycle.depositUsd || 0) * 0.307)} د.ك)`;
 
-      // 3. عرض دراسات السيارات المطروحة للتصويت
-      const studies = JSON.parse(localStorage.getItem('app_car_studies') || '[]');
-      const activeStudiesBox = document.getElementById('active-studies-list');
-      const adminStudiesBox = document.getElementById('admin-studies-approval-box');
+      document.getElementById('partner-main-step-select').value = myCycle.step || 1;
+      document.getElementById('current-step-pct-tag').textContent = `نسبة الإنجاز: ${myCycle.pct || 0}%`;
+      renderSubTasks(myCycle.step || 1);
 
-      if (activeStudiesBox) {
-        activeStudiesBox.innerHTML = studies.length === 0 ? '<div class="text-slate-400 text-center py-2">لا توجد دراسات قيد التصويت حالياً</div>' : '';
-        studies.forEach(s => {
-          const hasVoted = s.votes.includes(currentUser.email);
-          const voteCount = s.votes.length;
-          const isFullyVoted = voteCount >= 8; // موافقة جميع الأعضاء الـ 8
-
-          const card = document.createElement('div');
-          card.className = 'p-3 rounded-xl border bg-slate-50 space-y-2 text-xs';
-          card.innerHTML = `
-            <div class="flex justify-between items-center">
-              <strong class="text-slate-900">${s.carModel} (${s.partnerName})</strong>
-              <span class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded font-bold">${s.totalBudgetKwd} د.ك</span>
-            </div>
-            <div class="text-[10px] text-slate-500 grid grid-cols-2 gap-1 bg-white p-2 rounded border">
-              <span>سعر السيارة: $${s.carPrice}</span>
-              <span>الشحن: $${s.shipping}</span>
-              <span>الوديعة: $${s.deposit}</span>
-              <span>جمارك مصر: ${s.customs} ج.م</span>
-            </div>
-            <div class="flex justify-between items-center pt-1">
-              <span class="text-[10px] font-bold ${isFullyVoted ? 'text-emerald-600' : 'text-amber-600'}">
-                موافقات الأعضاء: ${voteCount}/8 ${isFullyVoted ? '✅ (إجماع كامل)' : '⏳'}
-              </span>
-              <button onclick="voteForStudy(${s.id})" ${hasVoted ? 'disabled' : ''} class="${hasVoted ? 'bg-slate-300 text-slate-600' : 'bg-emerald-600 text-white'} px-3 py-1 rounded text-[10px] font-bold">
-                ${hasVoted ? 'تم تصويتك 👍' : 'موافق على الدراسة 👍'}
-              </button>
-            </div>
-          `;
-          activeStudiesBox.appendChild(card);
-        });
-      }
-
-      // 4. عرض لوحة الاعتماد المباشر للأدمن عند اكتمال الموافقات
-      if (adminStudiesBox) {
-        adminStudiesBox.innerHTML = studies.length === 0 ? '<div class="text-slate-400 text-center py-2">لا توجد دراسات معلقة بانتظار الاعتماد</div>' : '';
-        studies.forEach(s => {
-          const isFullyVoted = s.votes.length >= 8;
-          const aCard = document.createElement('div');
-          aCard.className = 'p-2.5 rounded-lg border bg-amber-50 space-y-2 text-xs border-amber-200';
-          aCard.innerHTML = `
-            <div class="flex justify-between items-center">
-              <div>
-                <strong>${s.carModel}</strong> - الشريك ${s.partnerName}
-                <span class="block text-[10px] text-amber-900">الميزانية المطلوبة: ${s.totalBudgetKwd} د.ك</span>
-              </div>
-              <button onclick="adminApproveCarStudy(${s.id})" class="bg-slate-900 text-white text-[10px] px-3 py-1.5 rounded font-bold shadow">
-                اعتمد الميزانية وفعل الشراء 👑
-              </button>
-            </div>
-          `;
-          adminStudiesBox.appendChild(aCard);
-        });
-      }
-
-      // 5. كشف المصروفات الأخيرة
+      // 3. كشف المصروفات
       const expList = JSON.parse(localStorage.getItem('app_expenses_list') || '[]');
       const ledgerBox = document.getElementById('expenses-ledger-list');
       if (ledgerBox) {
@@ -728,11 +717,12 @@
         });
       }
 
-      // 6. تحديث جدول الأدوار الـ 8
+      // 4. جدول الشركاء والـ 7 خطوات
       const container = document.getElementById('cycles-list');
       if (container) {
         container.innerHTML = '';
         cycles.forEach(c => {
+          const stepConf = defaultStepsConfig[c.step || 1];
           const div = document.createElement('div');
           div.className = `p-3.5 rounded-xl border ${c.status === 'active' ? 'bg-emerald-50 border-emerald-300 shadow-sm' : 'bg-white border-slate-200'} text-xs font-bold space-y-2`;
           div.innerHTML = `
@@ -742,113 +732,19 @@
                 <span class="text-slate-900 font-bold">${c.partner}</span>
               </div>
               <span class="${c.status === 'active' ? 'bg-emerald-200 text-emerald-800' : c.status === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'} px-2 py-1 rounded text-[10px]">
-                ${c.status === 'active' ? 'نشط وتجري إجراءات الشراء 🟢' : c.status === 'completed' ? 'مكتمل وتسلم السيارة 🏁' : 'في الانتظار ⏳'}
+                ${c.status === 'active' ? 'نشط الان 🟢' : c.status === 'completed' ? 'مكتمل وتسلم السيارة 🏁' : 'في الانتظار ⏳'}
               </span>
             </div>
             <div class="text-[11px] text-slate-600 flex justify-between border-t pt-2 border-slate-100">
               <span>السيارة: <strong class="text-slate-800">${c.car || 'غير محددة'}</strong></span>
-              <span>الميزانية: <strong class="text-emerald-700">${c.budget || 3000} د.ك</strong></span>
+              <span>الخطوة: <strong class="text-amber-700">${stepConf.name}</strong> (${c.pct || 0}%)</span>
             </div>
           `;
           container.appendChild(div);
         });
       }
 
-      // 7. تحديث قائمة الواتساب للأدمن
-      let allUsers = defaultUsers;
-      try {
-        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
-        locals.forEach(u => { if (!allUsers.find(x => x.email === u.email)) allUsers.push(u); });
-      } catch(e) {}
-
-      const waBox = document.getElementById('whatsapp-partners-list');
-      if (waBox) {
-        waBox.innerHTML = '';
-        allUsers.forEach(u => {
-          const row = document.createElement('div');
-          row.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg border text-xs';
-          row.innerHTML = `
-            <span>الدور ${u.partnerNum}: <strong>${u.name}</strong></span>
-            <button onclick="sendWhatsAppInvite('${u.name}', '${u.email}', '${u.pass}', '${u.phone || ''}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] px-2.5 py-1 rounded shadow flex items-center font-bold">
-              <span>💬 واتساب</span>
-            </button>
-          `;
-          waBox.appendChild(row);
-        });
-      }
-
-      // 8. المصروفات المعلقة للأدمن
-      const pendingBox = document.getElementById('admin-pending-expenses');
-      const pendingExps = expList.filter(e => e.status === 'pending');
-      document.getElementById('pending-count-tag').textContent = `${pendingExps.length} معلق`;
-      if (pendingBox) {
-        pendingBox.innerHTML = pendingExps.length === 0 ? '<div class="text-slate-400 text-center py-2">لا توجد مصروفات بانتظار الاعتماد 👍</div>' : '';
-        pendingExps.forEach(pe => {
-          const pRow = document.createElement('div');
-          pRow.className = 'flex justify-between items-center p-2 bg-amber-50 rounded-lg border border-amber-200 text-xs';
-          pRow.innerHTML = `
-            <div>
-              <strong>${pe.desc}</strong> (${pe.amountKwd} د.ك)
-              <span class="block text-[9px] text-slate-500">${pe.partner} - بدون مستند مرفق</span>
-            </div>
-            <button onclick="approvePendingExpense(${pe.id})" class="bg-emerald-600 text-white text-[10px] px-2 py-1 rounded font-bold shadow">
-              موافقة واعتماد ✅
-            </button>
-          `;
-          pendingBox.appendChild(pRow);
-        });
-      }
-
-      // 9. قائمة تعديل الأدوار
-      const adminSelect = document.getElementById('admin-cycle-select');
-      if (adminSelect) {
-        adminSelect.innerHTML = '';
-        cycles.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = `الدور ${c.id}: ${c.partner}`;
-          adminSelect.appendChild(opt);
-        });
-        loadAdminCycleData();
-      }
-    }
-
-    function loadAdminCycleData() {
-      const id = document.getElementById('admin-cycle-select').value;
-      let cycles = defaultCycles;
-      try {
-        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-      } catch(e) {}
-
-      const c = cycles.find(item => item.id == id);
-      if (c) {
-        document.getElementById('admin-car-model').value = c.car || '';
-        document.getElementById('admin-budget').value = c.budget || 3000;
-        document.getElementById('admin-pct').value = c.pct || 0;
-        document.getElementById('admin-stage').value = c.stage || 'تجهيز الميزانية والدراسة';
-        document.getElementById('admin-status').value = c.status || 'pending';
-      }
-    }
-
-    function updateCycleFromAdmin() {
-      const id = document.getElementById('admin-cycle-select').value;
-      let cycles = defaultCycles;
-      try {
-        cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
-      } catch(e) {}
-
-      const idx = cycles.findIndex(item => item.id == id);
-      if (idx !== -1) {
-        cycles[idx].car = document.getElementById('admin-car-model').value.trim() || 'لم تُحدد بعد';
-        cycles[idx].budget = parseFloat(document.getElementById('admin-budget').value) || 3000;
-        cycles[idx].pct = parseInt(document.getElementById('admin-pct').value) || 0;
-        cycles[idx].stage = document.getElementById('admin-stage').value;
-        cycles[idx].status = document.getElementById('admin-status').value;
-
-        localStorage.setItem('app_cycles', JSON.stringify(cycles));
-        alert('✅ تم تحديث بيانات الدور والميزانية الفردية وحالة التفعيل بنجاح!');
-        loadAppData();
-      }
+      renderContractText();
     }
 
     function handleLogout() {
