@@ -290,7 +290,7 @@
       </div>
     </section>
 
-    <!-- SCREEN 4: Admin / الإعدادات (مع قفل التعديل في العقود وتوافر الواتساب والاصلاحات) -->
+    <!-- SCREEN 4: Admin / الإعدادات -->
     <section id="screen-admin" class="screen space-y-4">
       <div class="bg-white border border-slate-200 rounded-xl px-2 py-2 overflow-x-auto whitespace-nowrap no-scrollbar flex space-x-2 space-x-reverse text-xs shadow-sm">
         <button onclick="switchSubTab('admin', 'permissions')" class="sub-tab-btn-admin bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold">🔐 الصلاحيات والشركاء</button>
@@ -300,14 +300,18 @@
 
       <!-- Admin Tab 1: Permissions & Partner Control & WhatsApp -->
       <div id="subtab-admin-permissions" class="subtab-admin-content space-y-4">
+        
+        <!-- إدارة الصلاحيات مرتاً رأسياً تحت بعضها -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء ودراسة التكلفة للمنتظرين</h3>
-          <div id="admin-permissions-toggle-list" class="space-y-2"></div>
+          <h3 class="font-bold text-slate-800 text-xs">🔒 إدارة صلاحيات الشركاء ودراسة التكلفة (تفعيل / إغلاق)</h3>
+          <div id="admin-permissions-toggle-list" class="space-y-3"></div>
         </div>
 
+        <!-- تسجيل أو استبدال أو تعديل بيانات شريك -->
         <div class="bg-amber-50 rounded-2xl p-4 shadow-sm border border-amber-200 space-y-3">
-          <h3 class="font-bold text-amber-900 text-sm">👤 تسجيل أو استبدال شريك</h3>
+          <h3 id="form-mode-title" class="font-bold text-amber-900 text-sm">👤 تسجيل أو استبدال شريك</h3>
           <div class="space-y-2">
+            <input type="hidden" id="edit-user-original-email" value="">
             <select id="new-user-partner-num" class="w-full p-2 text-xs border rounded-lg bg-white outline-none font-bold">
               <option value="1">الشريك 1</option>
               <option value="2">الشريك 2</option>
@@ -321,18 +325,17 @@
             <input type="text" id="new-user-name-ar" placeholder="اسم الشريك الصريح" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             <input type="email" id="new-user-email" placeholder="البريد الإلكتروني" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             <input type="tel" id="new-user-phone" placeholder="رقم الواتساب (مثال: 96590000000)" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
-            <input type="password" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
+            <input type="text" id="new-user-pass" placeholder="كلمة المرور" class="w-full p-2 text-xs border rounded-lg bg-white outline-none">
             
-            <button id="add-btn" onclick="addUser()" class="w-full bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
-              + تسجيل وتفعيل الحساب وإرسال الواتساب 💬
-            </button>
+            <div class="flex space-x-2 space-x-reverse">
+              <button id="add-btn" onclick="saveOrUpdateUser()" class="flex-1 bg-amber-800 text-white py-2.5 rounded-lg text-xs font-bold shadow">
+                + تسجيل وتفعيل الحساب وإرسال الواتساب 💬
+              </button>
+              <button id="cancel-edit-btn" onclick="resetUserForm()" class="hidden bg-slate-500 text-white px-3 py-2.5 rounded-lg text-xs font-bold">إلغاء</button>
+            </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
-          <h3 class="font-bold text-slate-800 text-xs">💬 مراسلة الشركاء وإرسال بيانات الدخول عبر الواتساب</h3>
-          <div id="whatsapp-partners-list" class="space-y-2"></div>
-        </div>
       </div>
 
       <!-- Admin Tab 2: Expenses Approvals -->
@@ -402,7 +405,7 @@
       2: { name: "2. الترخيص والتوكيلات (الكويت)", pct: 29, sub: ["إلغاء التسجيل المحلي بالمرور", "استخراج لوحات وتأمين التصدير", "إصدار شهادة التصدير للجمرك", "توثيق الفواتير والأوراق الرسمية"] },
       3: { name: "3. تحويل الوديعة (تطبيق سيارات المصريين)", pct: 43, sub: ["بيانات السيارة على التطبيق المفعل", "استخراج أمر الدفع وتفاصيل البنك", "تحويل الوديعة بالدولار", "متابعة صدور الموافقة الاستيرادية"] },
       4: { name: "4. الشحن إلى مصر", pct: 57, sub: ["الاتفاق مع شركة شحن متخصصة", "تسليم السيارة والأوراق لشركة الشحن", "إصدار بوليصة الشحن وتتبع الرحلة", "وصول الشحنة لميناء الوصول بمصر"] },
-      5: { name: "5. إجراءات الميناء (مصر)", pct: 71, sub: ["التعاقد مع مخلص جمركي في الميناء", "تقديم الموافقة وبوليصة الشحن", "معاينة وتدقيق السيارة بالجمرك", "سداد مصاريف التخزين والتخليص", "استلاستلام إذن الإفراج الجمركي"] },
+      5: { name: "5. إجراءات الميناء (مصر)", pct: 71, sub: ["التعاقد مع مخلص جمركي في الميناء", "تقديم الموافقة وبوليصة الشحن", "معاينة وتدقيق السيارة بالجمرك", "سداد مصاريف التخزين والتخليص", "استلام إذن الإفراج الجمركي"] },
       6: { name: "6. ترخيص السيارة (مصر)", pct: 86, sub: ["نقل السيارة لوحدة المرور التابع لها", "إجراء الفحص الفني واستخراج النموذج", "سداد التأمين الإجباري والضريبة", "تركيب اللوحات واستلام الرخصة"] },
       7: { name: "7. بيع السيارة (مصر)", pct: 100, sub: ["التقييم وعرض السيارة للبيع", "تحرير عقد بيع مسجل بالشهر العقاري", "استلام الثمن ونقل الملكية للمشتري"] }
     };
@@ -574,7 +577,42 @@
       window.open(url, '_blank');
     }
 
-    async function addUser() {
+    function editPartnerData(email) {
+      let allUsers = defaultUsers;
+      try {
+        const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
+        locals.forEach(u => { if (!allUsers.find(x => x.email === u.email)) allUsers.push(u); });
+      } catch(e) {}
+
+      const user = allUsers.find(u => u.email === email);
+      if (user) {
+        document.getElementById('edit-user-original-email').value = user.email;
+        document.getElementById('new-user-partner-num').value = user.partnerNum || "1";
+        document.getElementById('new-user-name-ar').value = user.name || "";
+        document.getElementById('new-user-email').value = user.email || "";
+        document.getElementById('new-user-phone').value = user.phone || "";
+        document.getElementById('new-user-pass').value = user.pass || "";
+
+        document.getElementById('form-mode-title').textContent = `✏️ تعديل بيانات الشريك: ${user.name}`;
+        document.getElementById('add-btn').textContent = "💾 حفظ التعديلات";
+        document.getElementById('cancel-edit-btn').classList.remove('hidden');
+        window.scrollTo({ top: 300, behavior: 'smooth' });
+      }
+    }
+
+    function resetUserForm() {
+      document.getElementById('edit-user-original-email').value = "";
+      document.getElementById('new-user-name-ar').value = "";
+      document.getElementById('new-user-email').value = "";
+      document.getElementById('new-user-phone').value = "";
+      document.getElementById('new-user-pass').value = "";
+      document.getElementById('form-mode-title').textContent = "👤 تسجيل أو استبدال شريك";
+      document.getElementById('add-btn').textContent = "+ تسجيل وتفعيل الحساب وإرسال الواتساب 💬";
+      document.getElementById('cancel-edit-btn').classList.add('hidden');
+    }
+
+    async function saveOrUpdateUser() {
+      const originalEmail = document.getElementById('edit-user-original-email').value.trim().toLowerCase();
       const partnerNum = document.getElementById('new-user-partner-num').value;
       const nameAr = document.getElementById('new-user-name-ar').value.trim();
       const email = document.getElementById('new-user-email').value.trim().toLowerCase();
@@ -588,8 +626,27 @@
 
       let localUsers = [];
       try { localUsers = JSON.parse(localStorage.getItem('app_users') || '[]'); } catch(e) {}
-      localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone, studyPreApproval: false });
-      localStorage.setItem('app_users', JSON.stringify(localUsers));
+
+      if (originalEmail) {
+        // تحديث شريك حالي
+        let uIdx = localUsers.findIndex(u => u.email.toLowerCase() === originalEmail);
+        if (uIdx !== -1) {
+          localUsers[uIdx] = { ...localUsers[uIdx], name: nameAr, email, phone, pass, partnerNum };
+        } else {
+          let defU = defaultUsers.find(u => u.email.toLowerCase() === originalEmail);
+          if (defU) {
+            localUsers.push({ ...defU, name: nameAr, email, phone, pass, partnerNum });
+          }
+        }
+        localStorage.setItem('app_users', JSON.stringify(localUsers));
+        alert(`✅ تم تحديث بيانات الشريك [${nameAr}] بنجاح!`);
+      } else {
+        // إضافة شريك جديد
+        localUsers.push({ name: nameAr, email, pass, role: "editor", partnerNum, phone, studyPreApproval: false });
+        localStorage.setItem('app_users', JSON.stringify(localUsers));
+        alert(`✅ تم تسجيل الشريك [${nameAr}] بنجاح! جاري فتح الواتساب لإرسال بياناته.`);
+        sendWhatsAppCredentials(nameAr, email, pass, phone);
+      }
 
       let cycles = JSON.parse(localStorage.getItem('app_cycles') || JSON.stringify(defaultCycles));
       const idx = cycles.findIndex(c => c.id == partnerNum);
@@ -598,8 +655,7 @@
         localStorage.setItem('app_cycles', JSON.stringify(cycles));
       }
 
-      alert(`✅ تم تسجيل الشريك [${nameAr}] بنجاح! جاري فتح الواتساب لإرسال بياناته.`);
-      sendWhatsAppCredentials(nameAr, email, pass, phone);
+      resetUserForm();
       loadAppData();
     }
 
@@ -839,7 +895,7 @@
       document.getElementById('current-step-pct-tag').textContent = `نسبة الإنجاز: ${myCycle.pct || 0}%`;
       renderSubTasks(myCycle.step || 1);
 
-      // 3. الصلاحيات وإدارة الواتساب في لوحة الأدمن
+      // 3. الصلاحيات وإدارة الواتساب وأزرار الأيقونات مرتبة رأسياً تحت بعض
       let allUsers = defaultUsers;
       try {
         const locals = JSON.parse(localStorage.getItem('app_users') || '[]');
@@ -847,48 +903,45 @@
       } catch(e) {}
 
       const permBox = document.getElementById('admin-permissions-toggle-list');
-      const waBox = document.getElementById('whatsapp-partners-list');
-
       if (permBox) {
         permBox.innerHTML = '';
         allUsers.forEach(u => {
           const row = document.createElement('div');
-          row.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg border text-xs';
+          row.className = 'p-3 bg-slate-50 rounded-xl border text-xs space-y-2';
           row.innerHTML = `
-            <div>
-              <strong>${u.name}</strong> (${u.email})
-              <span class="block text-[9px] text-slate-500">دراسة التكلفة للتجهيز: ${u.studyPreApproval ? 'مسموح ✅' : 'مغلق ❌'}</span>
+            <div class="flex justify-between items-center border-b pb-2">
+              <div>
+                <strong class="text-sm block text-slate-900">${u.name}</strong>
+                <span class="text-[10px] text-slate-500">${u.email} (الدور: ${u.partnerNum || 'غير محدد'})</span>
+              </div>
+              <div class="flex space-x-1 space-x-reverse">
+                <button onclick="editPartnerData('${u.email}')" class="bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-lg font-bold shadow flex items-center space-x-1 space-x-reverse">
+                  <span>✏️ تعديل</span>
+                </button>
+              </div>
             </div>
-            <div class="space-x-1 space-x-reverse">
-              <button onclick="toggleStudyPreApproval('${u.email}')" class="${u.studyPreApproval ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[10px] px-2 py-1 rounded font-bold shadow">
-                ${u.studyPreApproval ? 'إلغاء الإذن ❌' : 'منح إذن الدراسة ✅'}
+
+            <!-- أزرار التفعيل والإغلاق عمودياً تحت بعض -->
+            <div class="space-y-1.5 pt-1">
+              <div class="flex justify-between items-center bg-white p-2 rounded-lg border">
+                <span class="text-slate-700">إذن دراسة التكلفة (للتجهيز):</span>
+                <button onclick="toggleStudyPreApproval('${u.email}')" class="${u.studyPreApproval ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[10px] px-3 py-1 rounded-lg font-bold shadow">
+                  ${u.studyPreApproval ? 'مفعل (إغلاق ❌)' : 'مغلق (تفعيل ✅)'}
+                </button>
+              </div>
+            </div>
+
+            <!-- أزرار الواتساب مرتبة على شكل أيقونات -->
+            <div class="flex space-x-2 space-x-reverse pt-2 border-t">
+              <button onclick="sendWhatsAppCredentials('${u.name}', '${u.email}', '${u.pass}', '${u.phone || ''}')" class="flex-1 bg-emerald-600 text-white text-[10px] py-2 rounded-lg font-bold shadow flex items-center justify-center space-x-1 space-x-reverse">
+                <span>💬</span> <span>بيانات الدخول</span>
               </button>
-              <button onclick="sendWhatsAppCustom('${u.name}', '${u.phone || ''}')" class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded font-bold shadow">
-                💬 مراسلة
+              <button onclick="sendWhatsAppCustom('${u.name}', '${u.phone || ''}')" class="flex-1 bg-sky-600 text-white text-[10px] py-2 rounded-lg font-bold shadow flex items-center justify-center space-x-1 space-x-reverse">
+                <span>📲</span> <span>مراسلة استفسار</span>
               </button>
             </div>
           `;
           permBox.appendChild(row);
-        });
-      }
-
-      if (waBox) {
-        waBox.innerHTML = '';
-        allUsers.forEach(u => {
-          const row = document.createElement('div');
-          row.className = 'flex justify-between items-center p-2 bg-slate-50 rounded-lg border text-xs';
-          row.innerHTML = `
-            <span>الشريك: <strong>${u.name}</strong></span>
-            <div class="space-x-1 space-x-reverse">
-              <button onclick="sendWhatsAppCredentials('${u.name}', '${u.email}', '${u.pass}', '${u.phone || ''}')" class="bg-emerald-600 text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
-                💬 إرسال بيانات الدخول
-              </button>
-              <button onclick="sendWhatsAppCustom('${u.name}', '${u.phone || ''}')" class="bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded font-bold shadow">
-                💬 مراسلة استفسار
-              </button>
-            </div>
-          `;
-          waBox.appendChild(row);
         });
       }
 
